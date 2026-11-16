@@ -1,26 +1,257 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --fg-display: #14365f;
+  --fg-regular: #000000;
+  --primary: #2391ff;
+  --primary-fg: #ffffff;
+  --primary-depth: #2773bf;
+  --surface-elevated: #ffffff;
+  --surface-secondary: #f4f6fa;
+  --text-muted: #4b6075;
+  --border-subtle: #e0e6ed;
+  --divider: #d9e2ec;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --in-oklab: ;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@supports (background: linear-gradient(in oklab, white, black)) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --in-oklab: in oklab;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg-display: var(--fg-display);
+  --color-fg-regular: var(--fg-regular);
+  --color-brand-primary: var(--primary);
+  --color-brand-primary-fg: var(--primary-fg);
+  --color-brand-depth: var(--primary-depth);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-divider: var(--divider);
+
+  --font-display: var(--font-momo-display), system-ui, sans-serif;
+  --font-sans: var(--font-momo-sans), system-ui, sans-serif;
+  --font-mono: var(--font-noto-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg-regular);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 18%, transparent);
+    color: var(--fg-display);
+  }
+
+  :where(a:any-link, button):focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  @media (forced-colors: active) {
+    :where(a:any-link, button):focus-visible {
+      outline-color: Highlight;
+    }
+  }
+}
+
+/* Flat-3D hero piano keys (unlayered so Tailwind v4 never prunes them in dev HMR) */
+.piano-white-skirt {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #dde6f2 0%,
+    #cddae9 100%
+  );
+  border: 1px solid #c3d0e1;
+  box-shadow:
+    0 2px 4px rgba(20, 54, 95, 0.07),
+    0 8px 18px -6px rgba(20, 54, 95, 0.11);
+  transition:
+    background 90ms var(--ease-out),
+    border-color 90ms var(--ease-out),
+    box-shadow 90ms var(--ease-out);
+}
+
+.piano-white-skirt[data-pressed="true"] {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #bfd4f2 0%,
+    #adc7ec 100%
+  );
+  border-color: #93b7e7;
+}
+
+.piano-white-cap {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #ffffff 0%,
+    #ffffff 74%,
+    #f4f7fc 100%
+  );
+  border: 1px solid #d0dbe9;
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    inset 0 -1px 0 #e6eef7;
+  transition:
+    background 90ms var(--ease-out),
+    border-color 90ms var(--ease-out),
+    box-shadow 90ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .piano-white-cap:hover {
+    background: linear-gradient(
+      to bottom var(--in-oklab),
+      #ffffff 0%,
+      #ffffff 78%,
+      #f8fafe 100%
+    );
+    border-color: #c0cee0;
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      inset 0 -1px 0 #e0eaf5;
+  }
+}
+
+.piano-white-cap[data-pressed="true"] {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #dceafd 0%,
+    #d6e7fd 74%,
+    #cbe0fc 100%
+  );
+  border-color: #93b7e7;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 #b8d3f7;
+}
+
+.piano-white-cap:focus-visible {
+  outline: 2px solid var(--fg-display);
+  outline-offset: -5px;
+}
+
+.piano-black-skirt {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #11243d 0%,
+    #0b192d 100%
+  );
+  border: 1px solid #0b192d;
+  box-shadow:
+    0 3px 6px -1px rgba(15, 34, 62, 0.22),
+    0 8px 14px -4px rgba(15, 34, 62, 0.16);
+  transition:
+    background 90ms var(--ease-out),
+    border-color 90ms var(--ease-out);
+}
+
+.piano-black-skirt[data-pressed="true"] {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #194070 0%,
+    #13335c 100%
+  );
+  border-color: #112d52;
+}
+
+.piano-black-cap {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #20395c 0%,
+    #19304f 80%,
+    #142742 100%
+  );
+  border: 1px solid #12243d;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    background 90ms var(--ease-out),
+    border-color 90ms var(--ease-out),
+    box-shadow 90ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .piano-black-cap:hover {
+    background: linear-gradient(
+      to bottom var(--in-oklab),
+      #254168 0%,
+      #1d3658 80%,
+      #182d4a 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  }
+}
+
+.piano-black-cap[data-pressed="true"] {
+  background: linear-gradient(
+    to bottom var(--in-oklab),
+    #2c68b2 0%,
+    #235697 82%,
+    #1e4a84 100%
+  );
+  border-color: #194075;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(12, 34, 68, 0.3);
+}
+
+.piano-black-cap:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piano-white-skirt,
+  .piano-white-cap,
+  .piano-black-skirt,
+  .piano-black-cap {
+    transition-duration: 0.01ms;
+  }
+}
+
+@media (forced-colors: active) {
+  .piano-white-cap,
+  .piano-white-skirt,
+  .piano-black-cap,
+  .piano-black-skirt {
+    border-color: ButtonText;
+  }
+
+  .piano-white-cap[data-pressed="true"],
+  .piano-white-skirt[data-pressed="true"],
+  .piano-black-cap[data-pressed="true"],
+  .piano-black-skirt[data-pressed="true"] {
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+
+  .piano-white-cap:focus-visible,
+  .piano-black-cap:focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
 }
