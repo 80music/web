@@ -87,28 +87,40 @@ const STACK_SLOT_VARIANTS: Variants = {
     scale: 1,
     opacity: 1,
     zIndex: 20,
-    transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+    transition: {
+      type: "spring",
+      stiffness: 260,
+      damping: 26,
+      mass: 0.8,
+      delay: 0.04,
+    },
   },
   top: {
     y: -11,
     scale: 0.965,
     opacity: 0.92,
     zIndex: 10,
-    transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+    transition: {
+      type: "spring",
+      stiffness: 260,
+      damping: 26,
+      mass: 0.8,
+      delay: 0.09,
+    },
   },
   buffer: {
     y: -22,
     scale: 0.93,
     opacity: 0,
     zIndex: 0,
-    transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+    transition: { duration: 0.2 },
   },
   exit: {
-    y: 18,
+    y: 12,
     scale: 0.98,
     opacity: 0,
-    zIndex: 30,
-    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] as const },
+    zIndex: 15,
+    transition: { duration: 0.2, ease: "easeOut" },
   },
 };
 
@@ -116,12 +128,12 @@ function CurriculumAutoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-swipe timer (3.6s interval, pauses on hover/touch)
+  // Auto-swipe timer (3.8s interval, pauses on hover/touch)
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length);
-    }, 3600);
+    }, 3800);
     return () => clearInterval(timer);
   }, [isPaused]);
 
@@ -178,25 +190,50 @@ function CurriculumAutoCarousel() {
                     ? () => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)
                     : undefined
                 }
-                className={`absolute inset-x-0 top-3 flex h-[76px] sm:h-[80px] items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#14365f]/12 shadow-[0_2px_8px_rgba(20,54,95,0.04)] select-none ${
+                className={`absolute inset-x-0 top-3 flex h-[76px] sm:h-[80px] items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#14365f]/10 shadow-[0_2px_8px_rgba(20,54,95,0.04)] select-none ${
                   isBottom
                     ? "cursor-pointer transition-shadow hover:border-[#14365f]/20 hover:shadow-xs active:scale-[0.99]"
                     : "pointer-events-none"
                 }`}
               >
-                <SingleVinylDisc
-                  outer={goal.outer}
-                  ring={goal.ring}
-                  className="size-11 shrink-0 drop-shadow-xs transition-transform duration-300"
-                />
-                <div className="min-w-0 flex-1">
+                <motion.div
+                  animate={{
+                    scale: isBottom ? 1 : 0.92,
+                    rotate: isBottom ? 0 : -8,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 24,
+                    delay: isBottom ? 0.08 : 0,
+                  }}
+                  className="shrink-0"
+                >
+                  <SingleVinylDisc
+                    outer={goal.outer}
+                    ring={goal.ring}
+                    className="size-11 drop-shadow-xs"
+                  />
+                </motion.div>
+                <motion.div
+                  animate={{
+                    opacity: isBottom ? 1 : 0.65,
+                    x: isBottom ? 0 : 4,
+                  }}
+                  transition={{
+                    duration: 0.24,
+                    delay: isBottom ? 0.1 : 0,
+                    ease: [0.16, 1, 0.3, 1] as const,
+                  }}
+                  className="min-w-0 flex-1"
+                >
                   <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
                     {goal.title}
                   </h3>
                   <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
                     {goal.description}
                   </p>
-                </div>
+                </motion.div>
               </motion.div>
             );
           })}
