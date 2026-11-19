@@ -88,39 +88,37 @@ const STACK_SLOT_VARIANTS: Variants = {
     opacity: 1,
     zIndex: 20,
     transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 26,
-      mass: 0.8,
-      delay: 0.04,
+      duration: 0.34,
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
   top: {
-    y: -11,
+    y: -8,
     scale: 0.965,
     opacity: 0.92,
     zIndex: 10,
     transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 26,
-      mass: 0.8,
-      delay: 0.09,
+      duration: 0.34,
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
   buffer: {
-    y: -22,
+    y: -28,
     scale: 0.93,
     opacity: 0,
     zIndex: 0,
     transition: { duration: 0.2 },
   },
   exit: {
-    y: 12,
+    y: 75,
     scale: 0.98,
-    opacity: 0,
-    zIndex: 15,
-    transition: { duration: 0.2, ease: "easeOut" },
+    opacity: [1, 0.7, 0],
+    zIndex: 25,
+    transition: {
+      duration: 0.32,
+      ease: [0.22, 1, 0.36, 1] as const,
+      times: [0, 0.6, 1],
+    },
   },
 };
 
@@ -174,7 +172,7 @@ function CurriculumAutoCarousel() {
       </div>
 
       {/* 3-Item Card Stack: bottom (active), top (stacked peek), buffer (invisible prepare) */}
-      <div className="relative mt-auto pt-3 h-[88px] sm:h-[92px]">
+      <div className="relative mt-auto pt-2.5 h-[74px] sm:h-[78px] overflow-hidden rounded-2xl">
         <AnimatePresence>
           {visibleCards.map(({ goal, slot }) => {
             const isBottom = slot === "bottom";
@@ -190,50 +188,25 @@ function CurriculumAutoCarousel() {
                     ? () => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)
                     : undefined
                 }
-                className={`absolute inset-x-0 top-3 flex h-[76px] sm:h-[80px] items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#14365f]/10 shadow-[0_2px_8px_rgba(20,54,95,0.04)] select-none ${
+                className={`absolute inset-x-0 top-2.5 flex h-[62px] sm:h-[66px] items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_6px_rgba(20,54,95,0.03)] select-none ${
                   isBottom
                     ? "cursor-pointer transition-shadow hover:border-[#14365f]/20 hover:shadow-xs active:scale-[0.99]"
                     : "pointer-events-none"
                 }`}
               >
-                <motion.div
-                  animate={{
-                    scale: isBottom ? 1 : 0.92,
-                    rotate: isBottom ? 0 : -8,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 24,
-                    delay: isBottom ? 0.08 : 0,
-                  }}
-                  className="shrink-0"
-                >
-                  <SingleVinylDisc
-                    outer={goal.outer}
-                    ring={goal.ring}
-                    className="size-11 drop-shadow-xs"
-                  />
-                </motion.div>
-                <motion.div
-                  animate={{
-                    opacity: isBottom ? 1 : 0.65,
-                    x: isBottom ? 0 : 4,
-                  }}
-                  transition={{
-                    duration: 0.24,
-                    delay: isBottom ? 0.1 : 0,
-                    ease: [0.16, 1, 0.3, 1] as const,
-                  }}
-                  className="min-w-0 flex-1"
-                >
-                  <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
+                <SingleVinylDisc
+                  outer={goal.outer}
+                  ring={goal.ring}
+                  className="size-9 sm:size-9.5 shrink-0 drop-shadow-xs transition-transform duration-300"
+                />
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-display text-xs sm:text-[13px] font-bold text-fg-display leading-tight truncate">
                     {goal.title}
                   </h3>
-                  <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
+                  <p className="mt-0.5 text-[11px] text-fg-display/70 leading-snug truncate sm:whitespace-normal">
                     {goal.description}
                   </p>
-                </motion.div>
+                </div>
               </motion.div>
             );
           })}
