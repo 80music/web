@@ -288,7 +288,7 @@ export function ChordisolStudio() {
           >
             <LottieComponent
               id="trust-your-ear"
-              className="h-28 w-32 sm:h-32 sm:w-36"
+              className="h-20 w-24 sm:h-22 sm:w-26"
             />
           </div>
 
