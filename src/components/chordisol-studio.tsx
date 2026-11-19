@@ -117,13 +117,13 @@ function CurriculumAutoCarousel() {
             Curriculum
           </h2>
         </div>
-        <p className="mt-1 text-xs font-medium text-fg-display/70">
-          5 interactive goals to train your ear.
+        <p className="mt-1 text-xs font-medium text-fg-display/70 leading-relaxed">
+          5 interactive goals to train your ear across real song progressions.
         </p>
       </div>
 
-      {/* Auto-Rotating Slide Card (Slim, locked height, uniform 2 lines across all 5 goals) */}
-      <div className="mt-auto h-[74px] overflow-hidden">
+      {/* Auto-Rotating Slide Card (Badge removed, sleek 2-line layout, locked height) */}
+      <div className="mt-auto h-[78px] sm:h-[82px] overflow-hidden">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeGoal.id}
@@ -132,35 +132,21 @@ function CurriculumAutoCarousel() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
             onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
-            className="cursor-pointer flex h-full flex-col justify-center rounded-xl bg-white px-3.5 py-2.5 shadow-xs border border-white/90 transition-all hover:shadow-sm active:scale-[0.99]"
+            className="cursor-pointer group flex h-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 shadow-xs border border-white/95 transition-all hover:shadow-sm active:scale-[0.99]"
           >
-            {/* Top row: Vinyl disc + Title on left, Badge on right */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <SingleVinylDisc
-                  outer={activeGoal.outer}
-                  ring={activeGoal.ring}
-                  className="size-5.5 shrink-0 drop-shadow-2xs"
-                />
-                <h3 className="font-display text-sm font-bold text-fg-display leading-none truncate">
-                  {activeGoal.title}
-                </h3>
-              </div>
-              <span
-                className="shrink-0 rounded-md px-1.5 py-0.5 font-sans text-[10px] font-bold leading-none tracking-tight"
-                style={{
-                  backgroundColor: `${activeGoal.accent}14`,
-                  color: activeGoal.accent,
-                }}
-              >
-                {activeGoal.badge}
-              </span>
+            <SingleVinylDisc
+              outer={activeGoal.outer}
+              ring={activeGoal.ring}
+              className="size-11 shrink-0 drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="min-w-0 flex-1">
+              <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
+                {activeGoal.title}
+              </h3>
+              <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
+                {activeGoal.description}
+              </p>
             </div>
-
-            {/* Bottom row: Full-width clear description */}
-            <p className="mt-1.5 text-xs text-fg-display/70 leading-normal truncate">
-              {activeGoal.description}
-            </p>
           </motion.div>
         </AnimatePresence>
       </div>
