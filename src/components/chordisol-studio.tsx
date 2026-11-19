@@ -95,6 +95,7 @@ function CurriculumAutoCarousel() {
   }, [isPaused]);
 
   const activeGoal = CURRICULUM_GOALS[currentIndex];
+  const nextGoal = CURRICULUM_GOALS[(currentIndex + 1) % CURRICULUM_GOALS.length];
 
   return (
     <div
@@ -122,39 +123,58 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* 2-Card Stack: 1 top card + 1 active card below (matching sketch) */}
+      {/* 2-Card Stack: 1 top card + 1 active card below with coordinated stagger */}
       <div className="relative mt-auto pt-3">
-        {/* Card 1 (Top): Stacked behind, peeking at top with crisp border */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-3.5 top-0 h-[76px] sm:h-[80px] rounded-2xl bg-white/90 border border-[#9cb2d6] shadow-2xs"
-        />
+        {/* Card 1 (Top): Stacked behind, peeking at top with staggered settle */}
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
+            key={nextGoal.id}
+            initial={{ opacity: 0.4, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0.4, y: 3, scale: 0.98 }}
+            transition={{ duration: 0.28, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-3.5 top-0 h-[76px] sm:h-[80px] rounded-2xl bg-white/75 border border-[#14365f]/10 shadow-2xs"
+          />
+        </AnimatePresence>
 
-        {/* Card 2 (Below): Active front card with crisp border and smooth non-clipped transition */}
+        {/* Card 2 (Below): Active front card with subtle border and internal staggered entrance */}
         <div className="relative z-10 h-[76px] sm:h-[80px]">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={activeGoal.id}
-              initial={{ opacity: 0, y: -8, scale: 0.985 }}
+              initial={{ opacity: 0, y: -10, scale: 0.975 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.985 }}
-              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, y: 10, scale: 0.975 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
-              className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#9cb2d6] shadow-xs transition-shadow hover:shadow-sm active:scale-[0.99]"
+              className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#14365f]/12 shadow-[0_2px_8px_rgba(20,54,95,0.04)] transition-all hover:border-[#14365f]/20 hover:shadow-xs active:scale-[0.99]"
             >
-              <SingleVinylDisc
-                outer={activeGoal.outer}
-                ring={activeGoal.ring}
-                className="size-11 shrink-0 drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="min-w-0 flex-1">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.88, rotate: -12 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="shrink-0"
+              >
+                <SingleVinylDisc
+                  outer={activeGoal.outer}
+                  ring={activeGoal.ring}
+                  className="size-11 drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.26, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
+                className="min-w-0 flex-1"
+              >
                 <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
                   {activeGoal.title}
                 </h3>
                 <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
                   {activeGoal.description}
                 </p>
-              </div>
+              </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
