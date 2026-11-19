@@ -33,7 +33,7 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     id: "trust-your-ear",
     title: "Trust Your Ear",
     badge: "Color & Mood",
-    description: "Feel whether a chord fits before you analyze it.",
+    description: "Feel if a chord fits before analyzing.",
     exampleSong: "Twinkle Twinkle Little Star",
     outer: "#1674d6",
     ring: "#73baff",
@@ -43,7 +43,7 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     id: "fill-the-gap",
     title: "Fill the Gap",
     badge: "Progressions",
-    description: "Find the missing chords in real song progressions.",
+    description: "Find missing chords in real songs.",
     exampleSong: "Happy Birthday",
     outer: "#7c3aed",
     ring: "#b7a3ff",
@@ -53,7 +53,7 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     id: "this-or-that",
     title: "This or That?",
     badge: "Comparison",
-    description: "Compare two chord voicings to hear what feels right.",
+    description: "Compare two chord voicings by ear.",
     exampleSong: "Stand By Me",
     outer: "#e11d48",
     ring: "#ff9bc5",
@@ -63,7 +63,7 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     id: "stack-stack",
     title: "Stack Stack",
     badge: "Note Building",
-    description: "Build chords note-by-note from roots up to 7ths.",
+    description: "Build chords note by note from roots.",
     exampleSong: "Fly Me to the Moon",
     outer: "#ea580c",
     ring: "#ffd0a3",
@@ -73,7 +73,7 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     id: "swap-notes",
     title: "Swap Notes",
     badge: "Voice Leading",
-    description: "Master chord inversions & smooth voice transitions.",
+    description: "Master inversions & voice leading.",
     exampleSong: "Let It Be",
     outer: "#0d9488",
     ring: "#5eead4",
@@ -122,42 +122,45 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* Auto-Rotating Slide Card (Spacious, un-truncated, no pagination dots) */}
-      <div className="mt-auto pt-2.5 overflow-hidden">
+      {/* Auto-Rotating Slide Card (Slim, locked height, uniform 2 lines across all 5 goals) */}
+      <div className="mt-auto h-[74px] overflow-hidden">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeGoal.id}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
-            className="cursor-pointer rounded-2xl bg-white p-4 shadow-xs border border-white/90 transition-all duration-200 hover:shadow-sm active:scale-[0.99]"
+            className="cursor-pointer flex h-full flex-col justify-center rounded-xl bg-white px-3.5 py-2.5 shadow-xs border border-white/90 transition-all hover:shadow-sm active:scale-[0.99]"
           >
-            <div className="flex items-center gap-3.5">
-              <SingleVinylDisc
-                outer={activeGoal.outer}
-                ring={activeGoal.ring}
-                className="size-12 shrink-0 drop-shadow-xs"
-              />
-              <div className="min-w-0 flex-1">
-                <span
-                  className="inline-block rounded-md px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-tight"
-                  style={{
-                    backgroundColor: `${activeGoal.accent}14`,
-                    color: activeGoal.accent,
-                  }}
-                >
-                  {activeGoal.badge}
-                </span>
-                <h3 className="mt-1 font-display text-base font-bold text-fg-display leading-tight">
+            {/* Top row: Vinyl disc + Title on left, Badge on right */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <SingleVinylDisc
+                  outer={activeGoal.outer}
+                  ring={activeGoal.ring}
+                  className="size-5.5 shrink-0 drop-shadow-2xs"
+                />
+                <h3 className="font-display text-sm font-bold text-fg-display leading-none truncate">
                   {activeGoal.title}
                 </h3>
-                <p className="mt-1 text-xs text-fg-display/75 leading-relaxed">
-                  {activeGoal.description}
-                </p>
               </div>
+              <span
+                className="shrink-0 rounded-md px-1.5 py-0.5 font-sans text-[10px] font-bold leading-none tracking-tight"
+                style={{
+                  backgroundColor: `${activeGoal.accent}14`,
+                  color: activeGoal.accent,
+                }}
+              >
+                {activeGoal.badge}
+              </span>
             </div>
+
+            {/* Bottom row: Full-width clear description */}
+            <p className="mt-1.5 text-xs text-fg-display/70 leading-normal truncate">
+              {activeGoal.description}
+            </p>
           </motion.div>
         </AnimatePresence>
       </div>
