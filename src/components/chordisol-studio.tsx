@@ -13,7 +13,7 @@ import {
   StudioStaffBackdrop,
   VinylDiscsBadge,
 } from "@/components/bento-visuals";
-import { TrustYourEarLottie } from "@/components/trust-your-ear-lottie";
+import { LottieComponent } from "@/components/lottie-component";
 import { PianoKeys, type PianoKeysHandle } from "@/components/piano-keys";
 import { detectChord, SAMPLE_CHORDS } from "@/lib/chord-detector";
 
@@ -286,7 +286,10 @@ export function ChordisolStudio() {
             aria-hidden="true"
             className="pointer-events-none my-auto flex w-full items-center justify-center select-none"
           >
-            <TrustYourEarLottie className="h-28 w-32 sm:h-32 sm:w-36" />
+            <LottieComponent
+              id="trust-your-ear"
+              className="h-28 w-32 sm:h-32 sm:w-36"
+            />
           </div>
 
           <p className="text-xs font-medium text-fg-display/70">
