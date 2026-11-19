@@ -122,33 +122,48 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* Auto-Rotating Slide Card (Badge removed, sleek 2-line layout, locked height) */}
-      <div className="mt-auto h-[78px] sm:h-[82px] overflow-hidden">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={activeGoal.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
-            className="cursor-pointer group flex h-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 shadow-xs border border-white/95 transition-all hover:shadow-sm active:scale-[0.99]"
-          >
-            <SingleVinylDisc
-              outer={activeGoal.outer}
-              ring={activeGoal.ring}
-              className="size-11 shrink-0 drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
-            />
-            <div className="min-w-0 flex-1">
-              <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
-                {activeGoal.title}
-              </h3>
-              <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
-                {activeGoal.description}
-              </p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+      {/* Stacked Cards Deck (Subtle, tactile, smooth elevation animation) */}
+      <div className="relative mt-auto pb-2">
+        {/* Layer 3: Deepest subtle peek card */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-3.5 top-2 -bottom-1.5 rounded-2xl bg-white/40 border border-white/50 shadow-2xs"
+        />
+
+        {/* Layer 2: Middle subtle peek card */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-2 top-1 -bottom-0.5 rounded-2xl bg-white/70 border border-white/80 shadow-2xs"
+        />
+
+        {/* Layer 1: Active Front Card with smooth stack animation */}
+        <div className="relative z-10 h-[78px] sm:h-[82px] overflow-hidden rounded-2xl">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.div
+              key={activeGoal.id}
+              initial={{ opacity: 0, y: 6, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.985 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
+              className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 shadow-xs border border-white/95 transition-all hover:shadow-sm active:scale-[0.99]"
+            >
+              <SingleVinylDisc
+                outer={activeGoal.outer}
+                ring={activeGoal.ring}
+                className="size-11 shrink-0 drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="min-w-0 flex-1">
+                <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
+                  {activeGoal.title}
+                </h3>
+                <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
+                  {activeGoal.description}
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
