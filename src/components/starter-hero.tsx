@@ -2,9 +2,9 @@ import { ChordisolStudio } from "@/components/chordisol-studio";
 
 // Pixelated dither gradients (4px alternating checkerboards) transitioning across blue palette tiers
 const BAR_PIXEL_GRADIENTS = {
-  // Bar 1: 46px short bar (#4ea0f8 -> #58a9f9)
+  // Bar 1: 48px short bar (#4ea0f8 -> #58a9f9)
   bar1:
-    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='28' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cdefs%3E%3Cpattern id='p1' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Crect x='0' y='0' width='4' height='4' fill='%234ea0f8'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%234ea0f8'/%3E%3Crect x='4' y='0' width='4' height='4' fill='%2358a9f9'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%2358a9f9'/%3E%3C/pattern%3E%3C/defs%3E%3Crect x='0' y='0' width='18' height='28' fill='%234ea0f8'/%3E%3Crect x='18' y='0' width='12' height='28' fill='url(%23p1)'/%3E%3Crect x='30' y='0' width='16' height='28' fill='%2358a9f9'/%3E%3C/svg%3E\")",
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='28' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cdefs%3E%3Cpattern id='p1' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Crect x='0' y='0' width='4' height='4' fill='%234ea0f8'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%234ea0f8'/%3E%3Crect x='4' y='0' width='4' height='4' fill='%2358a9f9'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%2358a9f9'/%3E%3C/pattern%3E%3C/defs%3E%3Crect x='0' y='0' width='18' height='28' fill='%234ea0f8'/%3E%3Crect x='18' y='0' width='12' height='28' fill='url(%23p1)'/%3E%3Crect x='30' y='0' width='18' height='28' fill='%2358a9f9'/%3E%3C/svg%3E\")",
   // Bar 2: flex-1 middle bar (#50a2f8 -> #63b0fa -> #7ec0fb -> #9bd3fc)
   bar2:
     "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='28' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cdefs%3E%3Cpattern id='b2_d1' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Crect x='0' y='0' width='4' height='4' fill='%2350a2f8'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%2350a2f8'/%3E%3Crect x='4' y='0' width='4' height='4' fill='%2363b0fa'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%2363b0fa'/%3E%3C/pattern%3E%3Cpattern id='b2_d2' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Crect x='0' y='0' width='4' height='4' fill='%2363b0fa'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%2363b0fa'/%3E%3Crect x='4' y='0' width='4' height='4' fill='%237ec0fb'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%237ec0fb'/%3E%3C/pattern%3E%3Cpattern id='b2_d3' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Crect x='0' y='0' width='4' height='4' fill='%237ec0fb'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%237ec0fb'/%3E%3Crect x='4' y='0' width='4' height='4' fill='%239bd3fc'/%3E%3Crect x='0' y='4' width='4' height='4' fill='%239bd3fc'/%3E%3C/pattern%3E%3C/defs%3E%3Crect x='0' y='0' width='48' height='28' fill='%2350a2f8'/%3E%3Crect x='48' y='0' width='16' height='28' fill='url(%23b2_d1)'/%3E%3Crect x='64' y='0' width='48' height='28' fill='%2363b0fa'/%3E%3Crect x='112' y='0' width='16' height='28' fill='url(%23b2_d2)'/%3E%3Crect x='128' y='0' width='48' height='28' fill='%237ec0fb'/%3E%3Crect x='176' y='0' width='16' height='28' fill='url(%23b2_d3)'/%3E%3Crect x='192' y='0' width='48' height='28' fill='%239bd3fc'/%3E%3C/svg%3E\")",
@@ -47,15 +47,16 @@ export function StarterHero() {
           >
             {/* Line 1: [Bar 1] Learn [Bar 2] Chord [Bar 3] */}
             <div className="flex items-center gap-2.5 sm:gap-3 w-full">
-              {/* Bar 1 before Learn: short bar with single top-left step only */}
+              {/* Bar 1 before Learn: short bar with stepped pixel dissolution pointing left, flat right edge */}
               <div
                 style={{
                   backgroundImage: BAR_PIXEL_GRADIENTS.bar1,
                   backgroundSize: "100% 100%",
                 }}
-                className="w-10 sm:w-11.5 h-7 relative shrink-0 [clip-path:polygon(3.5px_0%,100%_0%,100%_100%,0%_100%,0%_3.5px)]"
+                className="w-11 sm:w-12 h-7 relative shrink-0 [clip-path:polygon(6px_0%,100%_0%,100%_100%,6px_100%,6px_21px,0%_21px,0%_7px,6px_7px)]"
               >
-                <span className="absolute left-2 top-1.5 size-1.25 rounded-[0.5px] bg-white/90 pointer-events-none" />
+                <span className="absolute left-0 top-1.75 w-1 h-3.5 bg-[#badefd] pointer-events-none" />
+                <span className="absolute left-3 top-1.5 size-1.25 rounded-[0.5px] bg-white/90 pointer-events-none" />
               </div>
 
               <span className="font-display text-2xl sm:text-[26px] font-bold tracking-tight text-slate-900 shrink-0 leading-none">
