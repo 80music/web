@@ -82,18 +82,13 @@ export function AppFooter() {
                   </a>
                 </li>
                 <li>
-                  <a href="#studio" className="transition-colors hover:text-[#1674d6]">
-                    Instant Chord Recognition
-                  </a>
-                </li>
-                <li>
-                  <a href="#about" className="transition-colors hover:text-[#1674d6]">
-                    Song Puzzles &amp; Ear Drills
-                  </a>
-                </li>
-                <li>
                   <Link href="/privacy" className="transition-colors hover:text-[#1674d6]">
                     Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="transition-colors hover:text-[#1674d6]">
+                    Terms of Service
                   </Link>
                 </li>
               </ul>
@@ -107,6 +102,10 @@ export function AppFooter() {
           <div className="flex items-center gap-3">
             <Link href="/privacy" className="transition-colors hover:text-[#1674d6]">
               Privacy Policy
+            </Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/terms" className="transition-colors hover:text-[#1674d6]">
+              Terms of Service
             </Link>
             <span aria-hidden="true">&middot;</span>
             <a href="mailto:support@chordisol.com" className="transition-colors hover:text-[#1674d6]">

@@ -33,6 +33,7 @@ const PRIMARY_NAV_LINKS: readonly NavLinkItem[] = [
 const SIDEBAR_FOOTER_LINKS = [
   { label: "Support", href: "mailto:support@chordisol.com" },
   { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
 ] as const;
 
 const SOCIAL_LINKS = [
