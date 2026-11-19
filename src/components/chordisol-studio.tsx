@@ -84,25 +84,15 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
 function CurriculumAutoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [direction, setDirection] = useState(1);
 
   // Auto-swipe timer (3.5s interval, pauses on hover/touch)
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length);
     }, 3500);
     return () => clearInterval(timer);
-  }, [isPaused, currentIndex]);
-
-  const handleSelect = useCallback(
-    (index: number) => {
-      setDirection(index > currentIndex ? 1 : -1);
-      setCurrentIndex(index);
-    },
-    [currentIndex],
-  );
+  }, [isPaused]);
 
   const activeGoal = CURRICULUM_GOALS[currentIndex];
 
@@ -132,66 +122,44 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* Auto-Swiping Slide Card */}
-      <div className="my-2 overflow-hidden">
+      {/* Auto-Rotating Slide Card (Spacious, un-truncated, no pagination dots) */}
+      <div className="mt-auto pt-2.5 overflow-hidden">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeGoal.id}
-            initial={{ opacity: 0, x: direction * 14 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -direction * 14 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-xs border border-white/80"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+            onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
+            className="cursor-pointer rounded-2xl bg-white p-4 shadow-xs border border-white/90 transition-all duration-200 hover:shadow-sm active:scale-[0.99]"
           >
-            <SingleVinylDisc
-              outer={activeGoal.outer}
-              ring={activeGoal.ring}
-              className="size-11 shrink-0 drop-shadow-xs"
-            />
-            <div className="min-w-0 flex-1">
-              <span
-                className="inline-block rounded px-1.5 py-0.2 font-sans text-[10px] font-bold tracking-tight"
-                style={{
-                  backgroundColor: `${activeGoal.accent}14`,
-                  color: activeGoal.accent,
-                }}
-              >
-                {activeGoal.badge}
-              </span>
-              <h3 className="mt-0.5 font-display text-sm font-bold text-fg-display leading-tight truncate">
-                {activeGoal.title}
-              </h3>
-              <p className="mt-0.5 text-[11px] font-medium text-fg-display/70 leading-snug line-clamp-1">
-                {activeGoal.description}
-              </p>
+            <div className="flex items-center gap-3.5">
+              <SingleVinylDisc
+                outer={activeGoal.outer}
+                ring={activeGoal.ring}
+                className="size-12 shrink-0 drop-shadow-xs"
+              />
+              <div className="min-w-0 flex-1">
+                <span
+                  className="inline-block rounded-md px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-tight"
+                  style={{
+                    backgroundColor: `${activeGoal.accent}14`,
+                    color: activeGoal.accent,
+                  }}
+                >
+                  {activeGoal.badge}
+                </span>
+                <h3 className="mt-1 font-display text-base font-bold text-fg-display leading-tight">
+                  {activeGoal.title}
+                </h3>
+                <p className="mt-1 text-xs text-fg-display/75 leading-relaxed">
+                  {activeGoal.description}
+                </p>
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      {/* Footer: Centered Auto-Paging Indicators */}
-      <div className="flex items-center justify-center pt-0.5">
-        <div className="flex items-center gap-1.5">
-          {CURRICULUM_GOALS.map((g, i) => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => handleSelect(i)}
-              aria-label={`Go to ${g.title}`}
-              aria-current={i === currentIndex ? "true" : undefined}
-              className="group py-1 focus:outline-none"
-            >
-              <span
-                className={`block h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex
-                    ? "w-4.5 shadow-2xs"
-                    : "w-1.5 bg-slate-300/80 group-hover:bg-slate-400"
-                }`}
-                style={i === currentIndex ? { backgroundColor: activeGoal.accent } : undefined}
-              />
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
