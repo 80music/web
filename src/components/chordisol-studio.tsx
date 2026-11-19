@@ -122,18 +122,12 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* Stacked Cards Deck (Subtle, tactile, smooth elevation animation) */}
-      <div className="relative mt-auto pb-2">
-        {/* Layer 3: Deepest subtle peek card */}
+      {/* Stacked Card Deck (Subtle top peek matching user sketch) */}
+      <div className="relative mt-auto pt-2">
+        {/* Layer 2: Subtle card stacked behind, peeking from top */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-3.5 top-2 -bottom-1.5 rounded-2xl bg-white/40 border border-white/50 shadow-2xs"
-        />
-
-        {/* Layer 2: Middle subtle peek card */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-2 top-1 -bottom-0.5 rounded-2xl bg-white/70 border border-white/80 shadow-2xs"
+          className="pointer-events-none absolute inset-x-2.5 top-0 bottom-2 rounded-2xl bg-white/85 border border-white shadow-xs"
         />
 
         {/* Layer 1: Active Front Card with smooth stack animation */}
@@ -141,9 +135,9 @@ function CurriculumAutoCarousel() {
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={activeGoal.id}
-              initial={{ opacity: 0, y: 6, scale: 0.985 }}
+              initial={{ opacity: 0, y: -6, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.985 }}
+              exit={{ opacity: 0, y: 6, scale: 0.985 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
               className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 shadow-xs border border-white/95 transition-all hover:shadow-sm active:scale-[0.99]"
