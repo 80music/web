@@ -122,25 +122,25 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* Stacked Card Deck (Subtle top peek matching user sketch) */}
-      <div className="relative mt-auto pt-2">
-        {/* Layer 2: Subtle card stacked behind, peeking from top */}
+      {/* 2-Card Stack: 1 top card + 1 active card below (matching sketch) */}
+      <div className="relative mt-auto pt-3">
+        {/* Card 1 (Top): Stacked behind, peeking at top with crisp border */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-2.5 top-0 bottom-2 rounded-2xl bg-white/85 border border-white shadow-xs"
+          className="pointer-events-none absolute inset-x-3.5 top-0 h-[76px] sm:h-[80px] rounded-2xl bg-white/90 border border-[#9cb2d6] shadow-2xs"
         />
 
-        {/* Layer 1: Active Front Card with smooth stack animation */}
-        <div className="relative z-10 h-[78px] sm:h-[82px] overflow-hidden rounded-2xl">
+        {/* Card 2 (Below): Active front card with crisp border and smooth non-clipped transition */}
+        <div className="relative z-10 h-[76px] sm:h-[80px]">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={activeGoal.id}
-              initial={{ opacity: 0, y: -6, scale: 0.985 }}
+              initial={{ opacity: 0, y: -8, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 6, scale: 0.985 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, y: 8, scale: 0.985 }}
+              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
-              className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 shadow-xs border border-white/95 transition-all hover:shadow-sm active:scale-[0.99]"
+              className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#9cb2d6] shadow-xs transition-shadow hover:shadow-sm active:scale-[0.99]"
             >
               <SingleVinylDisc
                 outer={activeGoal.outer}
