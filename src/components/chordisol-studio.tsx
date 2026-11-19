@@ -88,36 +88,38 @@ const STACK_SLOT_VARIANTS: Variants = {
     opacity: 1,
     zIndex: 20,
     transition: {
-      duration: 0.34,
-      ease: [0.22, 1, 0.36, 1] as const,
+      duration: 0.55,
+      ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   top: {
-    y: -8,
-    scale: 0.965,
-    opacity: 0.92,
+    y: -9,
+    scale: 0.96,
+    opacity: 1,
     zIndex: 10,
     transition: {
-      duration: 0.34,
-      ease: [0.22, 1, 0.36, 1] as const,
+      duration: 0.55,
+      ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   buffer: {
-    y: -28,
-    scale: 0.93,
+    y: -9,
+    scale: 0.96,
     opacity: 0,
     zIndex: 0,
-    transition: { duration: 0.2 },
+    transition: {
+      duration: 0.2,
+    },
   },
   exit: {
-    y: 75,
-    scale: 0.98,
-    opacity: [1, 0.7, 0],
-    zIndex: 25,
+    y: 88,
+    scale: 1,
+    opacity: 1,
+    zIndex: 30,
+    pointerEvents: "none" as const,
     transition: {
-      duration: 0.32,
-      ease: [0.22, 1, 0.36, 1] as const,
-      times: [0, 0.6, 1],
+      duration: 0.52,
+      ease: [0.16, 1, 0.3, 1] as const,
     },
   },
 };
@@ -126,12 +128,12 @@ function CurriculumAutoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-swipe timer (3.8s interval, pauses on hover/touch)
+  // Auto-swipe timer (4.0s interval, pauses on hover/touch)
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length);
-    }, 3800);
+    }, 4000);
     return () => clearInterval(timer);
   }, [isPaused]);
 
@@ -172,8 +174,8 @@ function CurriculumAutoCarousel() {
       </div>
 
       {/* 3-Item Card Stack: bottom (active), top (stacked peek), buffer (invisible prepare) */}
-      <div className="relative mt-auto pt-2.5 h-[74px] sm:h-[78px] overflow-hidden rounded-2xl">
-        <AnimatePresence>
+      <div className="relative mt-auto pt-2.5 h-[74px] sm:h-[78px]">
+        <AnimatePresence initial={false}>
           {visibleCards.map(({ goal, slot }) => {
             const isBottom = slot === "bottom";
             return (
