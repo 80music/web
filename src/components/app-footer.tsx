@@ -91,6 +91,11 @@ export function AppFooter() {
                     Song Puzzles &amp; Ear Drills
                   </a>
                 </li>
+                <li>
+                  <Link href="/privacy" className="transition-colors hover:text-[#1674d6]">
+                    Privacy Policy
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -99,7 +104,15 @@ export function AppFooter() {
         {/* Bottom copyright row */}
         <div className="mt-12 flex flex-col items-center justify-between gap-3 text-xs text-fg-display/45 sm:flex-row">
           <p>&copy; 2026 Chordisol. All rights reserved.</p>
-          <p>Built for iPhone &amp; iPad.</p>
+          <div className="flex items-center gap-3">
+            <Link href="/privacy" className="transition-colors hover:text-[#1674d6]">
+              Privacy Policy
+            </Link>
+            <span aria-hidden="true">&middot;</span>
+            <a href="mailto:support@chordisol.com" className="transition-colors hover:text-[#1674d6]">
+              Support
+            </a>
+          </div>
         </div>
       </div>
     </footer>
