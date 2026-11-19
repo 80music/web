@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
 import { AppleLogoIcon } from "@/components/bento-icons";
 import {
   DownloadSpotlightBackdrop,
@@ -81,21 +81,59 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
   },
 ];
 
+const STACK_SLOT_VARIANTS: Variants = {
+  bottom: {
+    y: 0,
+    scale: 1,
+    opacity: 1,
+    zIndex: 20,
+    transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+  },
+  top: {
+    y: -11,
+    scale: 0.965,
+    opacity: 0.92,
+    zIndex: 10,
+    transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+  },
+  buffer: {
+    y: -22,
+    scale: 0.93,
+    opacity: 0,
+    zIndex: 0,
+    transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+  },
+  exit: {
+    y: 18,
+    scale: 0.98,
+    opacity: 0,
+    zIndex: 30,
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
 function CurriculumAutoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-swipe timer (3.5s interval, pauses on hover/touch)
+  // Auto-swipe timer (3.6s interval, pauses on hover/touch)
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length);
-    }, 3500);
+    }, 3600);
     return () => clearInterval(timer);
   }, [isPaused]);
 
-  const activeGoal = CURRICULUM_GOALS[currentIndex];
-  const nextGoal = CURRICULUM_GOALS[(currentIndex + 1) % CURRICULUM_GOALS.length];
+  const bottomGoal = CURRICULUM_GOALS[currentIndex];
+  const topGoal = CURRICULUM_GOALS[(currentIndex + 1) % CURRICULUM_GOALS.length];
+  const bufferGoal = CURRICULUM_GOALS[(currentIndex + 2) % CURRICULUM_GOALS.length];
+
+  const visibleCards = [
+    { goal: bufferGoal, slot: "buffer" as const },
+    { goal: topGoal, slot: "top" as const },
+    { goal: bottomGoal, slot: "bottom" as const },
+  ];
 
   return (
     <div
@@ -123,61 +161,46 @@ function CurriculumAutoCarousel() {
         </p>
       </div>
 
-      {/* 2-Card Stack: 1 top card + 1 active card below with coordinated stagger */}
-      <div className="relative mt-auto pt-3">
-        {/* Card 1 (Top): Stacked behind, peeking at top with staggered settle */}
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
-            key={nextGoal.id}
-            initial={{ opacity: 0.4, y: -4, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0.4, y: 3, scale: 0.98 }}
-            transition={{ duration: 0.28, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-3.5 top-0 h-[76px] sm:h-[80px] rounded-2xl bg-white/75 border border-[#14365f]/10 shadow-2xs"
-          />
-        </AnimatePresence>
-
-        {/* Card 2 (Below): Active front card with subtle border and internal staggered entrance */}
-        <div className="relative z-10 h-[76px] sm:h-[80px]">
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={activeGoal.id}
-              initial={{ opacity: 0, y: -10, scale: 0.975 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.975 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)}
-              className="cursor-pointer group flex h-full w-full items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#14365f]/12 shadow-[0_2px_8px_rgba(20,54,95,0.04)] transition-all hover:border-[#14365f]/20 hover:shadow-xs active:scale-[0.99]"
-            >
+      {/* 3-Item Card Stack: bottom (active), top (stacked peek), buffer (invisible prepare) */}
+      <div className="relative mt-auto pt-3 h-[88px] sm:h-[92px]">
+        <AnimatePresence>
+          {visibleCards.map(({ goal, slot }) => {
+            const isBottom = slot === "bottom";
+            return (
               <motion.div
-                initial={{ opacity: 0, scale: 0.88, rotate: -12 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="shrink-0"
+                key={goal.id}
+                variants={STACK_SLOT_VARIANTS}
+                initial={slot === "buffer" ? "buffer" : false}
+                animate={slot}
+                exit="exit"
+                onClick={
+                  isBottom
+                    ? () => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)
+                    : undefined
+                }
+                className={`absolute inset-x-0 top-3 flex h-[76px] sm:h-[80px] items-center gap-3.5 rounded-2xl bg-white px-3.5 py-3 border border-[#14365f]/12 shadow-[0_2px_8px_rgba(20,54,95,0.04)] select-none ${
+                  isBottom
+                    ? "cursor-pointer transition-shadow hover:border-[#14365f]/20 hover:shadow-xs active:scale-[0.99]"
+                    : "pointer-events-none"
+                }`}
               >
                 <SingleVinylDisc
-                  outer={activeGoal.outer}
-                  ring={activeGoal.ring}
-                  className="size-11 drop-shadow-xs transition-transform duration-300 group-hover:scale-105"
+                  outer={goal.outer}
+                  ring={goal.ring}
+                  className="size-11 shrink-0 drop-shadow-xs transition-transform duration-300"
                 />
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
+                    {goal.title}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
+                    {goal.description}
+                  </p>
+                </div>
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 6 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.26, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
-                className="min-w-0 flex-1"
-              >
-                <h3 className="font-display text-sm sm:text-base font-bold text-fg-display leading-tight truncate">
-                  {activeGoal.title}
-                </h3>
-                <p className="mt-0.5 text-xs text-fg-display/70 leading-snug">
-                  {activeGoal.description}
-                </p>
-              </motion.div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );
