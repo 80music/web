@@ -7,13 +7,13 @@ import { AppleLogoIcon } from "@/components/bento-icons";
 import {
   DownloadSpotlightBackdrop,
   EarTrainingGroovesBackdrop,
-  MiniOctaveKeyboard,
   RecognitionArcsBackdrop,
   SingleVinylDisc,
   SongHillBackdrop,
   StudioStaffBackdrop,
   VinylDiscsBadge,
 } from "@/components/bento-visuals";
+import { TrustYourEarLottie } from "@/components/trust-your-ear-lottie";
 import { PianoKeys, type PianoKeysHandle } from "@/components/piano-keys";
 import { detectChord, SAMPLE_CHORDS } from "@/lib/chord-detector";
 
@@ -266,86 +266,33 @@ export function ChordisolStudio() {
         </div>
       </section>
 
-      {/* Row 1, Right (4 cols): Airy sky Live Chords readout */}
+      {/* Row 1, Right (4 cols): Airy sky "Trust Your Ear" Lottie animation card */}
       <section
         id="recognition"
-        aria-labelledby="recognition-heading"
+        aria-labelledby="trust-ear-heading"
         className="relative flex min-h-44 sm:min-h-46 flex-col justify-between overflow-hidden rounded-[18px] bg-linear-to-b from-[#e8f3ff] via-[#edf6ff] to-[#f4f9ff] p-4 text-fg-display md:col-span-4 shadow-[0_4px_0_#a2caf3]"
       >
         <RecognitionArcsBackdrop />
 
-        {detectedChord ? (
-          <div className="relative z-10 flex h-full flex-col justify-between gap-2.5">
-            <div className="flex items-baseline justify-between gap-2">
-              <div>
-                <h2
-                  id="recognition-heading"
-                  className="font-display text-2xl leading-tight font-bold tracking-tight text-fg-display tabular-nums sm:text-3xl"
-                >
-                  {detectedChord.symbol}
-                </h2>
-                <p className="mt-0.5 text-xs font-semibold text-[#1674d6]">
-                  {detectedChord.label}
-                </p>
-              </div>
-              <span className="rounded-lg bg-white px-2 py-0.5 font-sans text-[11px] font-bold text-fg-display/80 shadow-xs">
-                {detectedChord.notes.length} notes
-              </span>
-            </div>
-
-            <div className="rounded-xl bg-white p-2 shadow-xs">
-              <MiniOctaveKeyboard
-                notes={activeNotes}
-                surface="light"
-                className="h-10 w-full"
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-2">
-              <ul
-                aria-label="Active notes"
-                className="flex flex-wrap items-center gap-1.5"
-              >
-                {detectedChord.notes.map((note) => (
-                  <li
-                    key={note}
-                    className="rounded-lg bg-[#2391ff] px-2 py-0.5 font-sans text-xs font-bold text-white shadow-[0_2px_0_#1666c1]"
-                  >
-                    {note}
-                  </li>
-                ))}
-              </ul>
-              <span className="text-[11px] font-semibold text-fg-display/60">
-                Mic &amp; keys
-              </span>
-            </div>
+        <div className="relative z-10 flex h-full flex-col items-center justify-between text-center py-1">
+          <div className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-bold text-[#1674d6] shadow-xs">
+            <span className="size-2 rounded-full bg-[#2391ff] animate-pulse" />
+            <h2 id="trust-ear-heading" className="inline text-xs font-bold text-[#1674d6]">
+              Trust Your Ear
+            </h2>
           </div>
-        ) : (
-          <div className="relative z-10 flex h-full flex-col items-center justify-between text-center py-1">
-            <div className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-bold text-[#1674d6] shadow-xs">
-              <span className="size-2 rounded-full bg-[#2391ff] animate-pulse" />
-              <span>Trust Your Ear</span>
-            </div>
 
-            <div
-              aria-hidden="true"
-              className="pointer-events-none my-auto w-24 select-none sm:w-28"
-            >
-              <Image
-                src="/images/mascots/mascot-radio.png"
-                alt=""
-                width={512}
-                height={455}
-                preload={true}
-                className="h-auto w-full object-contain"
-              />
-            </div>
-
-            <p className="text-xs font-medium text-fg-display/70">
-              Tap any piano key or preset to detect.
-            </p>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none my-auto flex w-full items-center justify-center select-none"
+          >
+            <TrustYourEarLottie className="h-28 w-32 sm:h-32 sm:w-36" />
           </div>
-        )}
+
+          <p className="text-xs font-medium text-fg-display/70">
+            Feel whether a chord fits before you analyze it.
+          </p>
+        </div>
       </section>
 
       {/* Row 2, Left (4 cols): Guided curriculum & vinyl drills with auto-swiping carousel */}
