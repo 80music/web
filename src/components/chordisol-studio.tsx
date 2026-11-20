@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, type Variants } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { AppleLogoIcon } from "@/components/bento-icons";
 import {
   DownloadSpotlightBackdrop,
@@ -86,56 +86,67 @@ const STACK_SLOT_VARIANTS: Variants = {
     y: 0,
     scale: 1,
     opacity: 1,
+    filter: "blur(0px)",
     zIndex: 20,
     transition: {
-      duration: 0.55,
+      duration: 0.6,
       ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   top: {
-    y: -9,
-    scale: 0.96,
-    opacity: 1,
+    y: -8,
+    scale: 0.965,
+    opacity: 0.9,
+    filter: "blur(0px)",
     zIndex: 10,
     transition: {
-      duration: 0.55,
+      duration: 0.6,
       ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   buffer: {
-    y: -9,
-    scale: 0.96,
+    y: -16,
+    scale: 0.93,
     opacity: 0,
+    filter: "blur(4px)",
     zIndex: 0,
     transition: {
-      duration: 0.2,
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   exit: {
-    y: 88,
-    scale: 1,
-    opacity: 1,
-    zIndex: 30,
+    y: 42,
+    scale: 0.97,
+    opacity: 0,
+    filter: "blur(5px)",
+    zIndex: 25,
     pointerEvents: "none" as const,
     transition: {
-      duration: 0.52,
+      duration: 0.55,
       ease: [0.16, 1, 0.3, 1] as const,
     },
   },
 };
 
+const REDUCED_STACK_VARIANTS: Variants = {
+  bottom: { opacity: 1, zIndex: 20, transition: { duration: 0.3 } },
+  top: { opacity: 0.9, zIndex: 10, transition: { duration: 0.3 } },
+  buffer: { opacity: 0, zIndex: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, zIndex: 25, transition: { duration: 0.3 } },
+};
+
 function CurriculumAutoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
-  // Auto-swipe timer (4.0s interval, pauses on hover/touch)
+  // Pure continuous auto-swipe timer (3.4s interval)
   useEffect(() => {
-    if (isPaused) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length);
-    }, 4000);
+    }, 3400);
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, []);
 
   const bottomGoal = CURRICULUM_GOALS[currentIndex];
   const topGoal = CURRICULUM_GOALS[(currentIndex + 1) % CURRICULUM_GOALS.length];
@@ -149,11 +160,7 @@ function CurriculumAutoCarousel() {
 
   return (
     <div
-      className="relative z-10 flex flex-col justify-between h-full"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={() => setIsPaused(true)}
-      onTouchEnd={() => setIsPaused(false)}
+      className="relative z-10 flex flex-col justify-between h-full select-none"
       role="region"
       aria-label="Curriculum Goals Carousel"
     >
@@ -177,24 +184,14 @@ function CurriculumAutoCarousel() {
       <div className="relative mt-auto pt-2.5 h-[74px] sm:h-[78px]">
         <AnimatePresence initial={false}>
           {visibleCards.map(({ goal, slot }) => {
-            const isBottom = slot === "bottom";
             return (
               <motion.div
                 key={goal.id}
-                variants={STACK_SLOT_VARIANTS}
+                variants={shouldReduceMotion ? REDUCED_STACK_VARIANTS : STACK_SLOT_VARIANTS}
                 initial={slot === "buffer" ? "buffer" : false}
                 animate={slot}
                 exit="exit"
-                onClick={
-                  isBottom
-                    ? () => setCurrentIndex((prev) => (prev + 1) % CURRICULUM_GOALS.length)
-                    : undefined
-                }
-                className={`absolute inset-x-0 top-2.5 flex h-[62px] sm:h-[66px] items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_6px_rgba(20,54,95,0.03)] select-none ${
-                  isBottom
-                    ? "cursor-pointer transition-shadow hover:border-[#14365f]/20 hover:shadow-xs active:scale-[0.99]"
-                    : "pointer-events-none"
-                }`}
+                className="pointer-events-none absolute inset-x-0 top-2.5 flex h-[62px] sm:h-[66px] items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_8px_rgba(20,54,95,0.04)]"
               >
                 <SingleVinylDisc
                   outer={goal.outer}
