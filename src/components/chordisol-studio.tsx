@@ -88,38 +88,37 @@ const STACK_SLOT_VARIANTS: Variants = {
     opacity: 1,
     zIndex: 20,
     transition: {
-      duration: 0.6,
+      duration: 0.55,
       ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   top: {
     y: -8,
     scale: 0.965,
-    opacity: 0.9,
+    opacity: 1,
     zIndex: 10,
     transition: {
-      duration: 0.6,
+      duration: 0.55,
       ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   buffer: {
-    y: -16,
-    scale: 0.93,
+    y: -8,
+    scale: 0.965,
     opacity: 0,
     zIndex: 0,
     transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1] as const,
+      duration: 0.2,
     },
   },
   exit: {
-    y: 42,
-    scale: 0.97,
-    opacity: 0,
-    zIndex: 25,
+    y: 85,
+    scale: 1,
+    opacity: 1,
+    zIndex: 30,
     pointerEvents: "none" as const,
     transition: {
-      duration: 0.55,
+      duration: 0.52,
       ease: [0.16, 1, 0.3, 1] as const,
     },
   },
@@ -127,9 +126,9 @@ const STACK_SLOT_VARIANTS: Variants = {
 
 const REDUCED_STACK_VARIANTS: Variants = {
   bottom: { opacity: 1, zIndex: 20, transition: { duration: 0.3 } },
-  top: { opacity: 0.9, zIndex: 10, transition: { duration: 0.3 } },
+  top: { opacity: 1, zIndex: 10, transition: { duration: 0.3 } },
   buffer: { opacity: 0, zIndex: 0, transition: { duration: 0.3 } },
-  exit: { opacity: 0, zIndex: 25, transition: { duration: 0.3 } },
+  exit: { opacity: 1, zIndex: 30, transition: { duration: 0.3 } },
 };
 
 function CurriculumAutoCarousel() {
@@ -187,7 +186,7 @@ function CurriculumAutoCarousel() {
                 initial={slot === "buffer" ? "buffer" : false}
                 animate={slot}
                 exit="exit"
-                className="pointer-events-none absolute inset-x-0 top-2.5 flex h-[62px] sm:h-[66px] items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_8px_rgba(20,54,95,0.04)]"
+                className="pointer-events-none absolute inset-x-0 top-2.5 flex h-[62px] sm:h-[66px] items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_4px_rgba(20,54,95,0.04)]"
               >
                 <SingleVinylDisc
                   outer={goal.outer}
