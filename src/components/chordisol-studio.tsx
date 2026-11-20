@@ -86,7 +86,6 @@ const STACK_SLOT_VARIANTS: Variants = {
     y: 0,
     scale: 1,
     opacity: 1,
-    filter: "blur(0px)",
     zIndex: 20,
     transition: {
       duration: 0.6,
@@ -97,7 +96,6 @@ const STACK_SLOT_VARIANTS: Variants = {
     y: -8,
     scale: 0.965,
     opacity: 0.9,
-    filter: "blur(0px)",
     zIndex: 10,
     transition: {
       duration: 0.6,
@@ -108,7 +106,6 @@ const STACK_SLOT_VARIANTS: Variants = {
     y: -16,
     scale: 0.93,
     opacity: 0,
-    filter: "blur(4px)",
     zIndex: 0,
     transition: {
       duration: 0.6,
@@ -119,7 +116,6 @@ const STACK_SLOT_VARIANTS: Variants = {
     y: 42,
     scale: 0.97,
     opacity: 0,
-    filter: "blur(5px)",
     zIndex: 25,
     pointerEvents: "none" as const,
     transition: {
