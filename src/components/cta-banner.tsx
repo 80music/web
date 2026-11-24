@@ -63,10 +63,10 @@ export function CtaBanner() {
             <span>Download for iOS &amp; iPadOS</span>
           </a>
 
-          {/* Microcopy - high contrast pill badge that never gets washed out */}
-          <div className="inline-flex items-center rounded-full border border-white/25 bg-black/15 px-3.5 py-1 text-xs font-medium text-white shadow-xs backdrop-blur-xs">
+          {/* Microcopy - just clean lighter white text, no glass */}
+          <p className="text-xs sm:text-[13px] font-medium text-white/90">
             100% Free • Zero ads • No account required
-          </div>
+          </p>
         </div>
       </div>
     </section>
