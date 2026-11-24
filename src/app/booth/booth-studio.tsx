@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { BoothLayoutPicker } from "@/components/booth-layout-picker";
+import React, { useCallback, useMemo, useState } from "react";
 import { CameraViewfinder } from "@/components/camera-viewfinder";
-import { PhotoReviewGrid } from "@/components/photo-review-grid";
 import { PhotoboothStrip } from "@/components/photobooth-strip";
 import { BoothCustomizerToolbar } from "@/components/booth-customizer-toolbar";
 import { BoothQrModal } from "@/components/booth-qr-modal";
 import {
+  FRAME_PRESETS,
+  LAYOUT_VARIATIONS,
+  PHOTO_FILTERS,
   STICKER_PALETTE,
-  STICKER_PRESETS,
   type FrameColorId,
   type LayoutVariationId,
   type PhotoFilterId,
@@ -17,36 +17,19 @@ import {
   type StickerItem,
   type StripConfig,
 } from "@/lib/booth-types";
-import {
-  downloadUltraHdStrip,
-  exportCompressedStripForUpload,
-} from "@/lib/canvasExport";
-
-type WizardStep = 1 | 2 | 3 | 4 | 5;
-
-const WIZARD_STEPS = [
-  { step: 1 as WizardStep, title: "1. Style", desc: "Logo & Frame" },
-  { step: 2 as WizardStep, title: "2. Camera", desc: "4 Shots" },
-  { step: 3 as WizardStep, title: "3. Review", desc: "Check & Retake" },
-  { step: 4 as WizardStep, title: "4. Decorate", desc: "Stickers & Text" },
-  { step: 5 as WizardStep, title: "5. Share", desc: "Ultra HD & QR" },
-];
+import { downloadUltraHdStrip, exportCompressedStripForUpload } from "@/lib/canvasExport";
 
 export function BoothStudio() {
-  // Wizard current step: 1 (Style) -> 2 (Camera) -> 3 (Review) -> 4 (Decorate) -> 5 (Share)
-  const [currentStep, setCurrentStep] = useState<WizardStep>(1);
+  // Mode: "camera" | "customize"
+  const [activeTab, setActiveTab] = useState<"camera" | "customize">("camera");
 
-  // Retake targeted slot for Step 3 (null when in standard review)
-  const [retakeSlotIndex, setRetakeSlotIndex] = useState<number | null>(null);
-
-  // Layout variation: "classic-top" | "centered-minimal" | "bottom-signature" | "retro-studio"
-  const [layoutVariation, setLayoutVariation] = useState<LayoutVariationId>("classic-top");
-
-  // Photos state: 4 slots strictly ordered
+  // Photos state: 4 slots
   const [photos, setPhotos] = useState<(string | null)[]>([null, null, null, null]);
+  const [activeSlot, setActiveSlot] = useState<number>(0);
 
-  // Customization state
+  // Styling & Customization
   const [frameColor, setFrameColor] = useState<FrameColorId>("classic-white");
+  const [layoutVariation, setLayoutVariation] = useState<LayoutVariationId>("classic-top");
   const [filter, setFilter] = useState<PhotoFilterId>("original");
   const [stickers, setStickers] = useState<StickerItem[]>([]);
   const [stickersVisible, setStickersVisible] = useState(true);
@@ -54,33 +37,27 @@ export function BoothStudio() {
 
   const [caption, setCaption] = useState("Acoustic Session • Chordisol Studio");
   const [showDate, setShowDate] = useState(true);
-  const [dateText, setDateText] = useState("");
-  const [stripId, setStripId] = useState("");
+  const [dateText, setDateText] = useState(() => {
+    const now = new Date();
+    const dateFormatted = now
+      .toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+      .replace(/\//g, ".");
+    const timeFormatted = now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${dateFormatted} • ${timeFormatted}`;
+  });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const now = new Date();
-      const dateFormatted = now
-        .toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
-        .replace(/\//g, ".");
-      const timeFormatted = now.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      setDateText(`${dateFormatted} • ${timeFormatted}`);
-      setStripId(
-        Math.random().toString(36).substring(2, 9) + Date.now().toString(36).slice(-4)
-      );
-    }, 0);
+  const [stripId, setStripId] = useState(() => {
+    return Math.random().toString(36).substring(2, 9) + Date.now().toString(36).slice(-4);
+  });
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Export / QR states
+  // Export & QR Modal State
   const [isDownloading, setIsDownloading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [qrModalData, setQrModalData] = useState<{
@@ -93,7 +70,7 @@ export function BoothStudio() {
     stripId: "",
   });
 
-  // Assemble full strip configuration memoized
+  // Strip config memo
   const currentStripConfig: StripConfig = useMemo(
     () => ({
       photos,
@@ -109,7 +86,7 @@ export function BoothStudio() {
     [photos, frameColor, layoutVariation, filter, stickers, stickersVisible, caption, showDate, dateText]
   );
 
-  // Photo capture handler
+  // Capture callback
   const handlePhotoCaptured = useCallback((slotIndex: number, dataUrl: string) => {
     setPhotos((prev) => {
       const next = [...prev];
@@ -118,12 +95,12 @@ export function BoothStudio() {
     });
   }, []);
 
-  // Sequential capture complete -> advance automatically to Step 3 (Review)
+  // When 4-shot sequence completes -> switch to customize
   const handleSequenceComplete = useCallback(() => {
-    setCurrentStep(3);
+    setActiveTab("customize");
   }, []);
 
-  // Sticker Actions
+  // Sticker actions
   const handleAddSticker = (asset: StickerAsset) => {
     const jitterX = Math.floor(Math.random() * 20) - 10;
     const jitterY = Math.floor(Math.random() * 20) - 10;
@@ -160,83 +137,92 @@ export function BoothStudio() {
 
   const handleDeleteSticker = useCallback((id: string) => {
     setStickers((prev) => prev.filter((s) => s.id !== id));
-    setSelectedStickerId(null);
+    setSelectedStickerId((curr) => (curr === id ? null : curr));
   }, []);
-
-  const handleApplyStickerPreset = (presetId: string) => {
-    const template = STICKER_PRESETS.find((p) => p.id === presetId);
-    if (!template) return;
-
-    const instantiated: StickerItem[] = template.stickers.map((s, index) => ({
-      ...s,
-      id: `preset-${presetId}-${index}-${Date.now()}`,
-    }));
-
-    setStickers(instantiated);
-    setSelectedStickerId(null);
-  };
-
-  // 🎲 Scatter / Shuffle Stickers
-  const handleShuffleStickers = () => {
-    const shuffledAssets = [...STICKER_PALETTE].sort(() => 0.5 - Math.random());
-    const count = 4 + Math.floor(Math.random() * 2);
-    const selectedAssets = shuffledAssets.slice(0, count);
-
-    const newStickers: StickerItem[] = selectedAssets.map((asset, index) => {
-      const yZone = 12 + index * 18 + Math.floor(Math.random() * 8);
-      const xPos = index % 2 === 0 ? 18 + Math.floor(Math.random() * 12) : 80 - Math.floor(Math.random() * 12);
-      const randomRot = Math.floor(Math.random() * 32) - 16;
-
-      return {
-        id: `shuffle-${index}-${Date.now()}`,
-        assetId: asset.id,
-        src: asset.src,
-        name: asset.name,
-        xPercent: xPos,
-        yPercent: yZone,
-        widthPercent: asset.defaultWidthPercent,
-        rotationDeg: randomRot,
-        zIndex: index + 1,
-      };
-    });
-
-    setStickers(newStickers);
-    setSelectedStickerId(null);
-  };
 
   const handleClearStickers = () => {
     setStickers([]);
     setSelectedStickerId(null);
   };
 
-  // Ultra HD Download
+  const handleShuffleStickers = () => {
+    const randomAssets = [...STICKER_PALETTE].sort(() => 0.5 - Math.random()).slice(0, 3);
+    const ySpots = [22, 50, 78];
+
+    const newItems: StickerItem[] = randomAssets.map((asset, i) => ({
+      id: `sticker-${Date.now()}-${i}`,
+      assetId: asset.id,
+      src: asset.src,
+      name: asset.name,
+      xPercent: 20 + Math.random() * 60,
+      yPercent: ySpots[i] + (Math.random() * 8 - 4),
+      widthPercent: asset.defaultWidthPercent,
+      rotationDeg: Math.floor(Math.random() * 30) - 15,
+      zIndex: i + 1,
+    }));
+
+    setStickers(newItems);
+  };
+
+  const handleShuffleStyle = () => {
+    const randomFrame = FRAME_PRESETS[Math.floor(Math.random() * FRAME_PRESETS.length)].id;
+    const randomLayout = LAYOUT_VARIATIONS[Math.floor(Math.random() * LAYOUT_VARIATIONS.length)].id;
+    const randomFilter = PHOTO_FILTERS[Math.floor(Math.random() * PHOTO_FILTERS.length)].id;
+
+    setFrameColor(randomFrame);
+    setLayoutVariation(randomLayout);
+    setFilter(randomFilter);
+  };
+
+  const handleResetSession = () => {
+    if (confirm("Reset photobooth session? This will clear all photos and stickers.")) {
+      setPhotos([null, null, null, null]);
+      setStickers([]);
+      setSelectedStickerId(null);
+      setActiveTab("camera");
+      setActiveSlot(0);
+      setStripId(Math.random().toString(36).substring(2, 9) + Date.now().toString(36).slice(-4));
+      const now = new Date();
+      const dateFormatted = now
+        .toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, ".");
+      const timeFormatted = now.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setDateText(`${dateFormatted} • ${timeFormatted}`);
+    }
+  };
+
+  // Download Ultra HD PNG
   const handleDownloadUltraHd = async () => {
-    setIsDownloading(true);
     try {
-      await downloadUltraHdStrip(
-        currentStripConfig,
-        `chordisol-strip-${stripId || "session"}.png`
-      );
+      setIsDownloading(true);
+      await downloadUltraHdStrip(currentStripConfig, `chordisol-4cut-${stripId}.png`);
     } catch (err) {
-      console.error("High-Res download error:", err);
-      alert("Unable to generate image. Please ensure photos and assets are loaded.");
+      console.error("Download failed:", err);
+      alert("Failed to export Ultra HD image. Please try again.");
     } finally {
       setIsDownloading(false);
     }
   };
 
-  // Mobile QR Code Pipeline
+  // Upload for QR Code
   const handleOpenMobileQr = async () => {
-    setIsUploading(true);
     try {
-      const compressedDataUrl = await exportCompressedStripForUpload(currentStripConfig);
+      setIsUploading(true);
+      const dataUrl = await exportCompressedStripForUpload(currentStripConfig);
 
       const res = await fetch("/api/upload-strip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          image: compressedDataUrl,
           stripId,
+          dataUrl,
         }),
       });
 
@@ -258,29 +244,16 @@ export function BoothStudio() {
     }
   };
 
-  // Reset entire session
-  const handleResetSession = () => {
-    if (confirm("Reset photobooth session? This will clear all photos and stickers.")) {
-      setPhotos([null, null, null, null]);
-      setStickers([]);
-      setSelectedStickerId(null);
-      setCurrentStep(1);
-      setRetakeSlotIndex(null);
-      setStripId(Math.random().toString(36).substring(2, 9) + Date.now().toString(36).slice(-4));
-    }
-  };
-
   const completedCount = photos.filter(Boolean).length;
-  const isAllPhotosTaken = completedCount === 4;
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#f8fafc] via-[#f0f5fc] to-[#eaf2fc] px-3 py-4 sm:px-6 sm:py-6">
-      <div className="mx-auto max-w-7xl">
-        {/* Top Stepper Navigation Bar */}
-        <header className="mb-6 flex flex-col md:flex-row items-center justify-between gap-3.5 rounded-[22px] border-2 border-slate-900/10 bg-white/90 dark:bg-slate-900/90 p-3 sm:p-4 shadow-[0_4px_0_rgba(15,23,42,0.06)] backdrop-blur-xl">
-          {/* Branding */}
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 px-3 py-4 sm:px-6 sm:py-6">
+      <div className="mx-auto max-w-6xl">
+        {/* Top Header Bar */}
+        <header className="mb-6 flex flex-col md:flex-row items-center justify-between gap-3.5 rounded-2xl border-2 border-slate-900/10 bg-white p-3.5 sm:p-4 shadow-[0_4px_0_rgba(15,23,42,0.06)]">
+          {/* Logo & Title */}
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-[12px] bg-brand-primary/10 text-brand-primary border border-brand-primary/20 shadow-2xs">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary border border-brand-primary/20 shadow-2xs">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="size-5">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                 <circle cx="12" cy="13" r="4" />
@@ -288,63 +261,58 @@ export function BoothStudio() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-display text-base sm:text-lg font-black text-fg-display leading-tight">
+                <h1 className="font-display text-base sm:text-lg font-black text-slate-900 leading-tight">
                   Acoustic Photobooth
                 </h1>
-                <span className="hidden sm:inline-block rounded-full bg-surface-secondary px-2 py-0.5 font-mono text-[10px] font-bold text-text-muted border border-border-subtle">
-                  4-CUT WIZARD
+                <span className="rounded-full bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold text-brand-primary border border-blue-200">
+                  4-CUT STUDIO
                 </span>
               </div>
-              <p className="text-xs text-text-muted font-medium">
-                Step {currentStep} of 5 • {WIZARD_STEPS[currentStep - 1].desc}
+              <p className="text-xs text-slate-500 font-medium">
+                Snap 4 candid poses with your instrument, decorate, and export in 3.5x Ultra HD
               </p>
             </div>
           </div>
 
-          {/* Stepper Wizard Controls */}
-          <nav aria-label="Photobooth steps" className="flex items-center gap-1 rounded-full border border-slate-900/10 bg-surface-secondary/70 p-1 shadow-inner overflow-x-auto no-scrollbar max-w-full">
-            {WIZARD_STEPS.map((stepItem) => {
-              const isActive = currentStep === stepItem.step;
-              const isPast =
-                (stepItem.step === 1) ||
-                (stepItem.step === 2 && currentStep >= 2) ||
-                (stepItem.step === 3 && isAllPhotosTaken) ||
-                (stepItem.step === 4 && isAllPhotosTaken) ||
-                (stepItem.step === 5 && isAllPhotosTaken);
+          {/* Mode Switcher */}
+          <nav aria-label="Photobooth modes" className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("camera")}
+              className={`flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "camera"
+                  ? "bg-brand-primary text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <span>📸 Camera Booth</span>
+            </button>
 
-              return (
-                <button
-                  key={stepItem.step}
-                  type="button"
-                  disabled={!isPast}
-                  onClick={() => {
-                    setCurrentStep(stepItem.step);
-                    setRetakeSlotIndex(null);
-                  }}
-                  className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 sm:px-3.5 text-xs font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                    isActive
-                      ? "bg-brand-primary text-white shadow-xs"
-                      : "text-text-muted hover:text-fg-display hover:bg-white/60"
-                  }`}
-                >
-                  <span>{stepItem.title}</span>
-                  {stepItem.step < currentStep && isAllPhotosTaken && (
-                    <span className="flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[9px] text-white">
-                      ✓
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            <button
+              type="button"
+              onClick={() => setActiveTab("customize")}
+              className={`flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "customize"
+                  ? "bg-brand-primary text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <span>🎨 Customize &amp; Print</span>
+              {completedCount > 0 && (
+                <span className="rounded-full bg-white/25 px-1.5 py-0.2 text-[10px]">
+                  {completedCount}/4
+                </span>
+              )}
+            </button>
           </nav>
 
-          {/* Quick Actions (Reset & Session) */}
+          {/* Quick Actions */}
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleShuffleStickers}
-              title="Shuffle Stickers"
-              className="flex h-9 items-center gap-1 rounded-full border border-border-subtle bg-white px-3 text-xs font-bold text-fg-display shadow-2xs hover:bg-surface-secondary active:scale-95 transition-all cursor-pointer"
+              onClick={handleShuffleStyle}
+              title="Shuffle Random Theme & Filter"
+              className="flex h-9 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
             >
               <span>🎲 Shuffle</span>
             </button>
@@ -352,8 +320,8 @@ export function BoothStudio() {
             <button
               type="button"
               onClick={handleResetSession}
-              title="Start New Session"
-              className="flex size-9 items-center justify-center rounded-full border border-border-subtle bg-white text-text-muted hover:text-rose-600 hover:bg-rose-50 active:scale-95 transition-all cursor-pointer"
+              title="Reset Photobooth Session"
+              className="flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:text-rose-600 hover:bg-rose-50 active:scale-95 transition-all cursor-pointer"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
                 <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
@@ -365,262 +333,94 @@ export function BoothStudio() {
           </div>
         </header>
 
-        {/* Wizard Main Grid: Left (Step Console) + Right (Live Screen-Fitted Strip) */}
+        {/* 2-Column Main Studio: Left (Controls/Camera) + Right (Photobooth Strip) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* LEFT COLUMN (7 cols): Step Dynamic Panel */}
+          {/* Left Column (7 cols): Camera or Customizer */}
           <section className="lg:col-span-7 flex flex-col gap-4">
-            {/* STEP 1: PICK VARIATION & STYLE */}
-            {currentStep === 1 && (
-              <BoothLayoutPicker
-                layoutVariation={layoutVariation}
-                onChangeLayoutVariation={setLayoutVariation}
-                frameColor={frameColor}
-                onChangeFrameColor={setFrameColor}
-                filter={filter}
-                onChangeFilter={setFilter}
-                onProceedToCamera={() => setCurrentStep(2)}
-              />
-            )}
-
-            {/* STEP 2: SEQUENTIAL LIVE CAMERA (Strictly ordered 1 by 1) */}
-            {currentStep === 2 && (
-              <div className="flex flex-col gap-3">
+            {activeTab === "camera" ? (
+              <div className="flex flex-col gap-4">
                 <CameraViewfinder
                   photos={photos}
                   onPhotoCaptured={handlePhotoCaptured}
                   onSequenceComplete={handleSequenceComplete}
-                  mode="sequence"
+                  activeSlot={activeSlot}
+                  onSelectSlot={setActiveSlot}
                 />
 
-                <div className="flex items-center justify-between rounded-[14px] border border-border-subtle bg-surface-secondary/70 px-4 py-3 text-xs text-text-muted">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">💡</span>
-                    <span>
-                      Sequential mode: 3s countdown per shot. Strike 4 musical poses!
-                    </span>
-                  </div>
-
-                  {completedCount === 4 && (
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(3)}
-                      className="font-bold text-brand-primary hover:underline cursor-pointer"
-                    >
-                      Review Shots →
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: REVIEW PICTURES & TARGETED RETAKE */}
-            {currentStep === 3 && (
-              <>
-                {retakeSlotIndex !== null ? (
-                  /* Focused Retake Camera specifically for chosen slot */
-                  <div className="flex flex-col gap-3">
-                    <div className="rounded-[16px] border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900">
-                      <strong>Targeted Retake:</strong> Snapping a fresh photo for <strong>Shot {retakeSlotIndex + 1}</strong>. When finished, you will immediately return to the 4-shot review gallery.
+                {completedCount === 4 && (
+                  <div className="flex items-center justify-between rounded-2xl border-2 border-emerald-500/20 bg-emerald-50/80 p-4 shadow-2xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">🎉</span>
+                      <div>
+                        <p className="font-display text-sm font-bold text-emerald-950">
+                          All 4 shots are in the strip!
+                        </p>
+                        <p className="text-xs text-emerald-700">
+                          Personalize your frame color, stickers, and caption next.
+                        </p>
+                      </div>
                     </div>
 
-                    <CameraViewfinder
-                      photos={photos}
-                      onPhotoCaptured={handlePhotoCaptured}
-                      mode="retake"
-                      retakeSlot={retakeSlotIndex}
-                      onRetakeDone={() => setRetakeSlotIndex(null)}
-                      onCancelRetake={() => setRetakeSlotIndex(null)}
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("customize")}
+                      className="flex h-10 items-center gap-1.5 rounded-full bg-brand-primary px-4 font-display text-xs font-bold text-white shadow-[0_3px_0_#0f5298] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] cursor-pointer transition-all"
+                    >
+                      <span>Customize Strip →</span>
+                    </button>
                   </div>
-                ) : (
-                  /* Standard 4-Shot Review Gallery */
-                  <PhotoReviewGrid
-                    photos={photos}
-                    onRetakeSpecificShot={(slot) => setRetakeSlotIndex(slot)}
-                    onRetakeAll={() => {
-                      setPhotos([null, null, null, null]);
-                      setCurrentStep(2);
-                    }}
-                    onConfirmPhotos={() => setCurrentStep(4)}
-                  />
                 )}
-              </>
-            )}
-
-            {/* STEP 4: DECORATE & EDIT STICKERS */}
-            {currentStep === 4 && (
-              <div className="flex flex-col gap-4">
-                <div className="rounded-[16px] border border-brand-primary/20 bg-brand-primary/5 p-3.5 text-xs text-brand-primary flex items-center justify-between">
-                  <div>
-                    <strong>Step 4: Sticker Studio!</strong> Tap stickers to place, drag anywhere, rotate with ↻, resize with ⤡, or tap 🎲 Shuffle.
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(3)}
-                    className="font-bold underline cursor-pointer ml-2 shrink-0"
-                  >
-                    ← Review Photos
-                  </button>
-                </div>
-
-                <BoothCustomizerToolbar
-                  frameColor={frameColor}
-                  onChangeFrameColor={setFrameColor}
-                  filter={filter}
-                  onChangeFilter={setFilter}
-                  stickers={stickers}
-                  stickersVisible={stickersVisible}
-                  onToggleStickersVisible={() => setStickersVisible((v) => !v)}
-                  onAddSticker={handleAddSticker}
-                  onApplyStickerPreset={handleApplyStickerPreset}
-                  onShuffleStickers={handleShuffleStickers}
-                  onClearStickers={handleClearStickers}
-                  caption={caption}
-                  onChangeCaption={setCaption}
-                  showDate={showDate}
-                  onToggleShowDate={() => setShowDate((v) => !v)}
-                  onDownloadUltraHd={handleDownloadUltraHd}
-                  onOpenMobileQr={handleOpenMobileQr}
-                  onResetBooth={handleResetSession}
-                  isDownloading={isDownloading}
-                  isUploading={isUploading}
-                  onProceedToShare={() => setCurrentStep(5)}
-                />
               </div>
-            )}
-
-            {/* STEP 5: EXPORT & MOBILE QR SHARE */}
-            {currentStep === 5 && (
-              <div className="flex flex-col gap-4 rounded-[24px] border-2 border-slate-900/10 bg-white dark:bg-slate-900 p-5 sm:p-7 shadow-[0_4px_0_rgba(15,23,42,0.06)]">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="flex size-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white shadow-xs">
-                      5
-                    </span>
-                    <h2 className="font-display text-lg sm:text-xl font-extrabold text-fg-display">
-                      Step 5: Your 4-Cut Photobooth Strip is Ready!
-                    </h2>
-                  </div>
-                  <p className="text-xs text-text-muted mt-1">
-                    Download in ultra-high print resolution (3.5x Ultra HD) or scan the QR code to save directly to your phone&apos;s camera roll.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  {/* Ultra HD Card */}
-                  <div className="flex flex-col justify-between rounded-[18px] border-2 border-brand-primary/30 bg-brand-primary/5 p-4 sm:p-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-display text-xs font-bold text-brand-primary uppercase tracking-wide">
-                          Physical Print Ready
-                        </span>
-                        <span className="rounded-full bg-brand-primary/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-brand-primary">
-                          1200 × 3792 px
-                        </span>
-                      </div>
-                      <h3 className="font-display text-base font-bold text-fg-display">
-                        3.5x Ultra HD PNG
-                      </h3>
-                      <p className="text-xs text-text-muted mt-1 leading-relaxed">
-                        Lossless full-resolution export styled with Chordisol brand fonts, ready for framing or scrapbooks.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={isDownloading}
-                      onClick={handleDownloadUltraHd}
-                      className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-primary font-display text-sm font-bold text-white shadow-[0_3px_0_#1454a4] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#1454a4] transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.3} className="size-4.5">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                      </svg>
-                      <span>
-                        {isDownloading ? "Generating 3.5x..." : "Download Ultra HD PNG"}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Mobile QR Card */}
-                  <div className="flex flex-col justify-between rounded-[18px] border-2 border-slate-900/10 bg-surface-secondary/70 p-4 sm:p-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-display text-xs font-bold text-fg-display uppercase tracking-wide">
-                          Phone Camera Roll
-                        </span>
-                        <span className="rounded-full bg-white px-2.5 py-0.5 font-mono text-[10px] font-bold text-text-muted border border-border-subtle shadow-2xs">
-                          Instant Scan
-                        </span>
-                      </div>
-                      <h3 className="font-display text-base font-bold text-fg-display">
-                        Mobile QR Code
-                      </h3>
-                      <p className="text-xs text-text-muted mt-1 leading-relaxed">
-                        Point your iPhone or Android camera at the screen to open the web viewer with a 1-tap Save to Photos button.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={isUploading}
-                      onClick={handleOpenMobileQr}
-                      className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-border-subtle bg-white font-display text-sm font-bold text-fg-display shadow-2xs hover:bg-surface-secondary active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4.5 text-brand-primary">
-                        <rect x="3" y="3" width="7" height="7" />
-                        <rect x="14" y="3" width="7" height="7" />
-                        <rect x="14" y="14" width="7" height="7" />
-                        <rect x="3" y="14" width="7" height="7" />
-                      </svg>
-                      <span>
-                        {isUploading ? "Uploading for QR..." : "Generate Mobile QR Code"}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Footer Navigation */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle/80 pt-4 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(4)}
-                    className="font-bold text-brand-primary hover:underline cursor-pointer"
-                  >
-                    ← Back to Edit Stickers &amp; Caption
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleResetSession}
-                    className="font-bold text-rose-600 hover:underline cursor-pointer"
-                  >
-                    ↺ Start New Photobooth Session
-                  </button>
-                </div>
-              </div>
+            ) : (
+              <BoothCustomizerToolbar
+                photos={photos}
+                onRetakeSlot={(slot) => {
+                  setActiveSlot(slot);
+                  setActiveTab("camera");
+                }}
+                onRetakeAll={() => {
+                  setPhotos([null, null, null, null]);
+                  setActiveSlot(0);
+                  setActiveTab("camera");
+                }}
+                frameColor={frameColor}
+                onChangeFrameColor={setFrameColor}
+                layoutVariation={layoutVariation}
+                onChangeLayoutVariation={setLayoutVariation}
+                filter={filter}
+                onChangeFilter={setFilter}
+                stickers={stickers}
+                stickersVisible={stickersVisible}
+                onToggleStickersVisible={() => setStickersVisible((v) => !v)}
+                onAddSticker={handleAddSticker}
+                onShuffleStickers={handleShuffleStickers}
+                onClearStickers={handleClearStickers}
+                caption={caption}
+                onChangeCaption={setCaption}
+                showDate={showDate}
+                onToggleShowDate={() => setShowDate((v) => !v)}
+              />
             )}
           </section>
 
-          {/* RIGHT COLUMN (5 cols): Screen-Fitted Photobooth Strip Pedestal */}
-          <aside className="lg:col-span-5 flex flex-col items-center justify-center gap-3 lg:sticky lg:top-16">
-            <div className="w-full rounded-[24px] border-2 border-slate-900/10 bg-white/80 dark:bg-slate-900/80 p-4 sm:p-5 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl flex flex-col items-center justify-between">
-              {/* Header Label on Pedestal */}
-              <div className="w-full flex items-center justify-between pb-3 px-1 border-b border-border-subtle/70">
+          {/* Right Column (5 cols): Screen-Fitted Photobooth Strip Pedestal */}
+          <aside className="lg:col-span-5 flex flex-col items-center justify-center gap-3 lg:sticky lg:top-20">
+            <div className="w-full rounded-2xl border-2 border-slate-900/10 bg-white p-4 sm:p-5 shadow-[0_8px_30px_rgba(15,23,42,0.08)] flex flex-col items-center">
+              {/* Header Label */}
+              <div className="w-full flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-display text-xs font-bold text-fg-display uppercase tracking-wider">
-                    Strip Live Preview
+                  <span className="font-display text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    4-Cut Strip Preview
                   </span>
                 </div>
-                <span className="font-mono text-[11px] font-bold text-text-muted">
+                <span className="font-mono text-xs font-bold text-slate-500">
                   {completedCount}/4 SHOTS
                 </span>
               </div>
 
-              {/* Strip Container - Constrained to screen height on desktop so NEVER overflows */}
-              <div className="py-2 flex items-center justify-center w-full">
+              {/* Physical Photobooth Strip */}
+              <div className="w-full flex justify-center py-1">
                 <PhotoboothStrip
                   photos={photos}
                   frameColor={frameColor}
@@ -636,30 +436,41 @@ export function BoothStudio() {
                   onUpdateSticker={handleUpdateSticker}
                   onDeleteSticker={handleDeleteSticker}
                   onRetakeSlot={(slot) => {
-                    setRetakeSlotIndex(slot);
-                    setCurrentStep(3);
+                    setActiveSlot(slot);
+                    setActiveTab("camera");
                   }}
-                  className="h-[min(74vh,680px)] w-auto max-w-full aspect-[1/3.16]"
                 />
               </div>
 
-              {/* Bottom Quick Action Bar */}
-              <div className="w-full flex items-center gap-2 pt-2 border-t border-border-subtle/70">
+              {/* Export Buttons */}
+              <div className="w-full flex items-center gap-2.5 pt-4 mt-2 border-t border-slate-100">
                 <button
                   type="button"
                   disabled={isDownloading}
                   onClick={handleDownloadUltraHd}
-                  className="flex-1 flex h-10 items-center justify-center gap-1.5 rounded-full bg-fg-display text-white font-sans text-xs font-bold shadow-xs hover:bg-slate-900 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 flex h-11 items-center justify-center gap-2 rounded-full bg-brand-primary text-white font-display text-xs font-bold shadow-[0_3px_0_#0f5298] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] transition-all cursor-pointer disabled:opacity-50"
                 >
-                  <span>💾 3.5x Ultra HD</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.3} className="size-4">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <span>{isDownloading ? "Generating..." : "Download 3.5x Ultra HD"}</span>
                 </button>
+
                 <button
                   type="button"
                   disabled={isUploading}
                   onClick={handleOpenMobileQr}
-                  className="flex-1 flex h-10 items-center justify-center gap-1.5 rounded-full border border-border-subtle bg-white text-fg-display font-sans text-xs font-bold shadow-2xs hover:bg-surface-secondary active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 flex h-11 items-center justify-center gap-2 rounded-full border-2 border-slate-200 bg-white text-slate-800 font-display text-xs font-bold shadow-2xs hover:bg-slate-50 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 >
-                  <span>📱 Phone QR</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4 text-brand-primary">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                  <span>{isUploading ? "Uploading..." : "Phone QR"}</span>
                 </button>
               </div>
             </div>
@@ -670,7 +481,12 @@ export function BoothStudio() {
       {/* Mobile QR Code Modal */}
       <BoothQrModal
         isOpen={qrModalData.isOpen}
-        onClose={() => setQrModalData((prev) => ({ ...prev, isOpen: false }))}
+        onClose={() =>
+          setQrModalData((prev) => ({
+            ...prev,
+            isOpen: false,
+          }))
+        }
         publicUrl={qrModalData.publicUrl}
         stripId={qrModalData.stripId}
       />

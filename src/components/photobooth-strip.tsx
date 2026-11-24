@@ -11,23 +11,30 @@ import {
   type StickerItem,
 } from "@/lib/booth-types";
 
+const POSE_SUGGESTIONS = [
+  "Pose 1 • Acoustic Smile",
+  "Pose 2 • Fingers on Keys",
+  "Pose 3 • Listening Ear",
+  "Pose 4 • Free & Groove",
+];
+
 interface PhotoboothStripProps {
   photos: (string | null)[];
   frameColor: FrameColorId;
   layoutVariation?: LayoutVariationId;
   filter: PhotoFilterId;
-  stickers: StickerItem[];
-  stickersVisible: boolean;
-  caption: string;
-  showDate: boolean;
-  dateText: string;
-  selectedStickerId: string | null;
-  onSelectSticker: (id: string | null) => void;
-  onUpdateSticker: (
+  stickers?: StickerItem[];
+  stickersVisible?: boolean;
+  caption?: string;
+  showDate?: boolean;
+  dateText?: string;
+  selectedStickerId?: string | null;
+  onSelectSticker?: (id: string | null) => void;
+  onUpdateSticker?: (
     id: string,
     updates: Partial<Pick<StickerItem, "xPercent" | "yPercent" | "widthPercent" | "rotationDeg" | "zIndex">>
   ) => void;
-  onDeleteSticker: (id: string) => void;
+  onDeleteSticker?: (id: string) => void;
   onRetakeSlot?: (slotIndex: number) => void;
   className?: string;
 }
@@ -37,12 +44,12 @@ export function PhotoboothStrip({
   frameColor,
   layoutVariation = "classic-top",
   filter,
-  stickers,
-  stickersVisible,
-  caption,
-  showDate,
-  dateText,
-  selectedStickerId,
+  stickers = [],
+  stickersVisible = true,
+  caption = "Acoustic Session • Chordisol Studio",
+  showDate = true,
+  dateText = "",
+  selectedStickerId = null,
   onSelectSticker,
   onUpdateSticker,
   onDeleteSticker,
@@ -53,7 +60,7 @@ export function PhotoboothStrip({
   const frame = FRAME_PRESETS.find((f) => f.id === frameColor) || FRAME_PRESETS[0];
   const activeFilter = PHOTO_FILTERS.find((f) => f.id === filter) || PHOTO_FILTERS[0];
 
-  // Dragging state
+  // Dragging state for stickers
   const [activeDrag, setActiveDrag] = useState<{
     id: string;
     mode: "move" | "rotate" | "scale";
@@ -64,10 +71,10 @@ export function PhotoboothStrip({
     initialWidth: number;
   } | null>(null);
 
-  // Bring to front helper
   const handleStickerTap = useCallback(
     (e: React.MouseEvent | React.TouchEvent, id: string) => {
       e.stopPropagation();
+      if (!onSelectSticker || !onUpdateSticker) return;
       const maxZ = stickers.reduce((max, s) => Math.max(max, s.zIndex), 1);
       onUpdateSticker(id, { zIndex: maxZ + 1 });
       onSelectSticker(id);
@@ -75,9 +82,8 @@ export function PhotoboothStrip({
     [stickers, onUpdateSticker, onSelectSticker]
   );
 
-  // Global Pointer Events for smooth sticker drag/rotate/scale
   useEffect(() => {
-    if (!activeDrag) return;
+    if (!activeDrag || !onUpdateSticker) return;
 
     const handlePointerMove = (e: PointerEvent) => {
       if (!stripRef.current || !activeDrag) return;
@@ -123,17 +129,17 @@ export function PhotoboothStrip({
     <div
       ref={stripRef}
       id="photobooth-strip-dom"
-      onClick={() => onSelectSticker(null)}
+      onClick={() => onSelectSticker?.(null)}
       style={{
         backgroundColor: frame.bg,
         borderColor: frame.border,
       }}
-      className={`relative mx-auto flex select-none flex-col @container [container-type:inline-size] rounded-[6.5cqw] border-[max(2px,0.8cqw)] px-[5.5cqw] pt-[4.5cqw] pb-[4.5cqw] shadow-[0_16px_48px_rgba(15,23,42,0.14)] transition-colors duration-200 aspect-[1/3.16] justify-between ${className}`}
+      className={`relative mx-auto flex select-none flex-col w-[280px] sm:w-[300px] rounded-2xl border-2 p-3 sm:p-3.5 shadow-[0_20px_50px_-10px_rgba(15,23,42,0.18),0_4px_16px_-4px_rgba(15,23,42,0.08)] transition-colors duration-200 justify-between ${className}`}
     >
       {/* 1. Header Row based on layoutVariation */}
       {layoutVariation === "centered-minimal" ? (
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="relative w-[9.0cqw] h-[9.0cqw] shrink-0 overflow-hidden rounded-[2.3cqw] shadow-xs mb-[0.8cqw]">
+        <div className="flex flex-col items-center justify-center text-center py-1">
+          <div className="relative size-7 shrink-0 overflow-hidden rounded-md shadow-xs mb-1">
             <Image
               src="/images/chordisol-logo.png"
               alt="Chordisol"
@@ -144,59 +150,59 @@ export function PhotoboothStrip({
           </div>
           <h2
             style={{ color: frame.textColor }}
-            className="font-display text-[5.0cqw] leading-none font-extrabold tracking-tight truncate"
+            className="font-display text-sm leading-none font-black tracking-tight"
           >
             CHORDISOL
           </h2>
           <p
             style={{ color: frame.subtextColor }}
-            className="font-sans text-[2.6cqw] leading-tight font-bold tracking-widest uppercase truncate mt-[0.5cqw]"
+            className="font-sans text-[9px] leading-tight font-bold tracking-widest uppercase mt-0.5 opacity-80"
           >
             Acoustic Studio
           </p>
         </div>
       ) : layoutVariation === "bottom-signature" ? (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-1">
           <span
             style={{
               backgroundColor: frame.photoBorder,
               color: frame.textColor,
             }}
-            className="rounded-full px-[2.8cqw] py-[0.6cqw] font-mono text-[2.6cqw] font-bold tracking-tight opacity-90"
+            className="rounded-full px-2.5 py-0.5 font-mono text-[9px] font-bold tracking-tight opacity-90"
           >
             CHORDISOL ACOUSTIC • NO. 04
           </span>
           <span
             style={{ color: frame.subtextColor }}
-            className="font-mono text-[2.4cqw] font-bold opacity-80"
+            className="font-mono text-[9px] font-bold opacity-80"
           >
             4-CUT
           </span>
         </div>
       ) : layoutVariation === "retro-studio" ? (
-        <div className="flex flex-col items-center justify-center text-center border-b border-dashed border-current/20 pb-[1.2cqw]">
-          <div className="flex items-center gap-[1.5cqw]">
-            <span style={{ color: frame.subtextColor }} className="text-[2.6cqw]">★</span>
+        <div className="flex flex-col items-center justify-center text-center border-b border-dashed border-current/20 pb-1.5 pt-0.5">
+          <div className="flex items-center gap-1.5">
+            <span style={{ color: frame.subtextColor }} className="text-xs">★</span>
             <h2
               style={{ color: frame.textColor }}
-              className="font-display text-[4.8cqw] leading-none font-extrabold tracking-widest uppercase truncate"
+              className="font-display text-sm leading-none font-black tracking-widest uppercase"
             >
               CHORDISOL
             </h2>
-            <span style={{ color: frame.subtextColor }} className="text-[2.6cqw]">★</span>
+            <span style={{ color: frame.subtextColor }} className="text-xs">★</span>
           </div>
           <p
             style={{ color: frame.subtextColor }}
-            className="font-sans text-[2.4cqw] leading-tight font-bold tracking-widest uppercase truncate mt-[0.4cqw]"
+            className="font-sans text-[8.5px] leading-tight font-bold tracking-widest uppercase mt-0.5 opacity-75"
           >
             Session Archive • 35mm
           </p>
         </div>
       ) : (
         /* classic-top */
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-[3.2cqw] min-w-0">
-            <div className="relative w-[9.5cqw] h-[9.5cqw] shrink-0 overflow-hidden rounded-[2.3cqw] shadow-xs">
+        <div className="flex items-center justify-between py-1">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="relative size-7 shrink-0 overflow-hidden rounded-md shadow-xs">
               <Image
                 src="/images/chordisol-logo.png"
                 alt="Chordisol"
@@ -208,13 +214,13 @@ export function PhotoboothStrip({
             <div className="min-w-0">
               <h2
                 style={{ color: frame.textColor }}
-                className="font-display text-[5.4cqw] leading-none font-extrabold tracking-tight truncate"
+                className="font-display text-sm leading-none font-black tracking-tight truncate"
               >
                 CHORDISOL
               </h2>
               <p
                 style={{ color: frame.subtextColor }}
-                className="font-sans text-[3.0cqw] leading-tight font-bold tracking-wider uppercase truncate mt-[0.6cqw]"
+                className="font-sans text-[9px] leading-tight font-bold tracking-wider uppercase truncate mt-0.5 opacity-80"
               >
                 Acoustic Photobooth
               </p>
@@ -226,7 +232,7 @@ export function PhotoboothStrip({
               backgroundColor: frame.photoBorder,
               color: frame.textColor,
             }}
-            className="rounded-full px-[2.5cqw] py-[0.6cqw] font-mono text-[2.6cqw] font-bold tracking-tight opacity-90 shrink-0"
+            className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold tracking-tight opacity-90 shrink-0"
           >
             4-CUT
           </span>
@@ -234,14 +240,14 @@ export function PhotoboothStrip({
       )}
 
       {/* 2. Four Photo Slots (4:3 aspect ratio each) */}
-      <div className="flex flex-col gap-[3.0cqw] flex-1 justify-center my-[3.0cqw]">
+      <div className="flex flex-col gap-2 my-2 flex-1 justify-center">
         {[0, 1, 2, 3].map((index) => {
           const photoUrl = photos[index];
           return (
             <div
               key={index}
               style={{ borderColor: frame.photoBorder }}
-              className="group relative aspect-4/3 w-full overflow-hidden rounded-[4.0cqw] border-[max(1.5px,0.4cqw)] bg-black/5"
+              className="group relative aspect-4/3 w-full overflow-hidden rounded-xl border border-black/10 bg-black/[0.03]"
             >
               {photoUrl ? (
                 <>
@@ -253,7 +259,7 @@ export function PhotoboothStrip({
                     className="size-full object-cover"
                   />
 
-                  {/* Retake Slot Button */}
+                  {/* Retake Slot Button on Hover */}
                   {onRetakeSlot && (
                     <button
                       type="button"
@@ -261,14 +267,14 @@ export function PhotoboothStrip({
                         e.stopPropagation();
                         onRetakeSlot(index);
                       }}
-                      className="absolute right-2 top-2 z-20 hidden items-center gap-1 rounded-full bg-slate-900/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-md transition-transform duration-150 hover:bg-slate-900 active:scale-95 group-hover:flex cursor-pointer"
+                      className="absolute right-1.5 top-1.5 z-20 hidden items-center gap-1 rounded-full bg-slate-900/85 px-2 py-0.5 text-[10px] font-bold text-white shadow-md backdrop-blur-md transition-transform duration-150 hover:bg-slate-900 active:scale-95 group-hover:flex cursor-pointer"
                     >
                       <svg
                         viewBox="0 0 16 16"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={2}
-                        className="size-3"
+                        className="size-2.5"
                       >
                         <path d="M2.5 8a5.5 5.5 0 1 1 1.2 3.4M2.5 12V8h4" />
                       </svg>
@@ -279,15 +285,15 @@ export function PhotoboothStrip({
               ) : (
                 <div
                   style={{ color: frame.subtextColor }}
-                  className="flex size-full flex-col items-center justify-center gap-[1cqw]"
+                  className="flex size-full flex-col items-center justify-center gap-1 p-2 bg-black/[0.02]"
                 >
-                  <div className="flex size-[12cqw] items-center justify-center rounded-full border-[1.5px] border-dashed border-current opacity-60">
-                    <span className="font-sans text-[4.2cqw] font-bold text-current">
+                  <div className="flex size-7 items-center justify-center rounded-full border border-dashed border-current/60 bg-white/50 shadow-2xs">
+                    <span className="font-display text-xs font-black text-current">
                       {index + 1}
                     </span>
                   </div>
-                  <span className="font-sans text-[3.0cqw] font-semibold opacity-70">
-                    Shot {index + 1}
+                  <span className="font-sans text-[10px] font-bold tracking-tight opacity-75 text-center">
+                    {POSE_SUGGESTIONS[index]}
                   </span>
                 </div>
               )}
@@ -298,9 +304,9 @@ export function PhotoboothStrip({
 
       {/* 3. Footer Section based on layoutVariation */}
       {layoutVariation === "bottom-signature" ? (
-        <div className="flex items-center justify-between mt-[1.0cqw] pt-[1.0cqw] border-t border-border-subtle/50">
-          <div className="flex items-center gap-[2.5cqw] min-w-0">
-            <div className="relative w-[8.0cqw] h-[8.0cqw] shrink-0 overflow-hidden rounded-[2.0cqw] shadow-2xs">
+        <div className="flex items-center justify-between pt-1 border-t border-current/10">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="relative size-6 shrink-0 overflow-hidden rounded-md shadow-2xs">
               <Image
                 src="/images/chordisol-logo.png"
                 alt="Chordisol"
@@ -310,10 +316,10 @@ export function PhotoboothStrip({
               />
             </div>
             <div className="min-w-0">
-              <p style={{ color: frame.textColor }} className="font-display text-[4.2cqw] font-bold leading-tight truncate">
+              <p style={{ color: frame.textColor }} className="font-display text-xs font-bold leading-tight truncate">
                 CHORDISOL
               </p>
-              <p style={{ color: frame.subtextColor }} className="font-sans text-[2.4cqw] font-semibold truncate">
+              <p style={{ color: frame.subtextColor }} className="font-sans text-[9px] font-semibold truncate opacity-80">
                 {caption || "Acoustic Session"}
               </p>
             </div>
@@ -321,7 +327,7 @@ export function PhotoboothStrip({
 
           <div className="text-right shrink-0">
             {showDate && dateText && (
-              <p style={{ color: frame.subtextColor }} className="font-sans text-[2.6cqw] font-medium">
+              <p style={{ color: frame.subtextColor }} className="font-sans text-[8.5px] font-medium opacity-80">
                 {dateText}
               </p>
             )}
@@ -330,17 +336,17 @@ export function PhotoboothStrip({
                 backgroundColor: frame.photoBorder,
                 color: frame.textColor,
               }}
-              className="inline-block mt-[0.4cqw] rounded-full px-[2.0cqw] py-[0.4cqw] font-mono text-[2.2cqw] font-bold"
+              className="inline-block mt-0.5 rounded-full px-1.5 py-0.2 font-mono text-[8px] font-bold"
             >
               4-CUT
             </span>
           </div>
         </div>
       ) : (
-        <div className="text-center mt-[0.8cqw]">
+        <div className="text-center pt-1">
           <p
             style={{ color: frame.textColor }}
-            className="font-display text-[4.8cqw] font-bold tracking-tight truncate px-1"
+            className="font-display text-xs sm:text-[13px] font-bold tracking-tight truncate px-1"
           >
             {caption || "Acoustic Session • Chordisol Studio"}
           </p>
@@ -348,22 +354,22 @@ export function PhotoboothStrip({
           {showDate && dateText && (
             <p
               style={{ color: frame.subtextColor }}
-              className="mt-[0.6cqw] font-sans text-[3.2cqw] font-semibold tracking-wide"
+              className="mt-0.5 font-sans text-[9.5px] font-semibold tracking-wide opacity-80"
             >
               {dateText}
             </p>
           )}
 
-          {/* Decorative barcode bar */}
+          {/* Retro Barcode Strip */}
           <div
             aria-hidden="true"
             style={{ color: frame.subtextColor }}
-            className="mx-auto mt-[1.8cqw] flex h-[2.2cqw] w-[44cqw] items-center justify-center gap-0.5 opacity-60"
+            className="mx-auto mt-2 flex h-2 w-32 items-center justify-center gap-0.5 opacity-60"
           >
             {[4, 2, 5, 2, 6, 3, 2, 5, 3, 4, 2, 6, 3, 5, 2].map((w, i) => (
               <span
                 key={i}
-                style={{ width: `${w * 1.5}px` }}
+                style={{ width: `${w}px` }}
                 className="h-full bg-current rounded-[0.5px]"
               />
             ))}
@@ -373,7 +379,7 @@ export function PhotoboothStrip({
 
       {/* 4. Interactive Sticker Layer */}
       {stickersVisible && (
-        <div className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[24px]">
+        <div className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-2xl">
           {stickers.map((sticker) => {
             const isSelected = selectedStickerId === sticker.id;
 
@@ -390,12 +396,12 @@ export function PhotoboothStrip({
                 }}
                 className={`pointer-events-auto absolute cursor-move select-none transition-shadow ${
                   isSelected
-                    ? "ring-2 ring-[#2391ff] ring-offset-2 ring-offset-transparent rounded-lg"
+                    ? "ring-2 ring-brand-primary ring-offset-2 ring-offset-transparent rounded-lg"
                     : ""
                 }`}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  onSelectSticker(sticker.id);
+                  onSelectSticker?.(sticker.id);
                   setActiveDrag({
                     id: sticker.id,
                     mode: "move",
@@ -420,17 +426,19 @@ export function PhotoboothStrip({
                 {isSelected && (
                   <>
                     {/* Delete handle (top-left) */}
-                    <button
-                      type="button"
-                      aria-label="Delete sticker"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteSticker(sticker.id);
-                      }}
-                      className="absolute -top-3 -left-3 size-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-rose-600 active:scale-95 z-50 cursor-pointer"
-                    >
-                      ✕
-                    </button>
+                    {onDeleteSticker && (
+                      <button
+                        type="button"
+                        aria-label="Delete sticker"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteSticker(sticker.id);
+                        }}
+                        className="absolute -top-2.5 -left-2.5 size-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md hover:bg-rose-600 active:scale-95 z-50 cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    )}
 
                     {/* Rotate handle (top-right) */}
                     <button
@@ -448,7 +456,7 @@ export function PhotoboothStrip({
                           initialWidth: sticker.widthPercent,
                         });
                       }}
-                      className="absolute -top-3 -right-3 size-6 rounded-full bg-[#2391ff] text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-[#1674d6] active:scale-95 z-50 cursor-grab"
+                      className="absolute -top-2.5 -right-2.5 size-5 rounded-full bg-brand-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md hover:bg-[#1674d6] active:scale-95 z-50 cursor-grab"
                     >
                       ↻
                     </button>
@@ -469,7 +477,7 @@ export function PhotoboothStrip({
                           initialWidth: sticker.widthPercent,
                         });
                       }}
-                      className="absolute -bottom-3 -right-3 size-6 rounded-full bg-[#10b981] text-white flex items-center justify-center text-[11px] font-bold shadow-md hover:bg-[#059669] active:scale-95 z-50 cursor-se-resize"
+                      className="absolute -bottom-2.5 -right-2.5 size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-bold shadow-md hover:bg-emerald-600 active:scale-95 z-50 cursor-se-resize"
                     >
                       ⤡
                     </button>
