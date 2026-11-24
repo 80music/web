@@ -152,6 +152,45 @@ function AppleIcon(props: ComponentPropsWithoutRef<"svg">) {
   );
 }
 
+function ChevronDownIcon(props: ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M4 6l4 4 4-4" />
+    </svg>
+  );
+}
+
+function AppStoreIcon(props: ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <line x1="12" y1="3.5" x2="4.5" y2="19.5" />
+      <line x1="12" y1="3.5" x2="19.5" y2="19.5" />
+      <line x1="3.5" y1="15.5" x2="20.5" y2="15.5" />
+    </svg>
+  );
+}
+
+const SCALLOP_PATH =
+  "M 0 0 C 4 8, 14.86 16, 22.86 16 C 30.86 16, 41.71 8, 45.71 0 C 49.71 8, 60.57 16, 68.57 16 C 76.57 16, 87.43 8, 91.43 0 C 95.43 8, 106.29 16, 114.29 16 C 122.29 16, 133.14 8, 137.14 0 C 141.14 8, 152 16, 160 16 C 168 16, 178.86 8, 182.86 0 C 186.86 8, 197.72 16, 205.72 16 C 213.72 16, 224.57 8, 228.57 0 C 232.57 8, 243.43 16, 251.43 16 C 259.43 16, 270.29 8, 274.29 0 C 278.29 8, 289.15 16, 297.15 16 C 305.15 16, 316 8, 320 0 L 320 0 Z";
+
 interface DrawerLinksProps {
   activePath: string | null;
   onNavigate: () => void;
@@ -212,10 +251,12 @@ function ActiveDrawerLinks({ onNavigate }: { onNavigate: () => void }) {
 
 export function TopBar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isTicketOpen, setIsTicketOpen] = useState(false);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const ticketContainerRef = useRef<HTMLDivElement>(null);
 
   const openDrawer = useCallback(() => {
     setIsDrawerOpen(true);
@@ -224,6 +265,36 @@ export function TopBar() {
   const closeDrawer = useCallback(() => {
     setIsDrawerOpen(false);
   }, []);
+
+  // Close ticket dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!isTicketOpen) return;
+
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (
+        ticketContainerRef.current &&
+        !ticketContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsTicketOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsTicketOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isTicketOpen]);
 
   // Promote modal <dialog> cleanly when drawer state opens.
   useEffect(() => {
@@ -307,18 +378,109 @@ export function TopBar() {
               </Link>
             </div>
 
-            {/* Right cluster: segmented dark iOS action pill */}
-            <Link
-              href="/#download"
-              className="inline-flex h-10 shrink-0 items-stretch rounded-[10px] bg-fg-regular text-white shadow-xs transition-colors duration-150 hover:bg-fg-regular/90 active:bg-fg-regular/85"
-            >
-              <span className="inline-flex items-center justify-center border-r border-white/15 px-3">
-                <AppleIcon className="size-4.25" />
-              </span>
-              <span className="inline-flex items-center px-3.5 text-[13px] font-semibold tracking-tight whitespace-nowrap">
-                Get on iOS
-              </span>
-            </Link>
+            {/* Right cluster: segmented dark iOS action pill with ticket dropdown */}
+            <div ref={ticketContainerRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsTicketOpen((prev) => !prev)}
+                aria-expanded={isTicketOpen}
+                aria-haspopup="dialog"
+                aria-label="Download Chordisol for iOS options"
+                className="inline-flex h-10 shrink-0 cursor-pointer items-stretch rounded-[10px] bg-fg-regular text-white shadow-xs transition-colors duration-150 hover:bg-fg-regular/90 active:bg-fg-regular/85 select-none"
+              >
+                <span className="inline-flex items-center justify-center border-r border-white/15 px-3">
+                  <AppleIcon className="size-4.25" />
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3.5 text-[13px] font-semibold tracking-tight whitespace-nowrap">
+                  <span>Get on iOS</span>
+                  <ChevronDownIcon
+                    className={`size-3.5 opacity-75 transition-transform duration-200 ${
+                      isTicketOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+              </button>
+
+              <AnimatePresence>
+                {isTicketOpen && (
+                  <motion.div
+                    id="ios-download-ticket"
+                    role="dialog"
+                    aria-label="Chordisol iOS Download Options"
+                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: EASE_OUT }}
+                    className="absolute right-0 top-full mt-2.5 z-50 w-[min(330px,calc(100vw-24px))] drop-shadow-[0_24px_48px_rgba(15,23,42,0.22)]"
+                  >
+                    {/* Ticket Card Body */}
+                    <div className="rounded-t-[26px] bg-linear-to-b from-[#8fd2fd] via-[#70bdfc] to-[#54a9f9] p-6 text-slate-900">
+                      {/* Row 1 */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-display text-[16px] leading-tight font-bold text-slate-950 tracking-tight">
+                            Acoustic Ear Training
+                          </h3>
+                          <p className="mt-1 text-[13px] font-medium text-slate-800 leading-snug">
+                            Instant on-device chord recognition
+                          </p>
+                        </div>
+                        <span className="font-display text-[19px] font-extrabold text-slate-950 tracking-tight">
+                          Free
+                        </span>
+                      </div>
+
+                      {/* Dashed divider */}
+                      <div className="my-4.5 border-t-2 border-dashed border-slate-950/20" />
+
+                      {/* Row 2 */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-display text-[16px] leading-tight font-bold text-slate-950 tracking-tight">
+                            Full Song Curriculum
+                          </h3>
+                          <p className="mt-1 text-[13px] font-medium text-slate-800 leading-snug">
+                            5 interactive goals &amp; song puzzles
+                          </p>
+                        </div>
+                        <span className="font-display text-[19px] font-extrabold text-slate-950 tracking-tight">
+                          Free
+                        </span>
+                      </div>
+
+                      {/* Download CTA Button */}
+                      <a
+                        href="https://apps.apple.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsTicketOpen(false)}
+                        className="mt-6 flex h-[56px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#080d19] px-4 font-bold text-white shadow-xl transition-all duration-150 hover:bg-slate-900 active:scale-[0.98]"
+                      >
+                        <AppStoreIcon className="size-6 text-[#5eb0fa]" />
+                        <span className="font-display text-[17px] font-bold text-[#5eb0fa] tracking-tight">
+                          Download
+                        </span>
+                      </a>
+
+                      {/* Footer Note */}
+                      <p className="mt-5 text-center text-[12px] font-medium text-slate-800/90 leading-tight">
+                        Free on iPhone &amp; iPad • Zero ads, 100% on-device
+                      </p>
+                    </div>
+
+                    {/* Scalloped bottom edge */}
+                    <svg
+                      className="w-full h-5 -mt-px text-[#54a9f9] fill-current block"
+                      viewBox="0 0 320 16"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path d={SCALLOP_PATH} />
+                    </svg>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
         </div>
       </header>
