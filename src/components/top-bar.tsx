@@ -152,22 +152,6 @@ function AppleIcon(props: ComponentPropsWithoutRef<"svg">) {
   );
 }
 
-function ChevronDownIcon(props: ComponentPropsWithoutRef<"svg">) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M4 6l4 4 4-4" />
-    </svg>
-  );
-}
 
 function AppStoreIcon(props: ComponentPropsWithoutRef<"svg">) {
   return (
@@ -249,14 +233,99 @@ function ActiveDrawerLinks({ onNavigate }: { onNavigate: () => void }) {
   return <DrawerLinksList activePath={pathname} onNavigate={onNavigate} />;
 }
 
+interface TicketCardContentProps {
+  className?: string;
+  isMobilePopup?: boolean;
+  onClose?: () => void;
+}
+
+function TicketCardContent({
+  className = "",
+  isMobilePopup = false,
+  onClose,
+}: TicketCardContentProps) {
+  return (
+    <div className={className}>
+      {/* Ticket Card Body - flush against the very top edge of the window on desktop */}
+      <div
+        className={`${
+          isMobilePopup ? "rounded-t-2xl" : "rounded-b-none"
+        } bg-linear-to-b from-[#8fd2fd] via-[#70bdfc] to-[#54a9f9] p-4.5 pt-5 text-slate-900 sm:p-5.5 sm:pt-6`}
+      >
+        {/* Row 1 */}
+        <div className="flex items-start justify-between gap-2.5 sm:gap-3">
+          <div>
+            <h3 className="font-display text-[14.5px] font-bold leading-tight tracking-tight text-slate-950 sm:text-[16px]">
+              Acoustic Ear Training
+            </h3>
+            <p className="mt-0.5 text-[11.5px] font-medium leading-snug text-slate-800 sm:text-[12.5px]">
+              Instant on-device chord recognition
+            </p>
+          </div>
+          <span className="font-display text-[17px] font-extrabold tracking-tight text-slate-950 sm:text-[19px]">
+            Free
+          </span>
+        </div>
+
+        {/* Dashed divider */}
+        <div className="my-3 border-t-2 border-dashed border-slate-950/20 sm:my-3.5" />
+
+        {/* Row 2 */}
+        <div className="flex items-start justify-between gap-2.5 sm:gap-3">
+          <div>
+            <h3 className="font-display text-[14.5px] font-bold leading-tight tracking-tight text-slate-950 sm:text-[16px]">
+              Full Song Curriculum
+            </h3>
+            <p className="mt-0.5 text-[11.5px] font-medium leading-snug text-slate-800 sm:text-[12.5px]">
+              5 interactive goals &amp; song puzzles
+            </p>
+          </div>
+          <span className="font-display text-[17px] font-extrabold tracking-tight text-slate-950 sm:text-[19px]">
+            Free
+          </span>
+        </div>
+
+        {/* Download CTA Button */}
+        <a
+          href="https://apps.apple.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onClose}
+          className="mt-4 flex h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-[#080d19] px-4 font-bold text-white shadow-xl transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-5 sm:h-[54px] sm:gap-2.5"
+        >
+          <AppStoreIcon className="size-5 shrink-0 text-[#5eb0fa] sm:size-6" />
+          <span className="font-display text-[15px] font-bold tracking-tight text-[#5eb0fa] sm:text-[17px]">
+            Download
+          </span>
+        </a>
+
+        {/* Footer Note */}
+        <p className="mt-3.5 text-center text-[11px] font-medium leading-tight text-slate-800/90 sm:mt-4 sm:text-[11.5px]">
+          Free on iPhone &amp; iPad • Zero ads or tracking
+        </p>
+      </div>
+
+      {/* Scalloped bottom edge */}
+      <svg
+        className="block -mt-px h-4.5 w-full fill-current text-[#54a9f9] sm:h-5"
+        viewBox="0 0 320 16"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path d={SCALLOP_PATH} />
+      </svg>
+    </div>
+  );
+}
+
 export function TopBar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isTicketOpen, setIsTicketOpen] = useState(false);
+  const [isMobileTicketOpen, setIsMobileTicketOpen] = useState(false);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const ticketContainerRef = useRef<HTMLDivElement>(null);
+  const mobileTicketRef = useRef<HTMLDivElement>(null);
 
   const openDrawer = useCallback(() => {
     setIsDrawerOpen(true);
@@ -266,35 +335,24 @@ export function TopBar() {
     setIsDrawerOpen(false);
   }, []);
 
-  // Close ticket dropdown when clicking outside or pressing Escape
+  // Close mobile ticket dropdown when clicking outside
   useEffect(() => {
-    if (!isTicketOpen) return;
-
+    if (!isMobileTicketOpen) return;
     function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (
-        ticketContainerRef.current &&
-        !ticketContainerRef.current.contains(event.target as Node)
+        mobileTicketRef.current &&
+        !mobileTicketRef.current.contains(event.target as Node)
       ) {
-        setIsTicketOpen(false);
+        setIsMobileTicketOpen(false);
       }
     }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsTicketOpen(false);
-      }
-    }
-
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isTicketOpen]);
+  }, [isMobileTicketOpen]);
 
   // Promote modal <dialog> cleanly when drawer state opens.
   useEffect(() => {
@@ -360,7 +418,7 @@ export function TopBar() {
               <Link
                 href="/#download"
                 aria-label="App Store rating: 4.7 stars out of 5"
-                className="hidden h-10 shrink-0 cursor-pointer items-center gap-2 rounded-[10px] bg-surface-secondary px-2.5 text-fg-display transition-colors duration-150 hover:bg-divider/75 active:bg-divider sm:inline-flex"
+                className="hidden h-10 shrink-0 cursor-pointer items-center gap-2 rounded-[10px] bg-surface-secondary px-2.5 text-fg-display transition-colors duration-150 hover:bg-divider/75 active:bg-divider md:inline-flex"
               >
                 <div
                   aria-hidden="true"
@@ -378,108 +436,51 @@ export function TopBar() {
               </Link>
             </div>
 
-            {/* Right cluster: segmented dark iOS action pill with ticket dropdown */}
-            <div ref={ticketContainerRef} className="relative">
+            {/* Right cluster on mobile (<sm): compact button that opens ticket on tap */}
+            <div ref={mobileTicketRef} className="relative sm:hidden">
               <button
                 type="button"
-                onClick={() => setIsTicketOpen((prev) => !prev)}
-                aria-expanded={isTicketOpen}
+                onClick={() => setIsMobileTicketOpen((prev) => !prev)}
+                aria-expanded={isMobileTicketOpen}
                 aria-haspopup="dialog"
                 aria-label="Download Chordisol for iOS options"
                 className="inline-flex h-10 shrink-0 cursor-pointer items-stretch rounded-[10px] bg-fg-regular text-white shadow-xs transition-colors duration-150 hover:bg-fg-regular/90 active:bg-fg-regular/85 select-none"
               >
-                <span className="inline-flex items-center justify-center border-r border-white/15 px-3">
-                  <AppleIcon className="size-4.25" />
+                <span className="inline-flex items-center justify-center border-r border-white/15 px-2.5">
+                  <AppleIcon className="size-4" />
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3.5 text-[13px] font-semibold tracking-tight whitespace-nowrap">
-                  <span>Get on iOS</span>
-                  <ChevronDownIcon
-                    className={`size-3.5 opacity-75 transition-transform duration-200 ${
-                      isTicketOpen ? "rotate-180" : ""
-                    }`}
-                  />
+                <span className="inline-flex items-center px-3 text-xs font-semibold tracking-tight whitespace-nowrap">
+                  Get on iOS
                 </span>
               </button>
 
               <AnimatePresence>
-                {isTicketOpen && (
+                {isMobileTicketOpen && (
                   <motion.div
-                    id="ios-download-ticket"
-                    role="dialog"
-                    aria-label="Chordisol iOS Download Options"
                     initial={{ opacity: 0, y: -6, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.96 }}
                     transition={{ duration: 0.18, ease: EASE_OUT }}
-                    className="absolute right-0 top-full mt-2.5 z-50 w-[min(330px,calc(100vw-24px))] drop-shadow-[0_24px_48px_rgba(15,23,42,0.22)]"
+                    className="absolute right-0 top-full mt-2 z-50 w-[min(300px,calc(100vw-24px))] drop-shadow-[0_20px_35px_rgba(15,23,42,0.22)]"
                   >
-                    {/* Ticket Card Body */}
-                    <div className="rounded-t-[26px] bg-linear-to-b from-[#8fd2fd] via-[#70bdfc] to-[#54a9f9] p-6 text-slate-900">
-                      {/* Row 1 */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-display text-[16px] leading-tight font-bold text-slate-950 tracking-tight">
-                            Acoustic Ear Training
-                          </h3>
-                          <p className="mt-1 text-[13px] font-medium text-slate-800 leading-snug">
-                            Instant on-device chord recognition
-                          </p>
-                        </div>
-                        <span className="font-display text-[19px] font-extrabold text-slate-950 tracking-tight">
-                          Free
-                        </span>
-                      </div>
-
-                      {/* Dashed divider */}
-                      <div className="my-4.5 border-t-2 border-dashed border-slate-950/20" />
-
-                      {/* Row 2 */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-display text-[16px] leading-tight font-bold text-slate-950 tracking-tight">
-                            Full Song Curriculum
-                          </h3>
-                          <p className="mt-1 text-[13px] font-medium text-slate-800 leading-snug">
-                            5 interactive goals &amp; song puzzles
-                          </p>
-                        </div>
-                        <span className="font-display text-[19px] font-extrabold text-slate-950 tracking-tight">
-                          Free
-                        </span>
-                      </div>
-
-                      {/* Download CTA Button */}
-                      <a
-                        href="https://apps.apple.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setIsTicketOpen(false)}
-                        className="mt-6 flex h-[56px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#080d19] px-4 font-bold text-white shadow-xl transition-all duration-150 hover:bg-slate-900 active:scale-[0.98]"
-                      >
-                        <AppStoreIcon className="size-6 text-[#5eb0fa]" />
-                        <span className="font-display text-[17px] font-bold text-[#5eb0fa] tracking-tight">
-                          Download
-                        </span>
-                      </a>
-
-                      {/* Footer Note */}
-                      <p className="mt-5 text-center text-[12px] font-medium text-slate-800/90 leading-tight">
-                        Free on iPhone &amp; iPad • Zero ads, 100% on-device
-                      </p>
-                    </div>
-
-                    {/* Scalloped bottom edge */}
-                    <svg
-                      className="w-full h-5 -mt-px text-[#54a9f9] fill-current block"
-                      viewBox="0 0 320 16"
-                      preserveAspectRatio="none"
-                      aria-hidden="true"
-                    >
-                      <path d={SCALLOP_PATH} />
-                    </svg>
+                    <TicketCardContent
+                      isMobilePopup={true}
+                      onClose={() => setIsMobileTicketOpen(false)}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+
+            {/* Right cluster on desktop & tablet (sm and up): permanently sticking to top of window and ALWAYS OPENED */}
+            <div className="hidden sm:relative sm:flex sm:h-10 sm:w-[316px] sm:shrink-0 sm:justify-end md:w-[328px]">
+              <aside
+                id="ios-download-ticket"
+                aria-label="Chordisol iOS Download Receipt"
+                className="pointer-events-auto absolute -top-3 right-0 z-50 w-[316px] select-none drop-shadow-[0_20px_35px_rgba(15,23,42,0.22)] md:w-[328px]"
+              >
+                <TicketCardContent isMobilePopup={false} />
+              </aside>
             </div>
           </nav>
         </div>
