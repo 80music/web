@@ -7,8 +7,10 @@ interface CameraViewfinderProps {
   photos: (string | null)[];
   onPhotoCaptured: (slotIndex: number, dataUrl: string) => void;
   onSequenceComplete?: () => void;
-  activeSlot: number;
-  onSelectSlot: (slot: number) => void;
+  mode?: "sequence" | "retake";
+  retakeSlot?: number | null;
+  onRetakeDone?: () => void;
+  onCancelRetake?: () => void;
 }
 
 const POSE_HINTS = [
@@ -22,8 +24,10 @@ export function CameraViewfinder({
   photos,
   onPhotoCaptured,
   onSequenceComplete,
-  activeSlot,
-  onSelectSlot,
+  mode = "sequence",
+  retakeSlot = null,
+  onRetakeDone,
+  onCancelRetake,
 }: CameraViewfinderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -38,9 +42,21 @@ export function CameraViewfinder({
   const [countdownNumber, setCountdownNumber] = useState<number | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
   const [isAutoSequenceRunning, setIsAutoSequenceRunning] = useState(false);
+  const [activeSlotInternal, setActiveSlotInternal] = useState<number | null>(null);
   const [countdownDuration, setCountdownDuration] = useState<3 | 5>(3);
 
-  // Setup Camera
+  // Compute strictly ordered target slot (1 -> 2 -> 3 -> 4)
+  const firstEmptySlot = photos.findIndex((p) => p === null);
+  const currentSequentialSlot = firstEmptySlot === -1 ? 3 : firstEmptySlot;
+
+  const targetSlot =
+    mode === "retake" && retakeSlot !== null
+      ? retakeSlot
+      : activeSlotInternal !== null
+      ? activeSlotInternal
+      : currentSequentialSlot;
+
+  // Setup Camera Devices
   useEffect(() => {
     let cancelled = false;
 
@@ -144,7 +160,7 @@ export function CameraViewfinder({
     };
   }, [hasPermission, selectedDeviceId]);
 
-  // Capture frame
+  // Grab High-Res Frame
   const grabCurrentFrame = useCallback((): string | null => {
     const video = videoRef.current;
     if (!video || video.readyState < 2) return null;
@@ -158,7 +174,7 @@ export function CameraViewfinder({
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
-    // Mirror horizontally to match mirrored live preview
+    // Mirror horizontally to match mirrored viewfinder
     ctx.translate(vw, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, vw, vh);
@@ -166,12 +182,12 @@ export function CameraViewfinder({
     return canvas.toDataURL("image/jpeg", 0.95);
   }, []);
 
-  // Single shot with countdown
+  // Single Slot Capture with Countdown
   const captureSlot = useCallback(
     (slotIndex: number): Promise<void> => {
       return new Promise((resolve) => {
         setIsCountingDown(true);
-        onSelectSlot(slotIndex);
+        setActiveSlotInternal(slotIndex);
 
         let count = countdownDuration;
         setCountdownNumber(count);
@@ -187,7 +203,7 @@ export function CameraViewfinder({
             setCountdownNumber(null);
             setIsCountingDown(false);
 
-            // Shutter flash & click
+            // Flash & Shutter
             setIsFlashing(true);
             playShutterSound();
 
@@ -204,36 +220,55 @@ export function CameraViewfinder({
         }, 1000);
       });
     },
-    [countdownDuration, grabCurrentFrame, onPhotoCaptured, onSelectSlot]
+    [countdownDuration, grabCurrentFrame, onPhotoCaptured]
   );
 
-  // Full 4-shot sequence
+  // Strictly Sequential 4-Shot Auto Sequence
   const startFullSequence = useCallback(async () => {
     if (isAutoSequenceRunning || isCountingDown) return;
     setIsAutoSequenceRunning(true);
 
-    for (let i = 0; i < 4; i++) {
-      await captureSlot(i);
-      if (i < 3) {
+    for (let slot = 0; slot < 4; slot++) {
+      await captureSlot(slot);
+      if (slot < 3) {
         await new Promise((r) => setTimeout(r, 1600));
       }
     }
 
     setIsAutoSequenceRunning(false);
+    setActiveSlotInternal(null);
     if (onSequenceComplete) {
       onSequenceComplete();
     }
   }, [captureSlot, isAutoSequenceRunning, isCountingDown, onSequenceComplete]);
 
-  // Snap single next shot
-  const handleSnapSingle = async () => {
+  // Snap Next Single Shot in Sequence
+  const handleSnapNextSequential = async () => {
     if (isCountingDown || isAutoSequenceRunning) return;
-    await captureSlot(activeSlot);
-    const nextSlot = (activeSlot + 1) % 4;
-    onSelectSlot(nextSlot);
+    const slotToTake = currentSequentialSlot;
+    await captureSlot(slotToTake);
+    setActiveSlotInternal(null);
+
+    if (slotToTake === 3 && onSequenceComplete) {
+      setTimeout(() => {
+        onSequenceComplete();
+      }, 400);
+    }
   };
 
-  // File upload fallback
+  // Execute Retake for targeted slot
+  const handleExecuteRetake = async () => {
+    if (retakeSlot === null || isCountingDown) return;
+    await captureSlot(retakeSlot);
+    setActiveSlotInternal(null);
+    if (onRetakeDone) {
+      setTimeout(() => {
+        onRetakeDone();
+      }, 400);
+    }
+  };
+
+  // Fallback Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -248,6 +283,10 @@ export function CameraViewfinder({
       };
       reader.readAsDataURL(file);
     });
+
+    if (list.length === 4 && onSequenceComplete) {
+      setTimeout(() => onSequenceComplete(), 300);
+    }
   };
 
   const completedCount = photos.filter(Boolean).length;
@@ -270,10 +309,12 @@ export function CameraViewfinder({
             />
           </span>
           <span className="font-display text-sm font-bold text-slate-900">
-            Live Viewfinder
+            {mode === "retake" ? "Studio Retake Viewfinder" : "Live Studio Viewfinder"}
           </span>
           <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-brand-primary border border-blue-200">
-            {completedCount}/4 Captured
+            {mode === "retake"
+              ? `Retaking Shot ${(retakeSlot ?? 0) + 1}`
+              : `Shot ${Math.min(4, completedCount + 1)} of 4`}
           </span>
         </div>
 
@@ -354,8 +395,8 @@ export function CameraViewfinder({
 
         {/* Active Pose Overlay Banner */}
         <div className="absolute bottom-3 inset-x-3 z-20 flex items-center justify-between rounded-lg bg-slate-900/85 px-3 py-1.5 text-xs text-white backdrop-blur-md">
-          <span className="font-bold">{POSE_HINTS[activeSlot]}</span>
-          <span className="font-mono text-[10px] text-white/70">Shot {activeSlot + 1} of 4</span>
+          <span className="font-bold">{POSE_HINTS[targetSlot]}</span>
+          <span className="font-mono text-[10px] text-white/70">Shot {targetSlot + 1} of 4</span>
         </div>
 
         {/* Permission Denied Fallback */}
@@ -382,98 +423,150 @@ export function CameraViewfinder({
         )}
       </div>
 
-      {/* 4-Shot Selectable Slots Gallery */}
-      <div className="grid grid-cols-4 gap-2">
-        {[0, 1, 2, 3].map((slot) => {
-          const photo = photos[slot];
-          const isSelected = activeSlot === slot;
+      {/* Strictly Ordered Progress Slots (DIVS, NOT CLICKABLE - User cannot pick slots) */}
+      <div className="flex flex-col gap-1.5 pt-1">
+        <div className="flex items-center justify-between text-xs text-slate-500">
+          <span className="font-bold text-slate-700">Strict 4-Cut Sequence:</span>
+          <span>
+            {mode === "retake"
+              ? `Retaking Shot ${(retakeSlot ?? 0) + 1}`
+              : `Captured ${completedCount} of 4 (Ordered 1 → 2 → 3 → 4)`}
+          </span>
+        </div>
 
-          return (
-            <button
-              key={slot}
-              type="button"
-              onClick={() => onSelectSlot(slot)}
-              className={`group relative aspect-4/3 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
-                isSelected
-                  ? "border-brand-primary ring-2 ring-brand-primary/30 shadow-xs"
-                  : photo
-                  ? "border-slate-300 hover:border-slate-400"
-                  : "border-dashed border-slate-200 bg-slate-50 hover:bg-slate-100"
-              }`}
-            >
-              {photo ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo}
-                    alt={`Shot ${slot + 1}`}
-                    className="size-full object-cover"
-                  />
-                  <span className="absolute top-1 left-1 flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white shadow-xs">
-                    ✓
-                  </span>
-                  <span className="absolute bottom-1 right-1 rounded-full bg-slate-900/80 px-1.5 py-0.2 text-[9px] font-bold text-white">
-                    #{slot + 1}
-                  </span>
-                </>
-              ) : (
-                <div className="flex size-full flex-col items-center justify-center text-slate-400">
-                  <span className="font-display text-xs font-bold text-slate-700">
-                    {slot + 1}
-                  </span>
-                  <span className="text-[9px] font-medium opacity-70">
-                    {isSelected ? "Active" : "Empty"}
-                  </span>
-                </div>
-              )}
-            </button>
-          );
-        })}
+        <div className="grid grid-cols-4 gap-2">
+          {[0, 1, 2, 3].map((slot) => {
+            const photo = photos[slot];
+            const isTarget = targetSlot === slot;
+
+            return (
+              <div
+                key={slot}
+                className={`relative aspect-4/3 overflow-hidden rounded-xl border-2 transition-all ${
+                  isTarget
+                    ? "border-brand-primary ring-2 ring-brand-primary/30 bg-brand-primary/5"
+                    : photo
+                    ? "border-emerald-500/80 bg-emerald-50/50 shadow-2xs"
+                    : "border-dashed border-slate-200 bg-slate-50"
+                }`}
+              >
+                {photo ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photo}
+                      alt={`Captured shot ${slot + 1}`}
+                      className="size-full object-cover"
+                    />
+                    <span className="absolute top-1 left-1 flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white shadow-xs">
+                      ✓
+                    </span>
+                    <span className="absolute bottom-1 right-1 rounded-full bg-slate-900/80 px-1.5 py-0.2 text-[9px] font-bold text-white">
+                      #{slot + 1}
+                    </span>
+                  </>
+                ) : (
+                  <div className="flex size-full flex-col items-center justify-center text-slate-400">
+                    <span className="font-display text-xs font-bold text-slate-700">
+                      {slot + 1}
+                    </span>
+                    <span className="text-[9px] font-semibold opacity-70">
+                      {isTarget ? "Current" : "Pending"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Primary Shutter Action Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5 text-slate-500">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <span>Upload</span>
-        </button>
+      {/* Action Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+        {mode === "retake" ? (
+          /* RETAKE MODE */
+          <div className="flex w-full items-center justify-between gap-3">
+            {onCancelRetake && (
+              <button
+                type="button"
+                onClick={onCancelRetake}
+                className="flex h-11 items-center gap-1.5 rounded-full border-2 border-slate-900/10 bg-slate-100 px-5 font-sans text-xs font-bold text-slate-700 hover:bg-slate-200 transition-all active:scale-95 cursor-pointer"
+              >
+                <span>← Cancel Retake</span>
+              </button>
+            )}
 
-        <div className="flex items-center gap-2 ml-auto">
-          {/* Snap Single Shot */}
-          <button
-            type="button"
-            disabled={isCountingDown || isAutoSequenceRunning || !hasPermission}
-            onClick={handleSnapSingle}
-            className="h-11 rounded-full border-2 border-slate-900/10 bg-slate-100 px-4 font-display text-xs font-bold text-slate-800 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
-          >
-            Snap Shot {activeSlot + 1}
-          </button>
+            <button
+              type="button"
+              disabled={isCountingDown || !hasPermission}
+              onClick={handleExecuteRetake}
+              className="ml-auto inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-primary px-6 font-display text-sm font-bold text-white shadow-[0_4px_0_#0f5298] transition-all hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] disabled:opacity-50 cursor-pointer"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.3} className="size-4.5">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span>Snap Shot {(retakeSlot ?? 0) + 1} Retake ({countdownDuration}s)</span>
+            </button>
+          </div>
+        ) : (
+          /* SEQUENTIAL MODE */
+          <div className="flex w-full flex-wrap items-center justify-between gap-3">
+            {/* Fallback upload */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 text-xs font-bold text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5 text-slate-500">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span>Upload Photos</span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
 
-          {/* Start 4-Shot Sequence */}
-          <button
-            type="button"
-            disabled={isCountingDown || isAutoSequenceRunning || !hasPermission}
-            onClick={startFullSequence}
-            className="flex h-11 items-center gap-2 rounded-full bg-brand-primary px-5 font-display text-sm font-bold text-white shadow-[0_4px_0_#0f5298] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] transition-all cursor-pointer disabled:opacity-50"
-          >
-            <span className="size-2 rounded-full bg-rose-400 animate-pulse" />
-            <span>
-              {isAutoSequenceRunning
-                ? "Capturing Sequence..."
-                : completedCount === 4
-                ? "Retake All 4 Shots"
-                : "📸 Start 4-Shot Sequence"}
-            </span>
-          </button>
-        </div>
+            {/* Sequence & Single Triggers */}
+            <div className="flex items-center gap-2 ml-auto">
+              {/* Single shot trigger */}
+              <button
+                type="button"
+                disabled={isCountingDown || isAutoSequenceRunning || !hasPermission || completedCount >= 4}
+                onClick={handleSnapNextSequential}
+                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full border-2 border-slate-900/10 bg-slate-100 px-4 font-display text-xs font-bold text-slate-800 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
+              >
+                <span>Take Shot {currentSequentialSlot + 1}</span>
+              </button>
+
+              {/* Full 4-shot sequence trigger */}
+              <button
+                type="button"
+                disabled={isCountingDown || isAutoSequenceRunning || !hasPermission}
+                onClick={startFullSequence}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-primary px-5 font-display text-sm font-bold text-white shadow-[0_4px_0_#0f5298] transition-all hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] disabled:opacity-50 cursor-pointer"
+              >
+                <span className="size-2 rounded-full bg-rose-400 animate-pulse" />
+                <span>
+                  {isAutoSequenceRunning
+                    ? "Capturing Sequence..."
+                    : completedCount === 4
+                    ? "↺ Retake All 4 Shots"
+                    : "⚡ Start 4-Shot Sequence"}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
