@@ -15,18 +15,18 @@ export function CurriculumShowcase() {
               The Shift
             </span>
 
-            <h2 className="mt-2.5 font-display text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-[32px] lg:leading-[1.2] text-balance">
+            <h2 className="mt-2.5 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-[32px] lg:leading-[1.2] text-balance">
               Stop fighting music theory. <br className="hidden sm:inline" />Start playing by ear.
             </h2>
 
-            <p className="mt-3.5 max-w-lg text-sm sm:text-base font-normal leading-relaxed text-slate-600 text-pretty">
-              Traditional ear training treats harmony like a stressful exam with tangled cables and abstract drills. Chordisol listens directly to your real piano or guitar — turning recognition into effortless intuition.
+            <p className="mt-3.5 max-w-md text-base font-normal leading-relaxed text-slate-500 sm:text-[17px] text-pretty">
+              Music theory shouldn&apos;t feel like a math exam. Prop your device by your instrument, play naturally, and let your ear do the rest.
             </p>
           </div>
 
           {/* Right Column (45%): Image Asset Created by User */}
           <div className="w-full lg:w-[45%] flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[320px] xs:max-w-[350px] sm:max-w-[390px] rotate-1">
+            <div className="relative w-full max-w-[320px] xs:max-w-[350px] sm:max-w-[390px]">
               <Image
                 src="/images/the-shift-comparison.png"
                 alt="Chord Matched vs MIDI clutter, dry theory drills, and stressful tone tests"
