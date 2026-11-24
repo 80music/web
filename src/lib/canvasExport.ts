@@ -1,11 +1,14 @@
 import {
   FRAME_PRESETS,
   PHOTO_FILTERS,
+  STRIP_RATIOS,
   type StripConfig,
 } from "@/lib/booth-types";
 
-export const BASE_STRIP_WIDTH = 360;
-export const BASE_STRIP_HEIGHT = 1180;
+// Base export width for Ultra HD 3.5x print: 1200px
+export const EXPORT_ULTRA_HD_WIDTH = 1200;
+// Compressed export width for QR upload: 540px (~200KB)
+export const EXPORT_COMPRESSED_WIDTH = 540;
 
 const imageCache = new Map<string, HTMLImageElement>();
 
@@ -83,16 +86,55 @@ function drawImageCover(
   ctx.restore();
 }
 
+let fontsLoadedPromise: Promise<void> | null = null;
+
+export async function ensureCanvasFonts(): Promise<void> {
+  if (typeof window === "undefined") return;
+  if (fontsLoadedPromise) return fontsLoadedPromise;
+
+  fontsLoadedPromise = (async () => {
+    try {
+      if (typeof FontFace !== "undefined") {
+        const displayFont = new FontFace(
+          "ChordisolCanvasDisplay",
+          "url(/font/MomoTrustDisplay.ttf)",
+          { weight: "700 900" }
+        );
+        const sansFont = new FontFace(
+          "ChordisolCanvasSans",
+          "url(/font/MomoTrustSans.ttf)",
+          { weight: "400 700" }
+        );
+
+        await Promise.allSettled([
+          displayFont.load().then((f) => document.fonts.add(f)),
+          sansFont.load().then((f) => document.fonts.add(f)),
+        ]);
+      }
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+    } catch (err) {
+      console.warn("Canvas font loading fallback:", err);
+    }
+  })();
+
+  return fontsLoadedPromise;
+}
+
 /**
- * Renders the photobooth strip onto a high-performance offscreen canvas.
- * Exactly matches the DOM layout with 1:1 pixel precision at any scale factor.
+ * 1:1 Pixel-Perfect Canvas Export Engine.
+ * Dynamically computes all dimensions from STRIP_RATIOS to guarantee exact DOM parity.
  */
 export async function renderStripCanvas(
   config: StripConfig,
-  scale = 3.5
+  targetWidth = EXPORT_ULTRA_HD_WIDTH
 ): Promise<HTMLCanvasElement> {
-  const width = Math.round(BASE_STRIP_WIDTH * scale);
-  const height = Math.round(BASE_STRIP_HEIGHT * scale);
+  // Ensure fonts are loaded before canvas text measurements
+  await ensureCanvasFonts();
+
+  const width = targetWidth;
+  const height = Math.round(targetWidth * STRIP_RATIOS.aspectRatio);
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -108,24 +150,34 @@ export async function renderStripCanvas(
   const activeFilter =
     PHOTO_FILTERS.find((f) => f.id === config.filter) || PHOTO_FILTERS[0];
 
+  // Concrete font strings using loaded FontFace with robust fallbacks
+  const fontDisplay =
+    "'ChordisolCanvasDisplay', 'Momo Trust Display', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  const fontSans =
+    "'ChordisolCanvasSans', 'Momo Trust Sans', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
   // 1. Draw frame background & border
   ctx.fillStyle = frame.bg;
   ctx.fillRect(0, 0, width, height);
 
+  const frameBorderWidth = Math.max(3, Math.round(width * 0.01));
   ctx.strokeStyle = frame.border;
-  ctx.lineWidth = Math.max(2, Math.round(2 * scale));
+  ctx.lineWidth = frameBorderWidth;
   roundRectPath(
     ctx,
-    ctx.lineWidth / 2,
-    ctx.lineWidth / 2,
-    width - ctx.lineWidth,
-    height - ctx.lineWidth,
-    20 * scale
+    frameBorderWidth / 2,
+    frameBorderWidth / 2,
+    width - frameBorderWidth,
+    height - frameBorderWidth,
+    Math.round(width * 0.065)
   );
   ctx.stroke();
 
-  // 2. Draw Top Header
-  const headerY = 22 * scale;
+  // 2. Draw Header
+  const headerTopY = width * STRIP_RATIOS.paddingTop;
+  const logoSize = Math.round(width * STRIP_RATIOS.logoSize);
+  const headerLeftX = width * STRIP_RATIOS.paddingX;
+
   let logoImg: HTMLImageElement | null = null;
   try {
     logoImg = await preloadImage("/images/chordisol-logo.png");
@@ -133,39 +185,61 @@ export async function renderStripCanvas(
     logoImg = null;
   }
 
-  const logoSize = 28 * scale;
-  const logoX = 22 * scale;
   if (logoImg) {
     ctx.save();
-    roundRectPath(ctx, logoX, headerY, logoSize, logoSize, 7 * scale);
+    roundRectPath(
+      ctx,
+      headerLeftX,
+      headerTopY,
+      logoSize,
+      logoSize,
+      Math.round(logoSize * 0.24)
+    );
     ctx.clip();
-    ctx.drawImage(logoImg, logoX, headerY, logoSize, logoSize);
+    ctx.drawImage(logoImg, headerLeftX, headerTopY, logoSize, logoSize);
     ctx.restore();
   }
 
   // Header Title
+  const textLeftX = headerLeftX + logoSize + Math.round(width * 0.032);
+  const titleFontSize = Math.round(width * STRIP_RATIOS.titleFontSize);
   ctx.fillStyle = frame.textColor;
-  ctx.font = `bold ${Math.round(15 * scale)}px var(--font-momo-display), system-ui, sans-serif`;
+  ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
-  ctx.fillText("CHORDISOL", logoX + logoSize + 10 * scale, headerY + 9 * scale);
+  ctx.fillText("CHORDISOL", textLeftX, headerTopY + logoSize * 0.32);
 
   // Header Subtitle
+  const subFontSize = Math.round(width * STRIP_RATIOS.subtitleFontSize);
   ctx.fillStyle = frame.subtextColor;
-  ctx.font = `600 ${Math.round(9.5 * scale)}px var(--font-momo-sans), system-ui, sans-serif`;
-  ctx.fillText(
-    "ACOUSTIC PHOTOBOOTH",
-    logoX + logoSize + 10 * scale,
-    headerY + 22 * scale
-  );
+  ctx.font = `700 ${subFontSize}px ${fontSans}`;
+  ctx.fillText("ACOUSTIC PHOTOBOOTH", textLeftX, headerTopY + logoSize * 0.76);
+
+  // "4-CUT" Badge on right
+  const badgeFontSize = Math.round(width * STRIP_RATIOS.badgeFontSize);
+  const badgeW = Math.round(width * 0.15);
+  const badgeH = Math.round(width * 0.065);
+  const badgeX = width - width * STRIP_RATIOS.paddingX - badgeW;
+  const badgeY = headerTopY + (logoSize - badgeH) / 2;
+
+  ctx.fillStyle = frame.photoBorder;
+  roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
+  ctx.fill();
+
+  ctx.fillStyle = frame.textColor;
+  ctx.font = `bold ${badgeFontSize}px ${fontSans}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("4-CUT", badgeX + badgeW / 2, badgeY + badgeH / 2);
 
   // 3. Draw 4 Photo Slots
-  const photoMarginX = 22 * scale;
-  const photoW = width - photoMarginX * 2; // 316 * scale
-  const photoH = Math.round(photoW * (3 / 4)); // 4:3 ratio ~ 237 * scale
-  const photoGap = 12 * scale;
-  const photoRadius = 12 * scale;
-  const startPhotoY = 64 * scale;
+  const photoMarginX = width * STRIP_RATIOS.paddingX;
+  const photoW = width * STRIP_RATIOS.photoWidth;
+  const photoH = width * STRIP_RATIOS.photoHeight;
+  const photoGap = width * STRIP_RATIOS.photoGap;
+  const photoRadius = Math.round(width * STRIP_RATIOS.photoRadius);
+  const startPhotoY =
+    headerTopY + logoSize + width * STRIP_RATIOS.gapHeaderToPhotos;
 
   for (let i = 0; i < 4; i++) {
     const currentY = startPhotoY + i * (photoH + photoGap);
@@ -194,77 +268,115 @@ export async function renderStripCanvas(
         ctx.restore();
       } catch (err) {
         console.warn(`Error drawing photo slot ${i}:`, err);
-        // Fallback neutral placeholder
         ctx.fillStyle = "#e2e8f0";
         roundRectPath(ctx, photoMarginX, currentY, photoW, photoH, photoRadius);
         ctx.fill();
       }
     } else {
-      // Empty slot placeholder
+      // Empty slot placeholder matching DOM strip
       ctx.fillStyle =
         frame.id === "charcoal-ink" || frame.id === "midnight-navy"
           ? "rgba(255, 255, 255, 0.08)"
-          : "rgba(15, 23, 42, 0.06)";
+          : "rgba(15, 23, 42, 0.05)";
       roundRectPath(ctx, photoMarginX, currentY, photoW, photoH, photoRadius);
       ctx.fill();
 
-      ctx.fillStyle = frame.subtextColor;
-      ctx.font = `600 ${Math.round(11 * scale)}px var(--font-momo-sans), system-ui, sans-serif`;
+      // Dashed inner slot indicator
+      ctx.strokeStyle = frame.subtextColor;
+      ctx.lineWidth = Math.max(2, Math.round(width * 0.003));
+      ctx.setLineDash([Math.round(width * 0.015), Math.round(width * 0.01)]);
+      const indicatorSize = Math.round(width * 0.12);
+      ctx.beginPath();
+      ctx.arc(
+        photoMarginX + photoW / 2,
+        currentY + photoH / 2 - Math.round(width * 0.02),
+        indicatorSize / 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = frame.textColor;
+      ctx.font = `bold ${Math.round(width * 0.042)}px ${fontSans}`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(
+        `${i + 1}`,
+        photoMarginX + photoW / 2,
+        currentY + photoH / 2 - Math.round(width * 0.02)
+      );
+
+      ctx.fillStyle = frame.subtextColor;
+      ctx.font = `600 ${Math.round(width * 0.03)}px ${fontSans}`;
+      ctx.fillText(
         `Shot ${i + 1}`,
         photoMarginX + photoW / 2,
-        currentY + photoH / 2
+        currentY + photoH / 2 + Math.round(width * 0.065)
       );
     }
 
-    // Photo border
+    // Photo outer border
     ctx.strokeStyle = frame.photoBorder;
-    ctx.lineWidth = Math.max(1, Math.round(1.5 * scale));
+    ctx.lineWidth = Math.max(1.5, Math.round(width * 0.004));
     roundRectPath(ctx, photoMarginX, currentY, photoW, photoH, photoRadius);
     ctx.stroke();
   }
 
   // 4. Draw Footer
-  const footerStartY = startPhotoY + 4 * photoH + 3 * photoGap + 16 * scale;
+  const footerStartY =
+    startPhotoY + 4 * photoH + 3 * photoGap + width * STRIP_RATIOS.gapPhotosToFooter;
 
   // Caption text
+  const captionFontSize = Math.round(width * STRIP_RATIOS.captionFontSize);
   ctx.fillStyle = frame.textColor;
-  ctx.font = `bold ${Math.round(13.5 * scale)}px var(--font-momo-display), system-ui, sans-serif`;
+  ctx.font = `bold ${captionFontSize}px ${fontDisplay}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(
     config.caption || "Acoustic Session • Chordisol Studio",
     width / 2,
-    footerStartY + 4 * scale
+    footerStartY + Math.round(width * 0.02)
   );
 
   // Date / timestamp
+  let nextY = footerStartY + Math.round(width * 0.02);
   if (config.showDate && config.dateText) {
+    nextY += Math.round(width * 0.045);
+    const dateFontSize = Math.round(width * STRIP_RATIOS.dateFontSize);
     ctx.fillStyle = frame.subtextColor;
-    ctx.font = `600 ${Math.round(10 * scale)}px var(--font-momo-sans), system-ui, sans-serif`;
-    ctx.fillText(config.dateText, width / 2, footerStartY + 20 * scale);
+    ctx.font = `600 ${dateFontSize}px ${fontSans}`;
+    ctx.fillText(config.dateText, width / 2, nextY);
   }
 
-  // Decorative bottom barcode / retro registration dots
-  const barcodeY = footerStartY + 33 * scale;
-  const barcodeW = 120 * scale;
+  // Decorative barcode bar
+  const barcodeY = nextY + Math.round(width * 0.042);
+  const barcodeW = width * STRIP_RATIOS.barcodeWidth;
+  const barcodeH = width * STRIP_RATIOS.barcodeHeight;
   const barcodeStartX = (width - barcodeW) / 2;
+
   ctx.fillStyle = frame.subtextColor;
   ctx.globalAlpha = 0.55;
 
-  const barSegments = [3, 1.5, 4, 2, 6, 2, 3, 5, 2, 4, 3, 2, 5, 2, 3];
+  const barSegments = [
+    3.5, 1.5, 4.5, 2, 6, 2.5, 3.5, 5.5, 2, 4.5, 3, 2, 5.5, 2.5, 3.5, 2, 4.5, 2,
+    6, 3, 4,
+  ];
+  const totalBarUnits = barSegments.reduce((a, b) => a + b, 0);
+  const unitPx = barcodeW / totalBarUnits;
+
   let curBarX = barcodeStartX;
-  for (const barWidth of barSegments) {
-    ctx.fillRect(curBarX, barcodeY, barWidth * scale, 6 * scale);
-    curBarX += (barWidth + 2.5) * scale;
+  for (let b = 0; b < barSegments.length; b++) {
+    const seg = barSegments[b];
+    if (b % 2 === 0) {
+      ctx.fillRect(curBarX, barcodeY, seg * unitPx, barcodeH);
+    }
+    curBarX += seg * unitPx;
   }
   ctx.globalAlpha = 1.0;
 
   // 5. Draw Placed Stickers (Normalized math: xPercent, yPercent, widthPercent, rotationDeg)
   if (config.stickersVisible && config.stickers && config.stickers.length > 0) {
-    // Sort by zIndex so layering is strictly respected
     const sortedStickers = [...config.stickers].sort(
       (a, b) => a.zIndex - b.zIndex
     );
@@ -285,10 +397,10 @@ export async function renderStripCanvas(
         ctx.translate(centerX, centerY);
         ctx.rotate((sticker.rotationDeg * Math.PI) / 180);
 
-        // Draw drop shadow under sticker
-        ctx.shadowColor = "rgba(15, 23, 42, 0.22)";
-        ctx.shadowBlur = 4 * scale;
-        ctx.shadowOffsetY = 2.5 * scale;
+        // Soft drop shadow matching DOM
+        ctx.shadowColor = "rgba(15, 23, 42, 0.28)";
+        ctx.shadowBlur = Math.round(drawW * 0.12);
+        ctx.shadowOffsetY = Math.round(drawW * 0.06);
 
         ctx.drawImage(stickerImg, -drawW / 2, -drawH / 2, drawW, drawH);
         ctx.restore();
@@ -303,13 +415,13 @@ export async function renderStripCanvas(
 
 /**
  * Dual-Resolution Export Pipeline:
- * Export at 3.5x Ultra HD as full-quality PNG for local computer saving.
+ * Export at 3.5x Ultra HD (1200px wide, ~3790px tall) as full-quality PNG for local saving.
  */
 export async function downloadUltraHdStrip(
   config: StripConfig,
   filename?: string
 ): Promise<void> {
-  const canvas = await renderStripCanvas(config, 3.5);
+  const canvas = await renderStripCanvas(config, EXPORT_ULTRA_HD_WIDTH);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -340,13 +452,11 @@ export async function downloadUltraHdStrip(
 
 /**
  * Dual-Resolution Export Pipeline:
- * Export at 1.5x scale as compressed JPEG (~200KB - 300KB) to prevent Vercel 413 Payload Errors.
+ * Export at 1.5x scale (540px wide, ~1700px tall) as compressed JPEG (~200KB - 300KB) to prevent Vercel 413 Payload Errors.
  */
 export async function exportCompressedStripForUpload(
   config: StripConfig
 ): Promise<string> {
-  // 1.5x scale -> 540px x 1770px
-  const canvas = await renderStripCanvas(config, 1.5);
-  // JPEG format with 0.88 quality yields ~180-260KB compressed image
+  const canvas = await renderStripCanvas(config, EXPORT_COMPRESSED_WIDTH);
   return canvas.toDataURL("image/jpeg", 0.88);
 }

@@ -338,6 +338,10 @@ export function TopBar() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const mobileTicketRef = useRef<HTMLDivElement>(null);
 
+  const isTicketHidden =
+    isCtaVisible ||
+    Boolean(pathname?.startsWith("/booth") || pathname?.startsWith("/strip"));
+
   // Automatically hide the top-right ticket ONLY when user views the CTA banner, and reveal again when they leave
   useEffect(() => {
     const ctaElement = document.getElementById("download");
@@ -512,15 +516,15 @@ export function TopBar() {
               ref={mobileTicketRef}
               initial={false}
               animate={{
-                opacity: isCtaVisible ? 0 : 1,
-                scale: isCtaVisible ? 0.85 : 1,
+                opacity: isTicketHidden ? 0 : 1,
+                scale: isTicketHidden ? 0.85 : 1,
               }}
               transition={{
                 duration: shouldReduceMotion ? 0.1 : 0.25,
                 ease: EASE_OUT,
               }}
               className={`relative sm:hidden ${
-                isCtaVisible ? "pointer-events-none" : "pointer-events-auto"
+                isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
               }`}
             >
               <button
@@ -564,14 +568,14 @@ export function TopBar() {
             />
           </nav>
 
-          {/* Desktop & tablet ticket: hides smoothly when CTA banner is in view, reveals when user leaves */}
+          {/* Desktop & tablet ticket: hides smoothly when CTA banner is in view or on booth/strip pages */}
           <motion.aside
             id="ios-download-ticket"
             aria-label="Chordisol iOS Download Receipt"
             initial={false}
             animate={{
-              y: isCtaVisible ? -360 : 0,
-              opacity: isCtaVisible ? 0 : 1,
+              y: isTicketHidden ? -360 : 0,
+              opacity: isTicketHidden ? 0 : 1,
               scale: 0.9,
             }}
             style={{ transformOrigin: "top right" }}
@@ -580,7 +584,7 @@ export function TopBar() {
               ease: EASE_OUT,
             }}
             className={`absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px] ${
-              isCtaVisible ? "pointer-events-none" : "pointer-events-auto"
+              isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
             }`}
           >
             <TicketCardContent isMobilePopup={false} />

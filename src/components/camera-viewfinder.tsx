@@ -6,6 +6,7 @@ import { playCountdownPip, playShutterSound } from "@/lib/audio-beeps";
 interface CameraViewfinderProps {
   onPhotoCaptured: (slotIndex: number, dataUrl: string) => void;
   onSequenceComplete?: () => void;
+  onProceedToCustomize?: () => void;
   photos: (string | null)[];
   activeSlot: number | null; // which slot is currently being targeted
   setActiveSlot: (slot: number | null) => void;
@@ -14,6 +15,7 @@ interface CameraViewfinderProps {
 export function CameraViewfinder({
   onPhotoCaptured,
   onSequenceComplete,
+  onProceedToCustomize,
   photos,
   activeSlot,
   setActiveSlot,
@@ -353,6 +355,18 @@ export function CameraViewfinder({
           className="size-full object-cover"
         />
 
+        {/* Framing Guides (Leica / Studio corner marks) */}
+        <div className="pointer-events-none absolute inset-4 border border-white/15 rounded-[10px]">
+          {/* Top-Left */}
+          <div className="absolute -top-[1px] -left-[1px] size-4 border-t-2 border-l-2 border-white/70 rounded-tl-[4px]" />
+          {/* Top-Right */}
+          <div className="absolute -top-[1px] -right-[1px] size-4 border-t-2 border-r-2 border-white/70 rounded-tr-[4px]" />
+          {/* Bottom-Left */}
+          <div className="absolute -bottom-[1px] -left-[1px] size-4 border-b-2 border-l-2 border-white/70 rounded-bl-[4px]" />
+          {/* Bottom-Right */}
+          <div className="absolute -bottom-[1px] -right-[1px] size-4 border-b-2 border-r-2 border-white/70 rounded-br-[4px]" />
+        </div>
+
         {/* Camera Permission / Error Fallback */}
         {hasPermission === false && (
           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center text-white bg-slate-950/90 backdrop-blur-sm">
@@ -368,14 +382,14 @@ export function CameraViewfinder({
               <button
                 type="button"
                 onClick={() => setRetryTrigger((c) => c + 1)}
-                className="h-9 px-4 rounded-full bg-brand-primary text-white text-xs font-bold hover:bg-brand-primary/90 transition-transform active:scale-95"
+                className="h-9 px-4 rounded-full bg-brand-primary text-white text-xs font-bold hover:bg-brand-primary/90 transition-transform active:scale-95 cursor-pointer"
               >
                 Retry Camera
               </button>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="h-9 px-4 rounded-full bg-white/20 text-white text-xs font-bold hover:bg-white/30 transition-transform active:scale-95"
+                className="h-9 px-4 rounded-full bg-white/20 text-white text-xs font-bold hover:bg-white/30 transition-transform active:scale-95 cursor-pointer"
               >
                 Upload Photos
               </button>
@@ -409,45 +423,97 @@ export function CameraViewfinder({
 
         {/* Active slot indicator badge */}
         {activeSlot !== null && (
-          <div className="absolute top-3 left-3 z-20 rounded-full bg-slate-900/80 px-3 py-1 text-xs font-bold text-white backdrop-blur-md">
+          <div className="absolute top-3 left-3 z-20 rounded-full bg-slate-900/80 px-3 py-1 text-xs font-bold text-white backdrop-blur-md border border-white/10">
             Shot {activeSlot + 1} of 4
           </div>
         )}
       </div>
 
-      {/* Action Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        {/* Slot selector / retake bar */}
+      {/* Visual 4-Slot Filmstrip Thumbnails */}
+      <div className="grid grid-cols-4 gap-2 pt-1">
+        {[0, 1, 2, 3].map((slot) => {
+          const photoUrl = photos[slot];
+          const isSelected = activeSlot === slot;
+
+          return (
+            <div
+              key={slot}
+              onClick={() => {
+                if (!isCountingDown && !isAutoSequenceRunning) {
+                  void handleRetakeSingle(slot);
+                }
+              }}
+              title={photoUrl ? `Click to retake shot ${slot + 1}` : `Click to take shot ${slot + 1}`}
+              className={`group relative aspect-4/3 overflow-hidden rounded-[10px] border-2 cursor-pointer transition-all duration-150 ${
+                isSelected
+                  ? "border-brand-primary ring-2 ring-brand-primary/30 ring-offset-1 scale-[1.02]"
+                  : photoUrl
+                  ? "border-emerald-500/80 hover:border-emerald-600 shadow-xs"
+                  : "border-dashed border-border-subtle bg-surface-secondary/60 hover:border-slate-400"
+              }`}
+            >
+              {photoUrl ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoUrl}
+                    alt={`Thumbnail shot ${slot + 1}`}
+                    className="size-full object-cover"
+                  />
+                  {/* Small completed badge */}
+                  <span className="absolute top-1 left-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-xs">
+                    ✓
+                  </span>
+                  {/* Retake hover overlay */}
+                  <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-[10px] font-bold text-white bg-slate-900/80 px-1.5 py-0.5 rounded-full">
+                      Retake
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex size-full flex-col items-center justify-center text-text-muted">
+                  <span className="font-mono text-xs font-bold opacity-75">
+                    {slot + 1}
+                  </span>
+                  <span className="text-[9px] font-medium opacity-60">
+                    Shot {slot + 1}
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Action Controls & Navigation */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
+        {/* Secondary upload fallback */}
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-medium text-text-muted mr-1 hidden sm:inline">
-            Slots:
-          </span>
-          {[0, 1, 2, 3].map((slot) => {
-            const isFilled = Boolean(photos[slot]);
-            const isSelected = activeSlot === slot;
-            return (
-              <button
-                key={slot}
-                type="button"
-                disabled={isCountingDown || isAutoSequenceRunning}
-                onClick={() => handleRetakeSingle(slot)}
-                title={`Retake shot ${slot + 1}`}
-                className={`flex size-8 cursor-pointer items-center justify-center rounded-[8px] font-mono text-xs font-bold transition-all duration-150 active:scale-95 ${
-                  isSelected
-                    ? "bg-brand-primary text-white shadow-sm ring-2 ring-brand-primary ring-offset-2"
-                    : isFilled
-                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200"
-                    : "bg-surface-secondary text-fg-display/70 border border-border-subtle hover:bg-divider"
-                }`}
-              >
-                {isFilled ? "✓" : slot + 1}
-              </button>
-            );
-          })}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex h-9 items-center gap-1.5 rounded-full border border-border-subtle bg-surface-secondary px-3 text-xs font-bold text-fg-display hover:bg-divider transition-colors cursor-pointer"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5 text-text-muted">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span>Upload Photos</span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
         </div>
 
-        {/* Primary Capture Action Button */}
-        <div className="flex items-center gap-2">
+        {/* Primary Capture Action Button & Customize Progression */}
+        <div className="flex items-center gap-2 ml-auto">
           <button
             type="button"
             disabled={isCountingDown || isAutoSequenceRunning || !hasPermission}
@@ -460,12 +526,26 @@ export function CameraViewfinder({
             </svg>
             <span>
               {isAutoSequenceRunning
-                ? "Capturing 4 Shots..."
+                ? "Capturing..."
                 : completedCount === 4
                 ? "Retake All 4 Shots"
-                : "Start 4-Shot Sequence"}
+                : "⚡ Start 4-Shot Sequence"}
             </span>
           </button>
+
+          {/* Next Step Button (visible when at least 1 shot is ready) */}
+          {completedCount > 0 && onProceedToCustomize && (
+            <button
+              type="button"
+              onClick={onProceedToCustomize}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-fg-display px-4 font-display text-xs font-bold text-white shadow-xs transition-all hover:bg-slate-900 active:scale-95 cursor-pointer"
+            >
+              <span>Customize</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} className="size-3">
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </div>

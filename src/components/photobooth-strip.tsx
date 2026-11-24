@@ -27,6 +27,7 @@ interface PhotoboothStripProps {
   ) => void;
   onDeleteSticker: (id: string) => void;
   onRetakeSlot?: (slotIndex: number) => void;
+  className?: string;
 }
 
 export function PhotoboothStrip({
@@ -43,6 +44,7 @@ export function PhotoboothStrip({
   onUpdateSticker,
   onDeleteSticker,
   onRetakeSlot,
+  className = "",
 }: PhotoboothStripProps) {
   const stripRef = useRef<HTMLDivElement>(null);
   const frame = FRAME_PRESETS.find((f) => f.id === frameColor) || FRAME_PRESETS[0];
@@ -56,10 +58,7 @@ export function PhotoboothStrip({
     startPointerY: number;
     initialX: number;
     initialY: number;
-    initialRot: number;
     initialWidth: number;
-    stickerCenterX: number;
-    stickerCenterY: number;
   } | null>(null);
 
   // Bring to front helper
@@ -97,7 +96,7 @@ export function PhotoboothStrip({
       } else if (mode === "scale") {
         const deltaPixels = e.clientX - startPointerX;
         const deltaPercent = (deltaPixels / rect.width) * 100;
-        const newWidth = Math.max(12, Math.min(50, initialWidth + deltaPercent));
+        const newWidth = Math.max(12, Math.min(52, initialWidth + deltaPercent));
         onUpdateSticker(id, { widthPercent: newWidth });
       }
     };
@@ -126,29 +125,30 @@ export function PhotoboothStrip({
         backgroundColor: frame.bg,
         borderColor: frame.border,
       }}
-      className="relative mx-auto flex w-[320px] sm:w-[350px] shrink-0 flex-col select-none rounded-[22px] border-2 p-4 sm:p-5 shadow-[0_12px_36px_rgba(15,23,42,0.14)] transition-colors duration-200"
+      className={`relative mx-auto flex select-none flex-col @container [container-type:inline-size] rounded-[6.5cqw] border-[max(2px,0.8cqw)] px-[5.5cqw] pt-[4.5cqw] pb-[4.5cqw] shadow-[0_16px_48px_rgba(15,23,42,0.14)] transition-colors duration-200 aspect-[1/3.16] justify-between ${className}`}
     >
-      {/* 1. Header Logotype */}
-      <div className="flex items-center justify-between pb-3">
-        <div className="flex items-center gap-2.5">
-          <Image
-            src="/images/chordisol-logo.png"
-            alt="Chordisol"
-            width={28}
-            height={28}
-            className="size-7 rounded-[7px] object-cover shadow-xs"
-            priority
-          />
-          <div>
+      {/* 1. Header Row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-[3.2cqw] min-w-0">
+          <div className="relative w-[9.5cqw] h-[9.5cqw] shrink-0 overflow-hidden rounded-[2.3cqw] shadow-xs">
+            <Image
+              src="/images/chordisol-logo.png"
+              alt="Chordisol"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div className="min-w-0">
             <h2
               style={{ color: frame.textColor }}
-              className="font-display text-[15px] leading-tight font-bold tracking-tight"
+              className="font-display text-[5.4cqw] leading-none font-extrabold tracking-tight truncate"
             >
               CHORDISOL
             </h2>
             <p
               style={{ color: frame.subtextColor }}
-              className="font-sans text-[9.5px] leading-none font-semibold tracking-wide uppercase"
+              className="font-sans text-[3.0cqw] leading-tight font-bold tracking-wider uppercase truncate mt-[0.6cqw]"
             >
               Acoustic Photobooth
             </p>
@@ -160,25 +160,24 @@ export function PhotoboothStrip({
             backgroundColor: frame.photoBorder,
             color: frame.textColor,
           }}
-          className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold tracking-tight opacity-80"
+          className="rounded-full px-[2.5cqw] py-[0.6cqw] font-mono text-[2.6cqw] font-bold tracking-tight opacity-90 shrink-0"
         >
           4-CUT
         </span>
       </div>
 
-      {/* 2. Four Photo Slots */}
-      <div className="flex flex-col gap-2.5">
+      {/* 2. Four Photo Slots (4:3 aspect ratio each) */}
+      <div className="flex flex-col gap-[3.0cqw] flex-1 justify-center my-[3.0cqw]">
         {[0, 1, 2, 3].map((index) => {
           const photoUrl = photos[index];
           return (
             <div
               key={index}
               style={{ borderColor: frame.photoBorder }}
-              className="group relative aspect-4/3 w-full overflow-hidden rounded-[12px] border bg-black/5"
+              className="group relative aspect-4/3 w-full overflow-hidden rounded-[4.0cqw] border-[max(1.5px,0.4cqw)] bg-black/5"
             >
               {photoUrl ? (
                 <>
-                  {/* Avoid AI template tells: crisp, authentic photo rendered with live filter */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={photoUrl}
@@ -187,7 +186,7 @@ export function PhotoboothStrip({
                     className="size-full object-cover"
                   />
 
-                  {/* Retake button overlay on hover/focus */}
+                  {/* Retake Slot Button */}
                   {onRetakeSlot && (
                     <button
                       type="button"
@@ -195,7 +194,7 @@ export function PhotoboothStrip({
                         e.stopPropagation();
                         onRetakeSlot(index);
                       }}
-                      className="absolute right-2 top-2 z-20 hidden items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-md transition-transform duration-150 hover:bg-slate-900 active:scale-95 group-hover:flex"
+                      className="absolute right-2 top-2 z-20 hidden items-center gap-1 rounded-full bg-slate-900/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-md transition-transform duration-150 hover:bg-slate-900 active:scale-95 group-hover:flex cursor-pointer"
                     >
                       <svg
                         viewBox="0 0 16 16"
@@ -213,12 +212,14 @@ export function PhotoboothStrip({
               ) : (
                 <div
                   style={{ color: frame.subtextColor }}
-                  className="flex size-full flex-col items-center justify-center gap-1"
+                  className="flex size-full flex-col items-center justify-center gap-[1cqw]"
                 >
-                  <div className="flex size-8 items-center justify-center rounded-full border border-dashed border-current opacity-60">
-                    <span className="font-mono text-xs font-bold">{index + 1}</span>
+                  <div className="flex size-[12cqw] items-center justify-center rounded-full border-[1.5px] border-dashed border-current opacity-60">
+                    <span className="font-sans text-[4.2cqw] font-bold text-current">
+                      {index + 1}
+                    </span>
                   </div>
-                  <span className="font-sans text-[11px] font-semibold opacity-70">
+                  <span className="font-sans text-[3.0cqw] font-semibold opacity-70">
                     Shot {index + 1}
                   </span>
                 </div>
@@ -229,10 +230,10 @@ export function PhotoboothStrip({
       </div>
 
       {/* 3. Footer Section */}
-      <div className="pt-3.5 pb-1 text-center">
+      <div className="text-center mt-[0.8cqw]">
         <p
           style={{ color: frame.textColor }}
-          className="font-display text-[13px] font-bold tracking-tight truncate px-1"
+          className="font-display text-[4.8cqw] font-bold tracking-tight truncate px-1"
         >
           {caption || "Acoustic Session • Chordisol Studio"}
         </p>
@@ -240,7 +241,7 @@ export function PhotoboothStrip({
         {showDate && dateText && (
           <p
             style={{ color: frame.subtextColor }}
-            className="mt-0.5 font-sans text-[10px] font-semibold tracking-wide"
+            className="mt-[0.6cqw] font-sans text-[3.2cqw] font-semibold tracking-wide"
           >
             {dateText}
           </p>
@@ -250,12 +251,12 @@ export function PhotoboothStrip({
         <div
           aria-hidden="true"
           style={{ color: frame.subtextColor }}
-          className="mx-auto mt-2.5 flex h-1.5 w-28 items-center justify-center gap-0.5 opacity-50"
+          className="mx-auto mt-[1.8cqw] flex h-[2.2cqw] w-[44cqw] items-center justify-center gap-0.5 opacity-60"
         >
           {[4, 2, 5, 2, 6, 3, 2, 5, 3, 4, 2, 6, 3, 5, 2].map((w, i) => (
             <span
               key={i}
-              style={{ width: `${w}px` }}
+              style={{ width: `${w * 1.5}px` }}
               className="h-full bg-current rounded-[0.5px]"
             />
           ))}
@@ -264,7 +265,7 @@ export function PhotoboothStrip({
 
       {/* 4. Interactive Sticker Layer */}
       {stickersVisible && (
-        <div className="pointer-events-none absolute inset-0 z-30 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[24px]">
           {stickers.map((sticker) => {
             const isSelected = selectedStickerId === sticker.id;
 
@@ -280,7 +281,9 @@ export function PhotoboothStrip({
                   zIndex: sticker.zIndex,
                 }}
                 className={`pointer-events-auto absolute cursor-move select-none transition-shadow ${
-                  isSelected ? "ring-2 ring-[#2391ff] ring-offset-2 ring-offset-transparent rounded-lg" : ""
+                  isSelected
+                    ? "ring-2 ring-[#2391ff] ring-offset-2 ring-offset-transparent rounded-lg"
+                    : ""
                 }`}
                 onPointerDown={(e) => {
                   e.stopPropagation();
@@ -292,10 +295,7 @@ export function PhotoboothStrip({
                     startPointerY: e.clientY,
                     initialX: sticker.xPercent,
                     initialY: sticker.yPercent,
-                    initialRot: sticker.rotationDeg,
                     initialWidth: sticker.widthPercent,
-                    stickerCenterX: 0,
-                    stickerCenterY: 0,
                   });
                 }}
               >
@@ -305,7 +305,7 @@ export function PhotoboothStrip({
                   src={sticker.src}
                   alt={sticker.name}
                   draggable={false}
-                  className="size-full object-contain pointer-events-none drop-shadow-[0_4px_8px_rgba(15,23,42,0.2)]"
+                  className="size-full object-contain pointer-events-none drop-shadow-[0_4px_10px_rgba(15,23,42,0.25)]"
                 />
 
                 {/* Transform Handles when selected */}
@@ -319,7 +319,7 @@ export function PhotoboothStrip({
                         e.stopPropagation();
                         onDeleteSticker(sticker.id);
                       }}
-                      className="absolute -top-3 -left-3 size-5.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-rose-600 active:scale-95 z-50 cursor-pointer"
+                      className="absolute -top-3 -left-3 size-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-rose-600 active:scale-95 z-50 cursor-pointer"
                     >
                       ✕
                     </button>
@@ -337,13 +337,10 @@ export function PhotoboothStrip({
                           startPointerY: e.clientY,
                           initialX: sticker.xPercent,
                           initialY: sticker.yPercent,
-                          initialRot: sticker.rotationDeg,
                           initialWidth: sticker.widthPercent,
-                          stickerCenterX: 0,
-                          stickerCenterY: 0,
                         });
                       }}
-                      className="absolute -top-3 -right-3 size-5.5 rounded-full bg-[#2391ff] text-white flex items-center justify-center text-[10px] font-bold shadow-md hover:bg-[#1674d6] active:scale-95 z-50 cursor-grab"
+                      className="absolute -top-3 -right-3 size-6 rounded-full bg-[#2391ff] text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-[#1674d6] active:scale-95 z-50 cursor-grab"
                     >
                       ↻
                     </button>
@@ -361,13 +358,10 @@ export function PhotoboothStrip({
                           startPointerY: e.clientY,
                           initialX: sticker.xPercent,
                           initialY: sticker.yPercent,
-                          initialRot: sticker.rotationDeg,
                           initialWidth: sticker.widthPercent,
-                          stickerCenterX: 0,
-                          stickerCenterY: 0,
                         });
                       }}
-                      className="absolute -bottom-3 -right-3 size-5.5 rounded-full bg-[#10b981] text-white flex items-center justify-center text-[10px] font-bold shadow-md hover:bg-[#059669] active:scale-95 z-50 cursor-se-resize"
+                      className="absolute -bottom-3 -right-3 size-6 rounded-full bg-[#10b981] text-white flex items-center justify-center text-[11px] font-bold shadow-md hover:bg-[#059669] active:scale-95 z-50 cursor-se-resize"
                     >
                       ⤡
                     </button>

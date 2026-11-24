@@ -7,6 +7,28 @@ export type FrameColorId =
   | "mascot-meadow"
   | "sunset-rose";
 
+export const STRIP_RATIOS = {
+  aspectRatio: 3.16, // Total height / width
+  paddingX: 0.055, // Horizontal margin (5.5% of strip width)
+  paddingTop: 0.045, // Top padding
+  paddingBottom: 0.045, // Bottom padding
+  headerHeight: 0.11, // Header row height
+  logoSize: 0.095, // Logo square dimension
+  titleFontSize: 0.054, // "CHORDISOL" title font size
+  subtitleFontSize: 0.030, // "ACOUSTIC STUDIO" font size
+  badgeFontSize: 0.026, // "4-CUT" badge font size
+  gapHeaderToPhotos: 0.030,
+  photoWidth: 0.89, // Width of each photo (100% - 2 * paddingX)
+  photoHeight: 0.6675, // 4:3 aspect ratio (photoWidth * 0.75)
+  photoRadius: 0.040, // Corner radius of photos
+  photoGap: 0.030, // Gap between photos
+  gapPhotosToFooter: 0.038,
+  captionFontSize: 0.048, // Bottom caption font size
+  dateFontSize: 0.032, // Timestamp font size
+  barcodeWidth: 0.44, // Bottom barcode width
+  barcodeHeight: 0.022, // Bottom barcode height
+} as const;
+
 export interface FramePreset {
   id: FrameColorId;
   name: string;
