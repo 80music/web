@@ -11,6 +11,7 @@ interface CameraViewfinderProps {
   retakeSlot?: number | null;
   onRetakeDone?: () => void;
   onCancelRetake?: () => void;
+  hideInlineSlots?: boolean;
 }
 
 const POSE_HINTS = [
@@ -28,6 +29,7 @@ export function CameraViewfinder({
   retakeSlot = null,
   onRetakeDone,
   onCancelRetake,
+  hideInlineSlots = false,
 }: CameraViewfinderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -424,62 +426,64 @@ export function CameraViewfinder({
       </div>
 
       {/* Strictly Ordered Progress Slots (DIVS, NOT CLICKABLE - User cannot pick slots) */}
-      <div className="flex flex-col gap-1.5 pt-1">
-        <div className="flex items-center justify-between text-xs text-slate-500">
-          <span className="font-bold text-slate-700">Strict 4-Cut Sequence:</span>
-          <span>
-            {mode === "retake"
-              ? `Retaking Shot ${(retakeSlot ?? 0) + 1}`
-              : `Captured ${completedCount} of 4 (Ordered 1 → 2 → 3 → 4)`}
-          </span>
-        </div>
+      {!hideInlineSlots && (
+        <div className="flex flex-col gap-1.5 pt-1">
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span className="font-bold text-slate-700">Strict 4-Cut Sequence:</span>
+            <span>
+              {mode === "retake"
+                ? `Retaking Shot ${(retakeSlot ?? 0) + 1}`
+                : `Captured ${completedCount} of 4 (Ordered 1 → 2 → 3 → 4)`}
+            </span>
+          </div>
 
-        <div className="grid grid-cols-4 gap-2">
-          {[0, 1, 2, 3].map((slot) => {
-            const photo = photos[slot];
-            const isTarget = targetSlot === slot;
+          <div className="grid grid-cols-4 gap-2">
+            {[0, 1, 2, 3].map((slot) => {
+              const photo = photos[slot];
+              const isTarget = targetSlot === slot;
 
-            return (
-              <div
-                key={slot}
-                className={`relative aspect-4/3 overflow-hidden rounded-xl border-2 transition-all ${
-                  isTarget
-                    ? "border-brand-primary ring-2 ring-brand-primary/30 bg-brand-primary/5"
-                    : photo
-                    ? "border-emerald-500/80 bg-emerald-50/50 shadow-2xs"
-                    : "border-dashed border-slate-200 bg-slate-50"
-                }`}
-              >
-                {photo ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo}
-                      alt={`Captured shot ${slot + 1}`}
-                      className="size-full object-cover"
-                    />
-                    <span className="absolute top-1 left-1 flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white shadow-xs">
-                      ✓
-                    </span>
-                    <span className="absolute bottom-1 right-1 rounded-full bg-slate-900/80 px-1.5 py-0.2 text-[9px] font-bold text-white">
-                      #{slot + 1}
-                    </span>
-                  </>
-                ) : (
-                  <div className="flex size-full flex-col items-center justify-center text-slate-400">
-                    <span className="font-display text-xs font-bold text-slate-700">
-                      {slot + 1}
-                    </span>
-                    <span className="text-[9px] font-semibold opacity-70">
-                      {isTarget ? "Current" : "Pending"}
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={slot}
+                  className={`relative aspect-4/3 overflow-hidden rounded-xl border-2 transition-all ${
+                    isTarget
+                      ? "border-brand-primary ring-2 ring-brand-primary/30 bg-brand-primary/5"
+                      : photo
+                      ? "border-emerald-500/80 bg-emerald-50/50 shadow-2xs"
+                      : "border-dashed border-slate-200 bg-slate-50"
+                  }`}
+                >
+                  {photo ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photo}
+                        alt={`Captured shot ${slot + 1}`}
+                        className="size-full object-cover"
+                      />
+                      <span className="absolute top-1 left-1 flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white shadow-xs">
+                        ✓
+                      </span>
+                      <span className="absolute bottom-1 right-1 rounded-full bg-slate-900/80 px-1.5 py-0.2 text-[9px] font-bold text-white">
+                        #{slot + 1}
+                      </span>
+                    </>
+                  ) : (
+                    <div className="flex size-full flex-col items-center justify-center text-slate-400">
+                      <span className="font-display text-xs font-bold text-slate-700">
+                        {slot + 1}
+                      </span>
+                      <span className="text-[9px] font-semibold opacity-70">
+                        {isTarget ? "Current" : "Pending"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Action Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">

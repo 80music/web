@@ -338,9 +338,11 @@ export function TopBar() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const mobileTicketRef = useRef<HTMLDivElement>(null);
 
-  const isTicketHidden =
-    isCtaVisible ||
-    Boolean(pathname?.startsWith("/booth") || pathname?.startsWith("/strip"));
+  const isBoothPage = Boolean(
+    pathname?.startsWith("/booth") || pathname?.startsWith("/strip")
+  );
+
+  const isTicketHidden = isCtaVisible || isBoothPage;
 
   // Automatically hide the top-right ticket ONLY when user views the CTA banner, and reveal again when they leave
   useEffect(() => {
@@ -512,83 +514,89 @@ export function TopBar() {
             </div>
 
             {/* Right cluster on mobile (<sm): compact button that opens ticket on tap */}
-            <motion.div
-              ref={mobileTicketRef}
-              initial={false}
-              animate={{
-                opacity: isTicketHidden ? 0 : 1,
-                scale: isTicketHidden ? 0.85 : 1,
-              }}
-              transition={{
-                duration: shouldReduceMotion ? 0.1 : 0.25,
-                ease: EASE_OUT,
-              }}
-              className={`relative sm:hidden ${
-                isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => setIsMobileTicketOpen((prev) => !prev)}
-                aria-expanded={isMobileTicketOpen}
-                aria-haspopup="dialog"
-                aria-label="Download Chordisol for iOS options"
-                className="inline-flex h-10 shrink-0 cursor-pointer items-stretch rounded-[10px] bg-fg-regular text-white shadow-xs transition-colors duration-150 hover:bg-fg-regular/90 active:bg-fg-regular/85 select-none"
+            {!isBoothPage && (
+              <motion.div
+                ref={mobileTicketRef}
+                initial={false}
+                animate={{
+                  opacity: isTicketHidden ? 0 : 1,
+                  scale: isTicketHidden ? 0.85 : 1,
+                }}
+                transition={{
+                  duration: shouldReduceMotion ? 0.1 : 0.25,
+                  ease: EASE_OUT,
+                }}
+                className={`relative sm:hidden ${
+                  isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
+                }`}
               >
-                <span className="inline-flex items-center justify-center border-r border-white/15 px-2.5">
-                  <AppleIcon className="size-4" />
-                </span>
-                <span className="inline-flex items-center px-3 text-xs font-semibold tracking-tight whitespace-nowrap">
-                  Get on iOS
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileTicketOpen((prev) => !prev)}
+                  aria-expanded={isMobileTicketOpen}
+                  aria-haspopup="dialog"
+                  aria-label="Download Chordisol for iOS options"
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-stretch rounded-[10px] bg-fg-regular text-white shadow-xs transition-colors duration-150 hover:bg-fg-regular/90 active:bg-fg-regular/85 select-none"
+                >
+                  <span className="inline-flex items-center justify-center border-r border-white/15 px-2.5">
+                    <AppleIcon className="size-4" />
+                  </span>
+                  <span className="inline-flex items-center px-3 text-xs font-semibold tracking-tight whitespace-nowrap">
+                    Get on iOS
+                  </span>
+                </button>
 
-              <AnimatePresence>
-                {isMobileTicketOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6, scale: 0.86 }}
-                    animate={{ opacity: 1, y: 0, scale: 0.9 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.86 }}
-                    transition={{ duration: 0.18, ease: EASE_OUT }}
-                    className="absolute right-0 top-full mt-2 z-50 w-[min(304px,calc(100vw-24px))] origin-top-right drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
-                  >
-                    <TicketCardContent
-                      isMobilePopup={true}
-                      onClose={() => setIsMobileTicketOpen(false)}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+                <AnimatePresence>
+                  {isMobileTicketOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.86 }}
+                      animate={{ opacity: 1, y: 0, scale: 0.9 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.86 }}
+                      transition={{ duration: 0.18, ease: EASE_OUT }}
+                      className="absolute right-0 top-full mt-2 z-50 w-[min(304px,calc(100vw-24px))] origin-top-right drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
+                    >
+                      <TicketCardContent
+                        isMobilePopup={true}
+                        onClose={() => setIsMobileTicketOpen(false)}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
 
             {/* Spacer placeholder on desktop to reserve layout space in nav flex row */}
-            <div
-              className="hidden sm:block sm:h-10 sm:w-[262px] sm:shrink-0 md:w-[274px]"
-              aria-hidden="true"
-            />
+            {!isBoothPage && (
+              <div
+                className="hidden sm:block sm:h-10 sm:w-[262px] sm:shrink-0 md:w-[274px]"
+                aria-hidden="true"
+              />
+            )}
           </nav>
 
           {/* Desktop & tablet ticket: hides smoothly when CTA banner is in view or on booth/strip pages */}
-          <motion.aside
-            id="ios-download-ticket"
-            aria-label="Chordisol iOS Download Receipt"
-            initial={false}
-            animate={{
-              y: isTicketHidden ? -360 : 0,
-              opacity: isTicketHidden ? 0 : 1,
-              scale: 0.9,
-            }}
-            style={{ transformOrigin: "top right" }}
-            transition={{
-              duration: shouldReduceMotion ? 0.1 : 0.38,
-              ease: EASE_OUT,
-            }}
-            className={`absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px] ${
-              isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
-            }`}
-          >
-            <TicketCardContent isMobilePopup={false} />
-          </motion.aside>
+          {!isBoothPage && (
+            <motion.aside
+              id="ios-download-ticket"
+              aria-label="Chordisol iOS Download Receipt"
+              initial={false}
+              animate={{
+                y: isTicketHidden ? -360 : 0,
+                opacity: isTicketHidden ? 0 : 1,
+                scale: 0.9,
+              }}
+              style={{ transformOrigin: "top right" }}
+              transition={{
+                duration: shouldReduceMotion ? 0.1 : 0.38,
+                ease: EASE_OUT,
+              }}
+              className={`absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px] ${
+                isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
+              }`}
+            >
+              <TicketCardContent isMobilePopup={false} />
+            </motion.aside>
+          )}
         </div>
       </header>
 
