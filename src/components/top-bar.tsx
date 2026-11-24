@@ -354,7 +354,8 @@ export function TopBar() {
 
       const rect = ctaElement.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const isViewingCta = rect.top < windowHeight - 80 && rect.bottom > 80;
+      // Hide ticket earlier while user is still up about 36pts from the banner
+      const isViewingCta = rect.top < windowHeight + 36 && rect.bottom > 20;
       setIsCtaVisible(isViewingCta);
       if (isViewingCta) {
         setIsMobileTicketOpen(false);
@@ -378,7 +379,8 @@ export function TopBar() {
         }
       },
       {
-        threshold: 0.15,
+        rootMargin: "0px 0px 36px 0px",
+        threshold: 0,
       }
     );
 

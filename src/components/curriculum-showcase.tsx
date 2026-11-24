@@ -1,20 +1,5 @@
+import Image from "next/image";
 import { type ComponentPropsWithoutRef } from "react";
-
-function CheckmarkIcon(props: ComponentPropsWithoutRef<"svg">) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
 
 function CrossIcon(props: ComponentPropsWithoutRef<"svg">) {
   return (
@@ -32,24 +17,22 @@ function CrossIcon(props: ComponentPropsWithoutRef<"svg">) {
   );
 }
 
-const TRADITIONAL_CARDS = [
+const TRADITIONAL_ITEMS = [
   {
-    id: "cables",
-    title: "Tangled MIDI & Audio Cables",
-    subtitle: "15m setup time, audio latency, and driver friction before playing",
-    zIndex: "z-10",
+    title: "Tangled MIDI Adapters",
+    subtitle: "Cables, drivers & setup delay",
   },
   {
-    id: "flashcards",
-    title: "Dry Roman Numeral Flashcards",
-    subtitle: "Abstract paper memorization disconnected from real instruments",
-    zIndex: "z-9",
+    title: "Dry Theory Flashcards",
+    subtitle: "Abstract Roman numeral drills",
   },
   {
-    id: "quizzes",
-    title: "Anxiety-Inducing Ear Quizzes",
-    subtitle: "Isolated synthetic bleeps that create fatigue instead of musical flow",
-    zIndex: "z-8",
+    title: "Stressful Ear Quizzes",
+    subtitle: "Synthetic bleeps & quiz anxiety",
+  },
+  {
+    title: "Isolated Finger Drills",
+    subtitle: "Zero real song context",
   },
 ];
 
@@ -58,69 +41,84 @@ export function CurriculumShowcase() {
     <section
       id="curriculum"
       aria-label="The Shift: From abstract drills to ear-first intuition"
-      className="border-t border-slate-100 bg-white px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+      className="border-t border-slate-100 bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
     >
       <div className="mx-auto w-full max-w-212.5">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
-          {/* Left Column: Simplified, Spacious Headline & Story */}
-          <div className="flex flex-col items-start lg:col-span-6">
-            <span className="text-xs font-bold tracking-wider text-blue-600 uppercase">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+          {/* Left Column (55%): Simplified, Refined & Restrained */}
+          <div className="w-full lg:w-[55%] flex flex-col items-start">
+            <span className="text-xs sm:text-sm font-bold tracking-wider text-blue-600 uppercase">
               The Shift
             </span>
 
-            <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-[42px] lg:leading-[1.16] text-balance">
-              Stop fighting music theory. Start playing by ear.
+            <h2 className="mt-2.5 font-display text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-[32px] lg:leading-[1.2] text-balance">
+              Stop fighting music theory. <br className="hidden sm:inline" />Start playing by ear.
             </h2>
 
-            <p className="mt-4 text-base font-normal leading-relaxed text-slate-600 sm:text-lg text-pretty">
-              Traditional ear training treats harmony like a stressful math exam — tangled cables, dry Roman numerals, and abstract quizzes that disconnect you from your instrument.
-            </p>
-
-            <p className="mt-3 text-base font-normal leading-relaxed text-slate-600 sm:text-lg text-pretty">
-              Chordisol flips the paradigm. Just prop your device by your piano or guitar: our real-time acoustic microphone turns chord recognition into effortless musical intuition.
+            <p className="mt-3.5 max-w-lg text-sm sm:text-base font-normal leading-relaxed text-slate-600 text-pretty">
+              Traditional ear training treats harmony like a stressful exam with tangled cables and abstract drills. Chordisol listens directly to your real piano or guitar — turning recognition into effortless intuition.
             </p>
           </div>
 
-          {/* Right Column: Physical Stacked Cards (Matching Image 2 Reference) */}
-          <div className="relative mx-auto w-full max-w-120 lg:col-span-6 lg:ml-auto lg:mr-0">
-            {/* Card 1: Chordisol (Top Card, elevated with slight rotation like reference) */}
-            <div className="relative z-20 w-full -rotate-1 rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-5.5 shadow-[0_16px_36px_rgba(15,23,42,0.1)] transition-transform duration-300 hover:rotate-0 hover:-translate-y-0.5">
-              <div className="flex items-center gap-4">
-                <div className="flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl bg-[#1674d6] text-white shadow-xs">
-                  <CheckmarkIcon className="size-5.5 sm:size-6" />
+          {/* Right Column (45%): Compact, Simpler Card Stack with Brand Logo */}
+          <div className="w-full lg:w-[45%] relative pt-4 sm:pt-6 flex justify-center lg:justify-end overflow-visible">
+            <div className="relative w-full max-w-[290px] xs:max-w-[310px] sm:max-w-[335px] pr-3 sm:pr-6">
+              {/* Overlapping Floating Card: Chordisol (Top) - Compact with Brand Logo */}
+              <div className="relative z-20 w-full ml-4 xs:ml-5 sm:ml-7 -mb-7 sm:-mb-8 rounded-[18px] sm:rounded-[22px] border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-[0_16px_40px_rgba(15,23,42,0.12)] transition-transform duration-300 hover:-translate-y-0.5">
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                    {/* Brand Logo replacing checkmark */}
+                    <Image
+                      src="/images/chordisol-logo.png"
+                      alt="Chordisol"
+                      width={36}
+                      height={36}
+                      className="size-8 sm:size-9 shrink-0 rounded-[8px] sm:rounded-[10px] object-cover shadow-xs"
+                    />
+
+                    <div className="min-w-0">
+                      <div className="truncate font-display text-xs sm:text-[13px] font-bold tracking-tight text-slate-900">
+                        Chord Recognized
+                      </div>
+                      <div className="truncate text-[11px] sm:text-xs font-semibold text-[#0071e3]">
+                        + Cmaj7 • Acoustic Guitar
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="shrink-0 text-[10px] sm:text-[11px] font-medium text-slate-400">
+                    10:02 AM
+                  </span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-base font-bold text-slate-900 sm:text-lg tracking-tight">
-                    Chord Recognized
-                  </h3>
-                  <p className="mt-0.5 text-xs font-semibold text-[#1674d6] sm:text-sm">
-                    Live acoustic microphone recognition on real piano &amp; guitar
-                  </p>
+              </div>
+
+              {/* Base Card: The Others (Traditional Methods) - Tilted -rotate-2, compact & simpler */}
+              <div className="w-full -rotate-2 rounded-[22px] sm:rounded-[26px] border border-slate-200/70 bg-white p-3.5 sm:p-4.5 shadow-lg shadow-slate-200/50">
+                <div className="flex flex-col gap-2.5 sm:gap-3">
+                  {TRADITIONAL_ITEMS.map((item) => (
+                    <div
+                      key={item.title}
+                      className="flex items-center gap-2.5 sm:gap-3"
+                    >
+                      {/* Red X Icon */}
+                      <div className="flex size-8.5 sm:size-9 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#ef4444]">
+                        <CrossIcon className="size-4 sm:size-4.5" />
+                      </div>
+
+                      {/* Title and Subtitle */}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-display text-xs sm:text-[13px] font-bold tracking-tight text-slate-900">
+                          {item.title}
+                        </div>
+                        <div className="truncate text-[11px] sm:text-xs font-medium text-slate-500 leading-snug">
+                          {item.subtitle}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-
-            {/* Cards 2, 3, 4: The Others (Stacked directly underneath, matching reference layout) */}
-            {TRADITIONAL_CARDS.map((card) => (
-              <div
-                key={card.id}
-                className={`relative ${card.zIndex} -mt-3 sm:-mt-3.5 w-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-5.5 shadow-xs transition-colors hover:border-slate-300`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-500">
-                    <CrossIcon className="size-5 sm:size-5.5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-sm font-bold text-slate-900 sm:text-base">
-                      {card.title}
-                    </h3>
-                    <p className="mt-0.5 text-xs font-normal text-slate-500 sm:text-sm leading-relaxed">
-                      {card.subtitle}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
