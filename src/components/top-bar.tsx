@@ -172,8 +172,8 @@ function AppStoreIcon(props: ComponentPropsWithoutRef<"svg">) {
   );
 }
 
-const POINTY_SCALLOP_PATH =
-  "M 0 0 L 0 12.00 C 0 14.75, 2.25 17, 5 17 C 8.08 17, 12.92 0, 16.00 0 C 20.48 0.00, 27.52 17.00, 32.00 17.00 C 36.48 17.00, 43.52 0.00, 48.00 0.00 C 52.48 0.00, 59.52 17.00, 64.00 17.00 C 68.48 17.00, 75.52 0.00, 80.00 0.00 C 84.48 0.00, 91.52 17.00, 96.00 17.00 C 100.48 17.00, 107.52 0.00, 112.00 0.00 C 116.48 0.00, 123.52 17.00, 128.00 17.00 C 132.48 17.00, 139.52 0.00, 144.00 0.00 C 148.48 0.00, 155.52 17.00, 160.00 17.00 C 164.48 17.00, 171.52 0.00, 176.00 0.00 C 180.48 0.00, 187.52 17.00, 192.00 17.00 C 196.48 17.00, 203.52 0.00, 208.00 0.00 C 212.48 0.00, 219.52 17.00, 224.00 17.00 C 228.48 17.00, 235.52 0.00, 240.00 0.00 C 243.08 0, 247.92 17, 251.00 17 C 253.75 17, 256 14.75, 256 12.00 L 256 0 Z";
+const SCALLOP_PATH =
+  "M 0 0 L 0 10.00 C 0 12.20, 1.80 14, 4 14 C 8.20 14, 14.80 0, 19.00 0 C 24.32 0.00, 32.68 14.00, 38.00 14.00 C 43.32 14.00, 51.68 0.00, 57.00 0.00 C 62.32 0.00, 70.68 14.00, 76.00 14.00 C 81.32 14.00, 89.68 0.00, 95.00 0.00 C 100.32 0.00, 108.68 14.00, 114.00 14.00 C 119.32 14.00, 127.68 0.00, 133.00 0.00 C 138.32 0.00, 146.68 14.00, 152.00 14.00 C 157.32 14.00, 165.68 0.00, 171.00 0.00 C 176.32 0.00, 184.68 14.00, 190.00 14.00 C 195.32 14.00, 203.68 0.00, 209.00 0.00 C 214.32 0.00, 222.68 14.00, 228.00 14.00 C 233.32 14.00, 241.68 0.00, 247.00 0.00 C 252.32 0.00, 260.68 14.00, 266.00 14.00 C 271.32 14.00, 279.68 0.00, 285.00 0.00 C 289.20 0, 295.80 14, 300.00 14 C 302.20 14, 304 12.20, 304 10.00 L 304 0 Z";
 
 interface DrawerLinksProps {
   activePath: string | null;
@@ -250,37 +250,37 @@ function TicketCardContent({
       <div
         className={`${
           isMobilePopup ? "rounded-t-2xl" : "rounded-b-none"
-        } bg-linear-to-b from-[#edf8ff] via-[#68bcfe] to-[#2586f4] px-3.5 pt-3.5 pb-2.5 text-slate-900 sm:px-4 sm:pt-4 sm:pb-3`}
+        } bg-linear-to-b from-[#5ecaff] via-[#309dfb] to-[#1473e6] px-5 pt-5 pb-4 text-slate-900 sm:px-6 sm:pt-6 sm:pb-4.5`}
       >
         {/* Row 1 */}
-        <div className="flex items-start justify-between gap-2 sm:gap-2.5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display text-[13px] font-bold leading-tight tracking-tight text-slate-950 sm:text-[13.5px]">
+            <h3 className="font-display text-[14px] font-bold leading-tight tracking-tight text-slate-950 sm:text-[14.5px]">
               Acoustic Ear Training
             </h3>
-            <p className="mt-0.5 text-[10px] font-medium leading-tight text-slate-800 sm:text-[10.5px]">
+            <p className="mt-1 text-[11px] font-medium leading-tight text-slate-900/80 sm:text-[11.5px]">
               Instant on-device chord recognition
             </p>
           </div>
-          <span className="font-display text-[15px] font-extrabold tracking-tight text-slate-950 sm:text-[16px]">
+          <span className="font-display text-[16px] font-extrabold tracking-tight text-slate-950 sm:text-[17px]">
             Free
           </span>
         </div>
 
         {/* Dashed divider */}
-        <div className="my-2 border-t border-dashed border-slate-950/25 sm:my-2.5" />
+        <div className="my-3.5 border-t border-dashed border-slate-950/20 sm:my-4" />
 
         {/* Row 2 */}
-        <div className="flex items-start justify-between gap-2 sm:gap-2.5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display text-[13px] font-bold leading-tight tracking-tight text-slate-950 sm:text-[13.5px]">
+            <h3 className="font-display text-[14px] font-bold leading-tight tracking-tight text-slate-950 sm:text-[14.5px]">
               Full Song Curriculum
             </h3>
-            <p className="mt-0.5 text-[10px] font-medium leading-tight text-slate-800 sm:text-[10.5px]">
+            <p className="mt-1 text-[11px] font-medium leading-tight text-slate-900/80 sm:text-[11.5px]">
               5 interactive goals &amp; song puzzles
             </p>
           </div>
-          <span className="font-display text-[15px] font-extrabold tracking-tight text-slate-950 sm:text-[16px]">
+          <span className="font-display text-[16px] font-extrabold tracking-tight text-slate-950 sm:text-[17px]">
             Free
           </span>
         </div>
@@ -291,34 +291,34 @@ function TicketCardContent({
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClose}
-          className="mt-2.5 flex h-[38px] w-full items-center justify-center gap-1.5 rounded-xl bg-[#080d19] px-3 font-bold text-white shadow-md transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-3 sm:h-[40px] sm:gap-2"
+          className="mt-4 flex h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[#080d19] px-4 font-bold text-white shadow-lg transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-5 sm:h-[50px]"
         >
-          <AppStoreIcon className="size-4 shrink-0 text-[#5eb0fa] sm:size-4.5" />
-          <span className="font-display text-[13.5px] font-bold tracking-tight text-[#5eb0fa] sm:text-[14px]">
+          <AppStoreIcon className="size-5 shrink-0 text-[#5eb0fa]" />
+          <span className="font-display text-[15px] font-bold tracking-tight text-[#5eb0fa] sm:text-[15.5px]">
             Download
           </span>
         </a>
 
         {/* Footer Note */}
-        <p className="mt-2 text-center text-[9.5px] font-medium leading-tight text-slate-800/90 sm:mt-2.5 sm:text-[10px]">
+        <p className="mt-3 text-center text-[10.5px] font-medium leading-tight text-slate-900/85 sm:mt-3.5 sm:text-[11px]">
           Free on iPhone &amp; iPad • Zero ads or tracking
         </p>
       </div>
 
-      {/* Pointier Scalloped bottom edge */}
+      {/* Refined gentle Scalloped bottom edge */}
       <svg
-        className="block -mt-px h-3.5 w-full sm:h-4"
-        viewBox="0 0 256 17"
+        className="block -mt-px h-3.5 w-full fill-current text-[#1473e6] sm:h-4"
+        viewBox="0 0 304 14"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
         <defs>
           <linearGradient id="scallop-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2586f4" />
-            <stop offset="100%" stopColor="#1a75e3" />
+            <stop offset="0%" stopColor="#1473e6" />
+            <stop offset="100%" stopColor="#0c5fca" />
           </linearGradient>
         </defs>
-        <path d={POINTY_SCALLOP_PATH} fill="url(#scallop-gradient)" />
+        <path d={SCALLOP_PATH} fill="url(#scallop-gradient)" />
       </svg>
     </div>
   );
@@ -467,7 +467,7 @@ export function TopBar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.96 }}
                     transition={{ duration: 0.18, ease: EASE_OUT }}
-                    className="absolute right-0 top-full mt-2 z-50 w-[min(260px,calc(100vw-24px))] drop-shadow-[0_16px_28px_rgba(15,23,42,0.22)]"
+                    className="absolute right-0 top-full mt-2 z-50 w-[min(296px,calc(100vw-24px))] drop-shadow-[0_18px_32px_rgba(15,23,42,0.25)]"
                   >
                     <TicketCardContent
                       isMobilePopup={true}
@@ -480,7 +480,7 @@ export function TopBar() {
 
             {/* Spacer placeholder on desktop to reserve layout space in nav flex row */}
             <div
-              className="hidden sm:block sm:h-10 sm:w-[240px] sm:shrink-0 md:w-[256px]"
+              className="hidden sm:block sm:h-10 sm:w-[292px] sm:shrink-0 md:w-[304px]"
               aria-hidden="true"
             />
           </nav>
@@ -489,7 +489,7 @@ export function TopBar() {
           <aside
             id="ios-download-ticket"
             aria-label="Chordisol iOS Download Receipt"
-            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[240px] select-none drop-shadow-[0_16px_28px_rgba(15,23,42,0.18)] sm:block sm:right-6 md:w-[256px]"
+            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_20px_35px_rgba(15,23,42,0.25)] sm:block sm:right-6 md:w-[304px]"
           >
             <TicketCardContent isMobilePopup={false} />
           </aside>
