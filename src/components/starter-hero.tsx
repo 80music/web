@@ -30,11 +30,11 @@ export function StarterHero() {
     <section
       id="hero"
       aria-label="Chordisol hero and interactive studio"
-      className="bg-white px-4 pt-10 pb-10 sm:px-6 sm:pt-14 sm:pb-16 md:pt-18 md:pb-20"
+      className="bg-white px-4 pt-7 pb-8 sm:px-6 sm:pt-10 sm:pb-12"
     >
       <div className="mx-auto w-full max-w-212.5">
-        {/* Typographic hero header with balanced 520px width and generous breathing room */}
-        <header className="mt-2 sm:mt-6 mb-14 sm:mb-20 md:mb-24">
+        {/* Typographic hero header with balanced 520px width and clean vertical rhythm */}
+        <header className="mt-1 sm:mt-2 mb-10 sm:mb-12">
           <h1 className="sr-only">Learn Chord Progression the Fun Way.</h1>
 
           {/* Graphic Poster Lockup: Diverse Asymmetrical Ends and Pixelated Dither Gradients */}

@@ -23,9 +23,9 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-white">
-      <article className="mx-auto w-full max-w-3xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16 sm:pb-32">
+      <article className="mx-auto w-full max-w-3xl px-4 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-20">
         {/* Navigation breadcrumb */}
-        <div className="mb-8 sm:mb-10">
+        <div className="mb-6 sm:mb-8">
           <Link
             href="/"
             className="group inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
@@ -36,18 +36,18 @@ export default function PrivacyPolicyPage() {
         </div>
 
         {/* Page header */}
-        <header className="border-b border-slate-200/80 pb-10 sm:pb-12">
+        <header className="border-b border-slate-200/80 pb-8 sm:pb-9">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
             <span className="size-1.5 rounded-full bg-[#1674d6]" />
             <span>Legal &amp; Transparency</span>
           </div>
-          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
+          <h1 className="mt-2.5 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Privacy Policy
           </h1>
-          <p className="mt-3 text-xs sm:text-sm font-medium text-slate-500">
+          <p className="mt-2 text-xs sm:text-sm font-medium text-slate-500">
             Last Updated: November 19, 2026
           </p>
-          <p className="mt-6 text-base sm:text-lg leading-relaxed text-slate-600">
+          <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600">
             Your privacy matters to us. This Privacy Policy explains how our
             music-learning application (&ldquo;the App&rdquo;) handles your
             information when you use its features.
@@ -55,7 +55,7 @@ export default function PrivacyPolicyPage() {
         </header>
 
         {/* Content sections */}
-        <div className="mt-12 sm:mt-16 space-y-16 sm:space-y-20 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
+        <div className="mt-10 sm:mt-12 space-y-10 sm:space-y-12 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
           {/* 1. Audio Recording and Processing */}
           <section aria-labelledby="section-audio">
             <h2

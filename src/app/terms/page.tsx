@@ -51,9 +51,9 @@ const TOC_ITEMS = [
 export default function TermsOfServicePage() {
   return (
     <main id="main-content" className="flex flex-1 flex-col bg-white">
-      <article className="mx-auto w-full max-w-3xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16 sm:pb-32">
+      <article className="mx-auto w-full max-w-3xl px-4 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-20">
         {/* Navigation breadcrumb */}
-        <div className="mb-8 sm:mb-10">
+        <div className="mb-6 sm:mb-8">
           <Link
             href="/"
             className="group inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
@@ -64,18 +64,18 @@ export default function TermsOfServicePage() {
         </div>
 
         {/* Page header */}
-        <header className="border-b border-slate-200/80 pb-10 sm:pb-12">
+        <header className="border-b border-slate-200/80 pb-8 sm:pb-9">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
             <span className="size-1.5 rounded-full bg-[#1674d6]" />
             <span>Legal &amp; Transparency</span>
           </div>
-          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
+          <h1 className="mt-2.5 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Terms of Service
           </h1>
-          <p className="mt-3 text-xs sm:text-sm font-medium text-slate-500">
+          <p className="mt-2 text-xs sm:text-sm font-medium text-slate-500">
             Last Updated: November 27, 2026
           </p>
-          <p className="mt-6 text-base sm:text-lg leading-relaxed text-slate-600">
+          <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600">
             These Terms of Service constitute a legally binding agreement governing your access to and use of the Chordisol mobile application and related services.
           </p>
         </header>
@@ -83,7 +83,7 @@ export default function TermsOfServicePage() {
         {/* Agreement to Our Legal Terms (Preamble) */}
         <section
           aria-labelledby="preamble-heading"
-          className="mt-10 sm:mt-12 rounded-2xl border-2 border-slate-200/90 bg-slate-50/60 p-6 sm:p-8 shadow-[0_2px_0_rgba(15,23,42,0.04)]"
+          className="mt-8 sm:mt-10 rounded-2xl border-2 border-slate-200/90 bg-slate-50/60 p-5 sm:p-7 shadow-[0_2px_0_rgba(15,23,42,0.04)]"
         >
           <h2
             id="preamble-heading"
@@ -91,7 +91,7 @@ export default function TermsOfServicePage() {
           >
             Agreement to Our Legal Terms
           </h2>
-          <div className="mt-5 space-y-4 sm:space-y-5 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
+          <div className="mt-4 space-y-4 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
             <p>
               We are Chordisol (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; &ldquo;our&rdquo;).
             </p>
@@ -126,9 +126,9 @@ export default function TermsOfServicePage() {
         {/* Table of Contents */}
         <nav
           aria-label="Table of contents"
-          className="my-10 sm:my-14 rounded-2xl border-2 border-blue-100 bg-linear-to-b from-blue-50/50 to-blue-50/20 p-6 sm:p-8 shadow-[0_2px_0_rgba(22,116,214,0.06)]"
+          className="my-8 sm:my-10 rounded-2xl border-2 border-blue-100 bg-linear-to-b from-blue-50/50 to-blue-50/20 p-5 sm:p-7 shadow-[0_2px_0_rgba(22,116,214,0.06)]"
         >
-          <div className="flex items-center justify-between gap-4 border-b border-blue-100/80 pb-4">
+          <div className="flex items-center justify-between gap-4 border-b border-blue-100/80 pb-3.5">
             <h2 className="font-display text-base sm:text-lg font-bold tracking-tight text-slate-900">
               Table of Contents
             </h2>
@@ -136,7 +136,7 @@ export default function TermsOfServicePage() {
               25 Sections
             </span>
           </div>
-          <ol className="mt-5 grid grid-cols-1 gap-x-6 gap-y-2.5 text-xs sm:grid-cols-2 sm:text-sm">
+          <ol className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 text-xs sm:grid-cols-2 sm:text-sm">
             {TOC_ITEMS.map((item) => (
               <li key={item.id}>
                 <a
@@ -152,7 +152,7 @@ export default function TermsOfServicePage() {
         </nav>
 
         {/* Content sections */}
-        <div className="space-y-16 sm:space-y-20 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
+        <div className="space-y-10 sm:space-y-12 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
           {/* 1. OUR SERVICES */}
           <section id="services" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
