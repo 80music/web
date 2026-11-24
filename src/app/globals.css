@@ -47,12 +47,14 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overscroll-behavior-y: none;
   }
 
   body {
     background: var(--bg);
     color: var(--fg-regular);
     font-family: var(--font-sans);
+    overscroll-behavior-y: none;
   }
 
   ::selection {
