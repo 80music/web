@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+  <defs>
+    <radialGradient id="vinylGroove" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="35%" stop-color="#0f172a" />
+      <stop offset="65%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#090d16" />
+    </radialGradient>
+  </defs>
+  <!-- Outer Vinyl Edge -->
+  <circle cx="70" cy="70" r="64" fill="url(#vinylGroove)" stroke="#334155" stroke-width="2" />
+  <!-- Grooves -->
+  <circle cx="70" cy="70" r="54" fill="none" stroke="#334155" stroke-width="0.75" opacity="0.6" />
+  <circle cx="70" cy="70" r="46" fill="none" stroke="#475569" stroke-width="0.75" opacity="0.5" />
+  <circle cx="70" cy="70" r="38" fill="none" stroke="#334155" stroke-width="0.75" opacity="0.6" />
+  <!-- Center Label -->
+  <circle cx="70" cy="70" r="26" fill="#2391ff" stroke="#ffffff" stroke-width="2" />
+  <circle cx="70" cy="70" r="8" fill="#ffffff" />
+  <circle cx="70" cy="70" r="4" fill="#0f172a" />
+  <text x="70" y="58" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="6" fill="#ffffff" text-anchor="middle" letter-spacing="1">CHORDISOL</text>
+  <text x="70" y="86" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="5" fill="#e0f2fe" text-anchor="middle" letter-spacing="0.5">33 RPM</text>
+</svg>

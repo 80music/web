@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Party confetti mix -->
+  <circle cx="28" cy="24" r="5" fill="#2391ff" />
+  <circle cx="86" cy="32" r="6" fill="#f43f5e" />
+  <circle cx="34" cy="92" r="5" fill="#f59e0b" />
+  <circle cx="94" cy="86" r="6" fill="#10b981" />
+  <rect x="52" y="16" width="10" height="10" rx="2" transform="rotate(25 57 21)" fill="#8b5cf6" />
+  <rect x="20" y="58" width="12" height="7" rx="2" transform="rotate(-30 26 61)" fill="#f43f5e" />
+  <rect x="80" y="58" width="12" height="7" rx="2" transform="rotate(40 86 61)" fill="#2391ff" />
+  <rect x="58" y="90" width="9" height="9" rx="2" transform="rotate(15 62 94)" fill="#10b981" />
+  <!-- Sparkles -->
+  <path d="M 58,40 L 61,49 L 70,52 L 61,55 L 58,64 L 55,55 L 46,52 L 55,49 Z" fill="#fbbf24" />
+</svg>

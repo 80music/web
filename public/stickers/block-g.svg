@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <filter id="shadow-g" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="0" flood-color="#78350f" flood-opacity="0.25" />
+    </filter>
+  </defs>
+  <!-- Skirt / 3D depth -->
+  <rect x="10" y="16" width="100" height="96" rx="22" fill="#b45309" />
+  <!-- Cap / Front Face -->
+  <rect x="10" y="10" width="100" height="96" rx="22" fill="#f59e0b" filter="url(#shadow-g)" />
+  <rect x="12" y="12" width="96" height="48" rx="20" fill="white" opacity="0.18" />
+  <!-- Text G -->
+  <text x="60" y="73" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="54" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-2">G</text>
+</svg>

@@ -215,7 +215,7 @@ Concretely: if three pricing cards sit in a row with `space-6` (24px) between th
 
 Generic "add padding" instructions are how cards end up inconsistent. Use a floor per card type instead:
 
-- **Compact/dense card** (a stat tile, a nav row, an app-shell list item): `space-3`–`space-4` (12–16px) internal padding. This is the one place tighter is correct — see the App shell density guidance in `references/component-patterns.md`.
+- **Compact/dense card** (a stat tile, a nav row, an app-shell list item): `space-3`–`space-4` (12–16px) internal padding. This is the one place tighter is correct — see Chordisol shell density guidance in `references/component-patterns.md`.
 - **Content card** (a feature card, a pricing tier, a testimonial, anything holding a heading plus body copy): `space-6` (24px) minimum internal padding. This is the floor that was being violated in the pricing-card example that motivated this section — tier name, price, and description sitting close together with no room to breathe.
 - **Showcase/hero card** (a hero's proof visual frame, a highlighted/featured pricing tier): `space-8` (32px) or more. The one card in a layout meant to carry the most visual weight should have the most internal room, not the same padding as everything around it.
 

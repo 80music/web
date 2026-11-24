@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <filter id="noteShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="1" flood-color="#0f172a" flood-opacity="0.2" />
+    </filter>
+  </defs>
+  <!-- Beamed eighth notes -->
+  <g filter="url(#noteShadow)">
+    <!-- Beam -->
+    <polygon points="34,26 94,14 94,26 34,38" fill="#14365f" />
+    <polygon points="34,42 94,30 94,38 34,50" fill="#2391ff" />
+    <!-- Left Stem -->
+    <rect x="34" y="26" width="7" height="60" rx="3.5" fill="#14365f" />
+    <!-- Right Stem -->
+    <rect x="87" y="14" width="7" height="60" rx="3.5" fill="#14365f" />
+    <!-- Left Notehead (tilted ellipse) -->
+    <ellipse cx="27" cy="86" rx="16" ry="11" transform="rotate(-26 27 86)" fill="#14365f" />
+    <ellipse cx="25" cy="83" rx="10" ry="6" transform="rotate(-26 25 83)" fill="#2391ff" />
+    <!-- Right Notehead -->
+    <ellipse cx="80" cy="74" rx="16" ry="11" transform="rotate(-26 80 74)" fill="#14365f" />
+    <ellipse cx="78" cy="71" rx="10" ry="6" transform="rotate(-26 78 71)" fill="#2391ff" />
+  </g>
+</svg>

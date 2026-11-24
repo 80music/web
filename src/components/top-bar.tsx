@@ -24,6 +24,7 @@ interface NavLinkItem {
 
 const PRIMARY_NAV_LINKS: readonly NavLinkItem[] = [
   { label: "Home", href: "/" },
+  { label: "Photo Booth", href: "/booth" },
   { label: "Chord Recognition", href: "/#recognition" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "iOS App", href: "/#download" },

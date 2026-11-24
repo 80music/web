@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600">
             Your privacy matters to us. This Privacy Policy explains how our
-            music-learning application (&ldquo;the App&rdquo;) handles your
+            music-learning application (&ldquo;Chordisol&rdquo;) handles your
             information when you use its features.
           </p>
         </header>
@@ -66,7 +66,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <div className="mt-5 space-y-4">
               <p>
-                The App uses your device&apos;s microphone to capture musical audio
+                Chordisol uses your device&apos;s microphone to capture musical audio
                 for chord recognition and learning activities.
               </p>
               <p className="font-semibold text-slate-800">
@@ -89,7 +89,7 @@ export default function PrivacyPolicyPage() {
                   No audio storage:
                 </span>
                 <span>
-                  Your audio recordings are not stored or retained by the App.
+                  Your audio recordings are not stored or retained by Chordisol.
                 </span>
               </li>
               <li className="flex items-start gap-3 text-slate-700">
@@ -137,7 +137,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <div className="mt-5 space-y-4">
               <p>
-                The App may collect certain technical information about your
+                Chordisol may collect certain technical information about your
                 device, including device specifications and hardware capabilities.
               </p>
               <p className="font-semibold text-slate-800">
@@ -149,7 +149,7 @@ export default function PrivacyPolicyPage() {
                   Understanding device compatibility and capabilities.
                 </li>
                 <li>
-                  Improving the App&apos;s performance and functionality across
+                  Improving Chordisol&apos;s performance and functionality across
                   different devices.
                 </li>
               </ul>
@@ -170,7 +170,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <div className="mt-5 space-y-5">
               <p>
-                The App records certain learning activities and progress
+                Chordisol records certain learning activities and progress
                 information to support your learning experience.
               </p>
               <div className="space-y-3">
@@ -198,7 +198,7 @@ export default function PrivacyPolicyPage() {
                 </ul>
               </div>
               <p className="pt-2 text-slate-600">
-                Your learning history is stored locally within the App on your
+                Your learning history is stored locally within Chordisol on your
                 device and is never shared with third parties.
               </p>
             </div>
@@ -214,7 +214,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <div className="mt-5 space-y-4">
               <p>
-                The App requires access to your device&apos;s microphone to enable
+                Chordisol requires access to your device&apos;s microphone to enable
                 its audio recording and chord recognition features.
               </p>
               <p>
@@ -235,7 +235,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <div className="mt-5 space-y-4">
               <p>
-                The App does not use external audio processing services. All audio
+                Chordisol does not use external audio processing services. All audio
                 recording and chord recognition are handled directly on your
                 device.
               </p>
@@ -257,7 +257,7 @@ export default function PrivacyPolicyPage() {
             <div className="mt-5 space-y-4">
               <p>
                 We take reasonable measures to protect the information handled by
-                the App. Since learning history and related information are stored
+                Chordisol. Since learning history and related information are stored
                 locally, their security may also depend on your device&apos;s
                 security settings and protection.
               </p>
@@ -275,8 +275,8 @@ export default function PrivacyPolicyPage() {
             <div className="mt-5 space-y-4">
               <p>
                 We may update this Privacy Policy from time to time to reflect
-                changes in the App or its practices. Any updates will be published
-                within the App or through our designated communication channels.
+                changes in Chordisol or its practices. Any updates will be published
+                within Chordisol or through our designated communication channels.
               </p>
             </div>
           </section>

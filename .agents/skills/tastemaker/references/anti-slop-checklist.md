@@ -88,7 +88,7 @@ The scanner catches high-confidence source tells: generic purple/cyan gradients,
 
 ### Motion & microinteractions
 
-27. **Not static.** GSAP + ScrollTrigger (`assets/gsap-starter.js`) is wired for scroll-reveal, staggered entrances, and hover/press feedback — a finished page with zero motion is a skipped step, not a minimalist choice. Check for it explicitly. (App-shell screens get the App-shell motion track instead of a scroll timeline — see `references/animation-guidelines.md`.)
+27. **Not static.** GSAP + ScrollTrigger (`assets/gsap-starter.js`) is wired for scroll-reveal, staggered entrances, and hover/press feedback — a finished page with zero motion is a skipped step, not a minimalist choice. Check for it explicitly. (App-shell screens get Chordisol-shell motion track instead of a scroll timeline — see `references/animation-guidelines.md`.)
 28. **No `transition: all`.** Name the specific properties that transition. `transition: all` animates layout and paint properties you didn't intend and is a reliable tell.
 29. **Animate only `transform` and `opacity`.** Never animate `width`, `height`, `top`, `left`, `margin`, or `padding` (they trigger layout on every frame). Motion that needs to move something uses `transform`.
 30. **No uniform hover-scale, no stacked hover effects, no bouncy easing on UI state.** No `hover:scale-105` applied across unrelated elements; no single element carrying translate + scale + shadow + color at once; no overshoot/bounce easing (`cubic-bezier(0.34, 1.56, …)`) on buttons/modals/tooltips — reserve overshoot for genuinely physical interactions. Use the named easings, not the browser default `ease`.
