@@ -463,11 +463,11 @@ export function TopBar() {
               <AnimatePresence>
                 {isMobileTicketOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.86 }}
+                    animate={{ opacity: 1, y: 0, scale: 0.9 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.86 }}
                     transition={{ duration: 0.18, ease: EASE_OUT }}
-                    className="absolute right-0 top-full mt-2 z-50 w-[min(296px,calc(100vw-24px))] drop-shadow-[0_18px_32px_rgba(15,23,42,0.25)]"
+                    className="absolute right-0 top-full mt-2 z-50 w-[min(304px,calc(100vw-24px))] origin-top-right drop-shadow-[0_16px_28px_rgba(15,23,42,0.22)]"
                   >
                     <TicketCardContent
                       isMobilePopup={true}
@@ -480,16 +480,16 @@ export function TopBar() {
 
             {/* Spacer placeholder on desktop to reserve layout space in nav flex row */}
             <div
-              className="hidden sm:block sm:h-10 sm:w-[292px] sm:shrink-0 md:w-[304px]"
+              className="hidden sm:block sm:h-10 sm:w-[262px] sm:shrink-0 md:w-[274px]"
               aria-hidden="true"
             />
           </nav>
 
-          {/* Desktop & tablet ticket: permanently sticking to top of window, anchored at top: 0 */}
+          {/* Desktop & tablet ticket: permanently sticking to top of window, anchored at top: 0, scaled to 90% */}
           <aside
             id="ios-download-ticket"
             aria-label="Chordisol iOS Download Receipt"
-            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_20px_35px_rgba(15,23,42,0.25)] sm:block sm:right-6 md:w-[304px]"
+            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[292px] origin-top-right scale-90 select-none drop-shadow-[0_18px_30px_rgba(15,23,42,0.22)] sm:block sm:right-6 md:w-[304px]"
           >
             <TicketCardContent isMobilePopup={false} />
           </aside>
