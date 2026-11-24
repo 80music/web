@@ -337,51 +337,60 @@ export function TopBar() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const mobileTicketRef = useRef<HTMLDivElement>(null);
 
-  // Automatically hide the top-right ticket when user views the CTA banner, and reveal again when they leave
+  // Automatically hide the top-right ticket ONLY when user views the CTA banner, and reveal again when they leave
   useEffect(() => {
     const ctaElement = document.getElementById("download");
-    const footerElement = document.getElementById("site-footer");
 
     if (!ctaElement) {
       return;
     }
 
-    let ctaIntersecting = false;
-    let footerIntersecting = false;
+    const checkVisibility = () => {
+      // Never hide ticket when on hero or upper sections
+      if (window.scrollY < 500) {
+        setIsCtaVisible(false);
+        return;
+      }
 
-    const updateVisibility = () => {
-      const isVisible = ctaIntersecting || footerIntersecting;
-      setIsCtaVisible(isVisible);
-      if (isVisible) {
+      const rect = ctaElement.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const isViewingCta = rect.top < windowHeight - 80 && rect.bottom > 80;
+      setIsCtaVisible(isViewingCta);
+      if (isViewingCta) {
         setIsMobileTicketOpen(false);
       }
     };
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.target === ctaElement) {
-            ctaIntersecting = entry.isIntersecting;
-          } else if (entry.target === footerElement) {
-            footerIntersecting = entry.isIntersecting;
-          }
+        const entry = entries[0];
+        if (!entry) return;
+
+        // Strict guard: if near hero, keep ticket visible
+        if (window.scrollY < 500) {
+          setIsCtaVisible(false);
+          return;
         }
-        updateVisibility();
+
+        setIsCtaVisible(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setIsMobileTicketOpen(false);
+        }
       },
       {
-        // Trigger as soon as the CTA banner starts entering the viewport
-        rootMargin: "0px 0px -40px 0px",
-        threshold: 0,
+        threshold: 0.15,
       }
     );
 
     observer.observe(ctaElement);
-    if (footerElement) {
-      observer.observe(footerElement);
-    }
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+
+    // Initial check on mount
+    checkVisibility();
 
     return () => {
       observer.disconnect();
+      window.removeEventListener("scroll", checkVisibility);
       setIsCtaVisible(false);
     };
   }, [pathname]);
