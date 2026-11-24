@@ -34,6 +34,7 @@ interface BoothCustomizerToolbarProps {
   onResetBooth: () => void;
   isDownloading: boolean;
   isUploading: boolean;
+  onProceedToShare?: () => void;
 }
 
 type TabKey = "frame" | "filters" | "stickers" | "text" | "save";
@@ -59,8 +60,9 @@ export function BoothCustomizerToolbar({
   onResetBooth,
   isDownloading,
   isUploading,
+  onProceedToShare,
 }: BoothCustomizerToolbarProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>("frame");
+  const [activeTab, setActiveTab] = useState<TabKey>("stickers");
   const [stickerCategory, setStickerCategory] = useState<string>("all");
 
   const filteredStickerPalette =
@@ -464,6 +466,25 @@ export function BoothCustomizerToolbar({
           </div>
         )}
       </div>
+
+      {/* Advance to Step 5 Button */}
+      {onProceedToShare && (
+        <div className="flex items-center justify-between border-t border-border-subtle/80 bg-surface-secondary/50 p-3 sm:px-5">
+          <p className="text-xs text-text-muted hidden sm:block">
+            Finished styling? Proceed to save or generate QR code.
+          </p>
+          <button
+            type="button"
+            onClick={onProceedToShare}
+            className="ml-auto inline-flex h-10 items-center justify-center gap-2 rounded-full bg-brand-primary px-5 font-display text-xs font-bold text-white shadow-xs hover:bg-[#1a82f0] active:scale-95 transition-all cursor-pointer"
+          >
+            <span>Finish &amp; Export (Step 5)</span>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} className="size-3">
+              <path d="M6 3l5 5-5 5" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

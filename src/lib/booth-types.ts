@@ -76,9 +76,55 @@ export interface StickerAsset {
   defaultWidthPercent: number;
 }
 
+export type LayoutVariationId =
+  | "classic-top"
+  | "centered-minimal"
+  | "bottom-signature"
+  | "retro-studio";
+
+export interface LayoutVariation {
+  id: LayoutVariationId;
+  name: string;
+  tagline: string;
+  description: string;
+  badge: string;
+}
+
+export const LAYOUT_VARIATIONS: LayoutVariation[] = [
+  {
+    id: "classic-top",
+    name: "Classic 4-Cut",
+    tagline: "Top Left Logo",
+    description: "Iconic photobooth header with top-left brand mark and 4-CUT edition badge.",
+    badge: "Classic",
+  },
+  {
+    id: "centered-minimal",
+    name: "Centered Studio",
+    tagline: "Centered Logo",
+    description: "Centered emblem mark above photos with clean minimal typography.",
+    badge: "Minimal",
+  },
+  {
+    id: "bottom-signature",
+    name: "Bottom Signature",
+    tagline: "Bottom Logo",
+    description: "Photos start at the top; brand mark and caption sit together at the bottom.",
+    badge: "Modern",
+  },
+  {
+    id: "retro-studio",
+    name: "Retro Vinyl",
+    tagline: "Vintage Header",
+    description: "1970s analog studio title banner with star accents and session barcode.",
+    badge: "Retro",
+  },
+];
+
 export interface StripConfig {
   photos: (string | null)[]; // 4 photos
   frameColor: FrameColorId;
+  layoutVariation: LayoutVariationId;
   filter: PhotoFilterId;
   stickers: StickerItem[];
   stickersVisible: boolean;

@@ -83,13 +83,6 @@ export const metadata: Metadata = {
         type: "image/png",
         alt: "Chordisol - Acoustic Chord Recognition & Practice for iPhone & iPad",
       },
-      {
-        url: "/images/chordisol-logo.png",
-        width: 1024,
-        height: 1024,
-        type: "image/png",
-        alt: "Chordisol App Icon",
-      },
     ],
   },
   twitter: {

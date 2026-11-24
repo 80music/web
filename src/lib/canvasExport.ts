@@ -174,6 +174,7 @@ export async function renderStripCanvas(
   ctx.stroke();
 
   // 2. Draw Header
+  const variation = config.layoutVariation || "classic-top";
   const headerTopY = width * STRIP_RATIOS.paddingTop;
   const logoSize = Math.round(width * STRIP_RATIOS.logoSize);
   const headerLeftX = width * STRIP_RATIOS.paddingX;
@@ -185,52 +186,119 @@ export async function renderStripCanvas(
     logoImg = null;
   }
 
-  if (logoImg) {
-    ctx.save();
-    roundRectPath(
-      ctx,
-      headerLeftX,
-      headerTopY,
-      logoSize,
-      logoSize,
-      Math.round(logoSize * 0.24)
-    );
-    ctx.clip();
-    ctx.drawImage(logoImg, headerLeftX, headerTopY, logoSize, logoSize);
-    ctx.restore();
+  if (variation === "centered-minimal") {
+    // Centered Minimal Layout
+    if (logoImg) {
+      const centerX = (width - logoSize) / 2;
+      ctx.save();
+      roundRectPath(
+        ctx,
+        centerX,
+        headerTopY,
+        logoSize,
+        logoSize,
+        Math.round(logoSize * 0.24)
+      );
+      ctx.clip();
+      ctx.drawImage(logoImg, centerX, headerTopY, logoSize, logoSize);
+      ctx.restore();
+    }
+
+    const titleFontSize = Math.round(width * 0.050);
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("CHORDISOL", width / 2, headerTopY + logoSize + Math.round(width * 0.022));
+
+    const subFontSize = Math.round(width * 0.026);
+    ctx.fillStyle = frame.subtextColor;
+    ctx.font = `700 ${subFontSize}px ${fontSans}`;
+    ctx.fillText("ACOUSTIC STUDIO", width / 2, headerTopY + logoSize + Math.round(width * 0.048));
+  } else if (variation === "bottom-signature") {
+    // Bottom Signature: Clean minimal pill on top
+    const badgeW = Math.round(width * 0.52);
+    const badgeH = Math.round(width * 0.058);
+    const badgeX = headerLeftX;
+    const badgeY = headerTopY + (logoSize - badgeH) / 2;
+
+    ctx.fillStyle = frame.photoBorder;
+    roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
+    ctx.fill();
+
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${Math.round(width * 0.026)}px ${fontSans}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("CHORDISOL ACOUSTIC • NO. 04", badgeX + badgeW / 2, badgeY + badgeH / 2);
+
+    // 4-cut on right
+    ctx.fillStyle = frame.subtextColor;
+    ctx.font = `bold ${Math.round(width * 0.024)}px ${fontSans}`;
+    ctx.textAlign = "right";
+    ctx.fillText("4-CUT", width - headerLeftX, badgeY + badgeH / 2);
+  } else if (variation === "retro-studio") {
+    // Retro Studio: 1970s analog headline
+    const titleFontSize = Math.round(width * 0.048);
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("★  CHORDISOL  ★", width / 2, headerTopY + logoSize * 0.38);
+
+    const subFontSize = Math.round(width * 0.024);
+    ctx.fillStyle = frame.subtextColor;
+    ctx.font = `700 ${subFontSize}px ${fontSans}`;
+    ctx.fillText("SESSION ARCHIVE • 35MM", width / 2, headerTopY + logoSize * 0.78);
+  } else {
+    // Classic Top (default)
+    if (logoImg) {
+      ctx.save();
+      roundRectPath(
+        ctx,
+        headerLeftX,
+        headerTopY,
+        logoSize,
+        logoSize,
+        Math.round(logoSize * 0.24)
+      );
+      ctx.clip();
+      ctx.drawImage(logoImg, headerLeftX, headerTopY, logoSize, logoSize);
+      ctx.restore();
+    }
+
+    // Header Title
+    const textLeftX = headerLeftX + logoSize + Math.round(width * 0.032);
+    const titleFontSize = Math.round(width * STRIP_RATIOS.titleFontSize);
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText("CHORDISOL", textLeftX, headerTopY + logoSize * 0.32);
+
+    // Header Subtitle
+    const subFontSize = Math.round(width * STRIP_RATIOS.subtitleFontSize);
+    ctx.fillStyle = frame.subtextColor;
+    ctx.font = `700 ${subFontSize}px ${fontSans}`;
+    ctx.fillText("ACOUSTIC PHOTOBOOTH", textLeftX, headerTopY + logoSize * 0.76);
+
+    // "4-CUT" Badge on right
+    const badgeFontSize = Math.round(width * STRIP_RATIOS.badgeFontSize);
+    const badgeW = Math.round(width * 0.15);
+    const badgeH = Math.round(width * 0.065);
+    const badgeX = width - width * STRIP_RATIOS.paddingX - badgeW;
+    const badgeY = headerTopY + (logoSize - badgeH) / 2;
+
+    ctx.fillStyle = frame.photoBorder;
+    roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
+    ctx.fill();
+
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${badgeFontSize}px ${fontSans}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("4-CUT", badgeX + badgeW / 2, badgeY + badgeH / 2);
   }
-
-  // Header Title
-  const textLeftX = headerLeftX + logoSize + Math.round(width * 0.032);
-  const titleFontSize = Math.round(width * STRIP_RATIOS.titleFontSize);
-  ctx.fillStyle = frame.textColor;
-  ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "middle";
-  ctx.fillText("CHORDISOL", textLeftX, headerTopY + logoSize * 0.32);
-
-  // Header Subtitle
-  const subFontSize = Math.round(width * STRIP_RATIOS.subtitleFontSize);
-  ctx.fillStyle = frame.subtextColor;
-  ctx.font = `700 ${subFontSize}px ${fontSans}`;
-  ctx.fillText("ACOUSTIC PHOTOBOOTH", textLeftX, headerTopY + logoSize * 0.76);
-
-  // "4-CUT" Badge on right
-  const badgeFontSize = Math.round(width * STRIP_RATIOS.badgeFontSize);
-  const badgeW = Math.round(width * 0.15);
-  const badgeH = Math.round(width * 0.065);
-  const badgeX = width - width * STRIP_RATIOS.paddingX - badgeW;
-  const badgeY = headerTopY + (logoSize - badgeH) / 2;
-
-  ctx.fillStyle = frame.photoBorder;
-  roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
-  ctx.fill();
-
-  ctx.fillStyle = frame.textColor;
-  ctx.font = `bold ${badgeFontSize}px ${fontSans}`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("4-CUT", badgeX + badgeW / 2, badgeY + badgeH / 2);
 
   // 3. Draw 4 Photo Slots
   const photoMarginX = width * STRIP_RATIOS.paddingX;
@@ -327,53 +395,109 @@ export async function renderStripCanvas(
   const footerStartY =
     startPhotoY + 4 * photoH + 3 * photoGap + width * STRIP_RATIOS.gapPhotosToFooter;
 
-  // Caption text
-  const captionFontSize = Math.round(width * STRIP_RATIOS.captionFontSize);
-  ctx.fillStyle = frame.textColor;
-  ctx.font = `bold ${captionFontSize}px ${fontDisplay}`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(
-    config.caption || "Acoustic Session • Chordisol Studio",
-    width / 2,
-    footerStartY + Math.round(width * 0.02)
-  );
+  if (variation === "bottom-signature") {
+    // Bottom Signature: Left logo + brand, Right caption + date
+    const botLogoSize = Math.round(width * 0.08);
+    const botLogoX = width * STRIP_RATIOS.paddingX;
+    const botLogoY = footerStartY + Math.round(width * 0.01);
 
-  // Date / timestamp
-  let nextY = footerStartY + Math.round(width * 0.02);
-  if (config.showDate && config.dateText) {
-    nextY += Math.round(width * 0.045);
-    const dateFontSize = Math.round(width * STRIP_RATIOS.dateFontSize);
-    ctx.fillStyle = frame.subtextColor;
-    ctx.font = `600 ${dateFontSize}px ${fontSans}`;
-    ctx.fillText(config.dateText, width / 2, nextY);
-  }
-
-  // Decorative barcode bar
-  const barcodeY = nextY + Math.round(width * 0.042);
-  const barcodeW = width * STRIP_RATIOS.barcodeWidth;
-  const barcodeH = width * STRIP_RATIOS.barcodeHeight;
-  const barcodeStartX = (width - barcodeW) / 2;
-
-  ctx.fillStyle = frame.subtextColor;
-  ctx.globalAlpha = 0.55;
-
-  const barSegments = [
-    3.5, 1.5, 4.5, 2, 6, 2.5, 3.5, 5.5, 2, 4.5, 3, 2, 5.5, 2.5, 3.5, 2, 4.5, 2,
-    6, 3, 4,
-  ];
-  const totalBarUnits = barSegments.reduce((a, b) => a + b, 0);
-  const unitPx = barcodeW / totalBarUnits;
-
-  let curBarX = barcodeStartX;
-  for (let b = 0; b < barSegments.length; b++) {
-    const seg = barSegments[b];
-    if (b % 2 === 0) {
-      ctx.fillRect(curBarX, barcodeY, seg * unitPx, barcodeH);
+    if (logoImg) {
+      ctx.save();
+      roundRectPath(
+        ctx,
+        botLogoX,
+        botLogoY,
+        botLogoSize,
+        botLogoSize,
+        Math.round(botLogoSize * 0.22)
+      );
+      ctx.clip();
+      ctx.drawImage(logoImg, botLogoX, botLogoY, botLogoSize, botLogoSize);
+      ctx.restore();
     }
-    curBarX += seg * unitPx;
+
+    const textX = botLogoX + botLogoSize + Math.round(width * 0.025);
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${Math.round(width * 0.042)}px ${fontDisplay}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText("CHORDISOL", textX, botLogoY + botLogoSize * 0.32);
+
+    ctx.fillStyle = frame.subtextColor;
+    ctx.font = `600 ${Math.round(width * 0.024)}px ${fontSans}`;
+    ctx.fillText(config.caption || "Acoustic Session", textX, botLogoY + botLogoSize * 0.78);
+
+    // Right: Date & 4-CUT badge
+    const rightX = width - width * STRIP_RATIOS.paddingX;
+    if (config.showDate && config.dateText) {
+      ctx.fillStyle = frame.subtextColor;
+      ctx.font = `500 ${Math.round(width * 0.026)}px ${fontSans}`;
+      ctx.textAlign = "right";
+      ctx.fillText(config.dateText, rightX, botLogoY + botLogoSize * 0.32);
+    }
+
+    const badgeW = Math.round(width * 0.13);
+    const badgeH = Math.round(width * 0.045);
+    const badgeX = rightX - badgeW;
+    const badgeY = botLogoY + botLogoSize * 0.60;
+
+    ctx.fillStyle = frame.photoBorder;
+    roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
+    ctx.fill();
+
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${Math.round(width * 0.022)}px ${fontSans}`;
+    ctx.textAlign = "center";
+    ctx.fillText("4-CUT", badgeX + badgeW / 2, badgeY + badgeH / 2);
+  } else {
+    // Caption text
+    const captionFontSize = Math.round(width * STRIP_RATIOS.captionFontSize);
+    ctx.fillStyle = frame.textColor;
+    ctx.font = `bold ${captionFontSize}px ${fontDisplay}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      config.caption || "Acoustic Session • Chordisol Studio",
+      width / 2,
+      footerStartY + Math.round(width * 0.02)
+    );
+
+    // Date / timestamp
+    let nextY = footerStartY + Math.round(width * 0.02);
+    if (config.showDate && config.dateText) {
+      nextY += Math.round(width * 0.045);
+      const dateFontSize = Math.round(width * STRIP_RATIOS.dateFontSize);
+      ctx.fillStyle = frame.subtextColor;
+      ctx.font = `600 ${dateFontSize}px ${fontSans}`;
+      ctx.fillText(config.dateText, width / 2, nextY);
+    }
+
+    // Decorative barcode bar
+    const barcodeY = nextY + Math.round(width * 0.042);
+    const barcodeW = width * STRIP_RATIOS.barcodeWidth;
+    const barcodeH = width * STRIP_RATIOS.barcodeHeight;
+    const barcodeStartX = (width - barcodeW) / 2;
+
+    ctx.fillStyle = frame.subtextColor;
+    ctx.globalAlpha = 0.55;
+
+    const barSegments = [
+      3.5, 1.5, 4.5, 2, 6, 2.5, 3.5, 5.5, 2, 4.5, 3, 2, 5.5, 2.5, 3.5, 2, 4.5, 2,
+      6, 3, 4,
+    ];
+    const totalBarUnits = barSegments.reduce((a, b) => a + b, 0);
+    const unitPx = barcodeW / totalBarUnits;
+
+    let curBarX = barcodeStartX;
+    for (let b = 0; b < barSegments.length; b++) {
+      const seg = barSegments[b];
+      if (b % 2 === 0) {
+        ctx.fillRect(curBarX, barcodeY, seg * unitPx, barcodeH);
+      }
+      curBarX += seg * unitPx;
+    }
+    ctx.globalAlpha = 1.0;
   }
-  ctx.globalAlpha = 1.0;
 
   // 5. Draw Placed Stickers (Normalized math: xPercent, yPercent, widthPercent, rotationDeg)
   if (config.stickersVisible && config.stickers && config.stickers.length > 0) {
