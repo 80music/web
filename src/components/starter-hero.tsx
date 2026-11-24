@@ -166,25 +166,6 @@ export function StarterHero() {
           <p className="mx-auto mt-4 sm:mt-5 text-center text-sm sm:text-[15.5px] font-medium text-slate-500">
             An app made at <span className="font-semibold text-slate-800">Apple Developer Academy @ BINUS Bali</span>
           </p>
-
-          {/* Quick Capability Highlights */}
-          <div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-slate-50/80 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs backdrop-blur-xs">
-              <span className="flex size-2 rounded-full bg-[#1674d6]" />
-              <span>Acoustic Mic Detection</span>
-              <span className="text-slate-400 font-normal">• No cables needed</span>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-slate-50/80 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs backdrop-blur-xs">
-              <span className="flex size-2 rounded-full bg-[#10b981]" />
-              <span>Zero-Latency Audio DSP</span>
-              <span className="text-slate-400 font-normal">• 100% on-device</span>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-slate-50/80 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs backdrop-blur-xs">
-              <span className="flex size-2 rounded-full bg-[#7c3aed]" />
-              <span>5-Goal Song Curriculum</span>
-              <span className="text-slate-400 font-normal">• Ear-first method</span>
-            </div>
-          </div>
         </header>
 
         {/* The Interactive Bento Studio */}
