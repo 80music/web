@@ -63,8 +63,8 @@ export function CurriculumShowcase() {
           {/* Right Column (45%): Compact, Simpler Card Stack with Brand Logo */}
           <div className="w-full lg:w-[45%] relative pt-4 sm:pt-6 flex justify-center lg:justify-end overflow-visible">
             <div className="relative w-full max-w-[290px] xs:max-w-[310px] sm:max-w-[335px] pr-3 sm:pr-6">
-              {/* Overlapping Floating Card: Chordisol (Top) - Crisp shadow & unblocked spacing */}
-              <div className="relative z-20 w-full ml-3 xs:ml-4 sm:ml-6 mb-2.5 sm:mb-3.5 rounded-[18px] sm:rounded-[22px] border border-slate-200/70 bg-white p-3 sm:p-3.5 shadow-[0_6px_18px_-3px_rgba(15,23,42,0.08),0_2px_5px_-2px_rgba(15,23,42,0.04)] transition-transform duration-300 hover:-translate-y-0.5">
+              {/* Overlapping Floating Card: Chordisol (Top) - Exact reference shadow & snug overlap */}
+              <div className="relative z-20 w-full ml-3 xs:ml-4 sm:ml-6 -mb-3 sm:-mb-4 rounded-[22px] sm:rounded-[26px] border border-slate-200/70 bg-white p-3 sm:p-3.5 shadow-[0_14px_30px_rgba(0,0,0,0.1),0_3px_8px_rgba(0,0,0,0.04)] transition-transform duration-300 hover:-translate-y-0.5">
                 <div className="flex items-center justify-between gap-2.5">
                   <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                     {/* Brand Logo */}
@@ -93,7 +93,7 @@ export function CurriculumShowcase() {
               </div>
 
               {/* Base Card: The Others (Traditional Methods) - Tilted -rotate-2, all items clearly visible */}
-              <div className="w-full -rotate-2 rounded-[22px] sm:rounded-[26px] border border-slate-200/70 bg-white p-3.5 sm:p-4.5 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.06),0_2px_4px_-2px_rgba(15,23,42,0.03)]">
+              <div className="w-full -rotate-2 rounded-[24px] sm:rounded-[28px] border border-slate-200/70 bg-white p-3.5 sm:p-4.5 pt-5 sm:pt-6 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.06),0_2px_4px_-2px_rgba(15,23,42,0.03)]">
                 <div className="flex flex-col gap-2.5 sm:gap-3">
                   {TRADITIONAL_ITEMS.map((item) => (
                     <div
