@@ -291,7 +291,7 @@ function TicketCardContent({
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClose}
-          className="mt-4 flex h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[#080d19] px-4 font-bold text-white shadow-lg transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-5 sm:h-[50px]"
+          className="mt-4 flex h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[#080d19] px-4 font-bold text-white shadow-sm transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-5 sm:h-[50px]"
         >
           <AppStoreIcon className="size-5 shrink-0 text-[#5eb0fa]" />
           <span className="font-display text-[15px] font-bold tracking-tight text-[#5eb0fa] sm:text-[15.5px]">
@@ -467,7 +467,7 @@ export function TopBar() {
                     animate={{ opacity: 1, y: 0, scale: 0.9 }}
                     exit={{ opacity: 0, y: -6, scale: 0.86 }}
                     transition={{ duration: 0.18, ease: EASE_OUT }}
-                    className="absolute right-0 top-full mt-2 z-50 w-[min(304px,calc(100vw-24px))] origin-top-right drop-shadow-[0_16px_28px_rgba(15,23,42,0.22)]"
+                    className="absolute right-0 top-full mt-2 z-50 w-[min(304px,calc(100vw-24px))] origin-top-right drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
                   >
                     <TicketCardContent
                       isMobilePopup={true}
@@ -489,7 +489,7 @@ export function TopBar() {
           <aside
             id="ios-download-ticket"
             aria-label="Chordisol iOS Download Receipt"
-            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[292px] origin-top-right scale-90 select-none drop-shadow-[0_18px_30px_rgba(15,23,42,0.22)] sm:block sm:right-6 md:w-[304px]"
+            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[292px] origin-top-right scale-90 select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px]"
           >
             <TicketCardContent isMobilePopup={false} />
           </aside>
