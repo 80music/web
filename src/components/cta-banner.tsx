@@ -46,14 +46,13 @@ export function CtaBanner() {
           Lower your cortisol, with Chordisol.
         </h2>
 
-        {/* Description */}
-        <p className="mt-4 max-w-xl text-base font-medium leading-relaxed text-white/90 sm:text-lg text-pretty">
-          No tangled MIDI cables. No high-stress theory drills. Just your real acoustic instrument,
-          your device microphone, and effortless song playing.
+        {/* Description - Fresh, inviting action without repeating features */}
+        <p className="mt-4 max-w-lg text-base font-normal leading-relaxed text-white/90 sm:text-lg text-pretty">
+          Pick up your instrument and start training your ear the natural way. Free to play, private by design, and ready whenever inspiration strikes.
         </p>
 
         {/* App Store CTA Button */}
-        <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
+        <div className="mt-8 flex flex-col items-center gap-3">
           <a
             href="https://apps.apple.com"
             target="_blank"
@@ -64,21 +63,8 @@ export function CtaBanner() {
             <span>Download for iOS &amp; iPadOS</span>
           </a>
 
-          <span className="text-xs font-semibold text-white/85">
-            100% Free • Zero ads or in-app tracking
-          </span>
-        </div>
-
-        {/* Feature badges row */}
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-2.5 text-xs font-medium text-white/90 sm:mt-11">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 backdrop-blur-xs">
-            ✓ Real-Time Acoustic Engine
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 backdrop-blur-xs">
-            ✓ Piano &amp; Guitar Friendly
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 backdrop-blur-xs">
-            ✓ Zero Cables or Hardware
+          <span className="text-xs font-medium text-white/80">
+            100% Free • Zero ads • No account required
           </span>
         </div>
       </div>
