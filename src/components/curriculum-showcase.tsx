@@ -1,202 +1,210 @@
 import { type ComponentPropsWithoutRef } from "react";
 
-interface GoalItem {
-  number: string;
-  title: string;
-  category: string;
-  description: string;
-  song: string;
-  color: string;
-  bgColor: string;
-  borderColor: string;
-  badgeBg: string;
-}
-
-const GOALS: GoalItem[] = [
-  {
-    number: "01",
-    title: "Trust Your Ear",
-    category: "Color & Mood",
-    description:
-      "Feel whether a chord creates harmonic tension or resolution before analyzing its name. Build confident musical intuition from day one.",
-    song: "Twinkle Twinkle Little Star",
-    color: "#1674d6",
-    bgColor: "from-blue-500/10 to-sky-500/5",
-    borderColor: "border-blue-200",
-    badgeBg: "bg-blue-100/80 text-blue-800",
-  },
-  {
-    number: "02",
-    title: "Fill the Gap",
-    category: "Progressions",
-    description:
-      "Listen to a chord sequence with a missing harmony. Train your ear to predict and spot the missing chord in famous songs by sound alone.",
-    song: "Happy Birthday",
-    color: "#7c3aed",
-    bgColor: "from-purple-500/10 to-indigo-500/5",
-    borderColor: "border-purple-200",
-    badgeBg: "bg-purple-100/80 text-purple-800",
-  },
-  {
-    number: "03",
-    title: "This or That?",
-    category: "Voicing Comparison",
-    description:
-      "Compare two close chord voicings or inversions side-by-side. Hear subtle acoustic overtones and discover which chord voicing fits best.",
-    song: "Stand By Me",
-    color: "#e11d48",
-    bgColor: "from-rose-500/10 to-pink-500/5",
-    borderColor: "border-rose-200",
-    badgeBg: "bg-rose-100/80 text-rose-800",
-  },
-  {
-    number: "04",
-    title: "Stack Stack",
-    category: "Note Building",
-    description:
-      "Deconstruct complex harmony. Build rich major 7ths, minor 9ths, and suspended chords note-by-note directly from their root intervals.",
-    song: "Fly Me to the Moon",
-    color: "#ea580c",
-    bgColor: "from-orange-500/10 to-amber-500/5",
-    borderColor: "border-orange-200",
-    badgeBg: "bg-orange-100/80 text-orange-800",
-  },
-  {
-    number: "05",
-    title: "Swap Notes",
-    category: "Voice Leading",
-    description:
-      "Master voice leading and smooth chord inversions. Guide your fingers across the fretboard or keys with the shortest physical transitions.",
-    song: "Let It Be",
-    color: "#0d9488",
-    bgColor: "from-teal-500/10 to-emerald-500/5",
-    borderColor: "border-teal-200",
-    badgeBg: "bg-teal-100/80 text-teal-800",
-  },
-];
-
-function DiscIcon(props: ComponentPropsWithoutRef<"svg">) {
+function CableIcon(props: ComponentPropsWithoutRef<"svg">) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2a10 10 0 0 1 10 10" strokeDasharray="2 3" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} {...props}>
+      <path d="M12 2v6m-4-6v6m0 0a4 4 0 0 0 8 0" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 12v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
+
+function FlashcardIcon(props: ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} {...props}>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 7h8M8 11h8M8 15h5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function TimerQuizIcon(props: ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} {...props}>
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l2.5 2.5M10 2h4M12 2v3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function DisconnectIcon(props: ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} {...props}>
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+      <path d="M6 6h10M6 10h10M6 14h6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function AcousticWaveIcon(props: ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} {...props}>
+      <path d="M3 10v4M7 7v10M11 4v16M15 6v12M19 8v8M22 11v2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const TRADITIONAL_PAINS = [
+  {
+    icon: CableIcon,
+    bgGradient: "from-slate-100 to-slate-200/80",
+    badgeBg: "bg-red-500",
+    title: "Tangled MIDI & Audio Adapters",
+    subtitle: "15m setup time • Audio latency & driver friction",
+  },
+  {
+    icon: FlashcardIcon,
+    bgGradient: "from-amber-50 to-amber-100/70",
+    badgeBg: "bg-amber-500",
+    title: "Dry Roman Numeral Flashcards",
+    subtitle: "V7/V vs IV • Abstract memorization fatigue",
+  },
+  {
+    icon: TimerQuizIcon,
+    bgGradient: "from-rose-50 to-rose-100/70",
+    badgeBg: "bg-rose-500",
+    title: "Anxiety-Inducing Ear Quizzes",
+    subtitle: "Isolated synthetic bleeps • High cortisol test format",
+  },
+  {
+    icon: DisconnectIcon,
+    bgGradient: "from-purple-50 to-purple-100/70",
+    badgeBg: "bg-purple-500",
+    title: "Isolated Finger Drills",
+    subtitle: "Zero song context • 80% abandon rate within 2 weeks",
+  },
+];
 
 export function CurriculumShowcase() {
   return (
     <section
       id="curriculum"
-      aria-label="Chordisol 5-goal ear training curriculum"
-      className="border-t border-slate-100 bg-white px-4 py-16 sm:px-6 sm:py-20"
+      aria-label="The Shift: From abstract drills to ear-first intuition"
+      className="border-t border-slate-100 bg-[#f8fafc]/50 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
     >
       <div className="mx-auto w-full max-w-212.5">
-        {/* Section Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center rounded-full bg-purple-50 px-3 py-1 text-[11px] font-bold tracking-wider text-purple-700 uppercase">
-            The Ear-First Method
-          </span>
-          <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl sm:leading-tight">
-            5 Interactive Goals. Endless Musical Intuition.
-          </h2>
-          <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600 sm:text-base text-pretty">
-            Instead of drilling dry roman numerals on a chalkboard, you learn how harmony actually feels
-            through real song puzzles designed for lifelong retention.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* Left Column: Editorial Headline & Narrative */}
+          <div className="flex flex-col items-start lg:col-span-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3.5 py-1 text-xs font-bold tracking-wider text-blue-700 uppercase">
+              The Shift
+            </span>
 
-        {/* Goals Grid */}
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {GOALS.map((goal, idx) => (
-            <div
-              key={goal.title}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-b ${goal.bgColor} p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-6 ${
-                idx === 4 ? "sm:col-span-2 lg:col-span-1" : ""
-              }`}
-            >
-              <div>
-                {/* Header row */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span
-                      style={{ backgroundColor: goal.color }}
-                      className="flex size-7 items-center justify-center rounded-full font-mono text-xs font-bold text-white shadow-xs"
-                    >
-                      {goal.number}
-                    </span>
-                    <span
-                      className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase ${goal.badgeBg}`}
-                    >
-                      {goal.category}
-                    </span>
-                  </div>
-                  <DiscIcon
-                    style={{ color: goal.color }}
-                    className="size-5 shrink-0 opacity-70 transition-transform duration-300 group-hover:rotate-45"
-                  />
-                </div>
+            <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-[40px] lg:leading-[1.14] text-balance">
+              Stop fighting music theory. Start playing by ear.
+            </h2>
 
-                {/* Title & Description */}
-                <h3 className="mt-4 font-display text-lg font-bold tracking-tight text-slate-900">
-                  {goal.title}
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed font-medium text-slate-600 sm:text-[13px]">
-                  {goal.description}
-                </p>
-              </div>
+            <p className="mt-4 text-base font-normal leading-relaxed text-slate-600 sm:text-lg text-pretty">
+              Traditional ear training treats harmony like a stressful math exam — force-feeding dry Roman
+              numerals, tangled cables, and abstract flashcards that disconnect you from your instrument.
+            </p>
 
-              {/* Example Song badge */}
-              <div className="mt-5 flex items-center justify-between border-t border-slate-200/60 pt-3">
-                <span className="text-[11px] font-medium text-slate-500">Example Song:</span>
-                <span className="font-display text-xs font-bold text-slate-800">
-                  {goal.song}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+            <p className="mt-3 text-base font-normal leading-relaxed text-slate-600 sm:text-lg text-pretty">
+              Chordisol flips the paradigm. Our on-device microphone listens to your real piano or guitar
+              in real time, transforming chord recognition into playful, intuitive musical puzzles.
+            </p>
 
-        {/* Comparison Callout: Traditional vs Ear-First */}
-        <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 sm:p-8">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-10 sm:items-center">
-            <div>
-              <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
-                The Shift
+            <div className="mt-8 flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3.5 py-1.5 shadow-2xs">
+                <span className="size-1.5 rounded-full bg-emerald-500" />
+                Zero Cables or Hardware
               </span>
-              <h3 className="mt-1.5 font-display text-xl font-bold tracking-tight text-slate-900">
-                From Abstract Memorization to Real Sound
-              </h3>
-              <p className="mt-2 text-xs leading-relaxed font-medium text-slate-600 sm:text-sm">
-                Traditional music education teaches chords as theoretical math equations before your ears
-                even understand the emotional weight. Chordisol reverses this order: train your ear first,
-                and the theory falls into place naturally.
-              </p>
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3.5 py-1.5 shadow-2xs">
+                <span className="size-1.5 rounded-full bg-blue-500" />
+                Acoustic Ear First
+              </span>
             </div>
+          </div>
 
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 rounded-xl border border-red-200/60 bg-red-50/50 p-3.5">
-                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-red-200 text-xs font-bold text-red-700">
-                  ✕
-                </span>
-                <div>
-                  <div className="text-xs font-bold text-red-900">Traditional Drill Work</div>
-                  <div className="text-[11.5px] font-medium text-red-800/80">
-                    Flashcards, circle of fifths memorization, roman numerals disconnected from instruments.
+          {/* Right Column: Stacked Cards (Reference Image Layout) */}
+          <div className="relative pt-6 sm:pt-10 lg:col-span-7">
+            <div className="relative mx-auto max-w-lg lg:ml-auto lg:mr-0">
+              {/* Overlapping Floating Card: Chordisol (Top) */}
+              <div className="relative z-20 -mb-7 sm:-mb-8 mx-auto sm:ml-8 w-full sm:w-[92%] rounded-2xl border border-white/95 bg-white/95 p-3.5 shadow-[0_20px_50px_rgba(22,116,214,0.16)] backdrop-blur-xl ring-1 ring-slate-900/5 sm:rounded-3xl sm:p-4.5 transition-transform duration-300 hover:-translate-y-0.5">
+                <div className="flex items-center justify-between gap-2.5 sm:gap-3">
+                  <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                    {/* Glossy Chordisol App Icon */}
+                    <div className="relative flex size-11 sm:size-13 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#38bdf8] via-[#2086f6] to-[#0a66de] shadow-md shadow-blue-500/30">
+                      <AcousticWaveIcon className="size-5 sm:size-6 text-white" />
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/30"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="truncate font-display text-xs sm:text-base font-bold tracking-tight text-slate-900">
+                        Chord Recognized
+                      </div>
+                      <div className="truncate text-[11px] sm:text-sm font-bold text-[#1674d6]">
+                        + Cmaj7 • Acoustic Guitar
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Status Badge */}
+                  <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-emerald-700">
+                    <span className="size-1.5 sm:size-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Live • 12ms</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-emerald-200/70 bg-emerald-50/60 p-3.5">
-                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-200 text-xs font-bold text-emerald-700">
-                  ✓
-                </span>
-                <div>
-                  <div className="text-xs font-bold text-emerald-900">Chordisol Ear-First</div>
-                  <div className="text-[11.5px] font-medium text-emerald-800/90">
-                    Live microphone feedback on your real piano or guitar with intuitive song-based chord puzzles.
-                  </div>
+              {/* Base Card: The Others (Traditional Methods) */}
+              <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.06)] ring-1 ring-slate-900/5 sm:p-7">
+                <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+                  <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+                    Traditional Methods
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-500 uppercase">
+                    The Old Way
+                  </span>
+                </div>
+
+                <div className="divide-y divide-slate-100">
+                  {TRADITIONAL_PAINS.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={item.title}
+                        className="flex items-center gap-3.5 py-4 first:pt-1 last:pb-1"
+                      >
+                        {/* Thumbnail with mini corner badge */}
+                        <div className="relative">
+                          <div
+                            className={`flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${item.bgGradient} border border-slate-200/60 shadow-2xs sm:size-12`}
+                          >
+                            <Icon className="size-5 text-slate-600" />
+                          </div>
+                          {/* Corner badge matching reference */}
+                          <div
+                            className={`absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full ${item.badgeBg} text-white shadow-2xs`}
+                          >
+                            <svg
+                              viewBox="0 0 12 12"
+                              className="size-2.5"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={2.2}
+                              strokeLinecap="round"
+                            >
+                              <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+
+                        {/* Title and Subtitle */}
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-display text-sm font-bold text-slate-900 sm:text-[15px]">
+                            {item.title}
+                          </div>
+                          <div className="truncate text-xs font-medium text-slate-500">
+                            {item.subtitle}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

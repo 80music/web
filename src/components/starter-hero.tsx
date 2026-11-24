@@ -43,7 +43,7 @@ export function StarterHero() {
           {/* Line 3: The [Bar 6 (medium)] Fun Way [Bar 7 (long)] */}
           <div
             aria-hidden="true"
-            className="mx-auto flex w-full max-w-130 flex-col gap-3.5 sm:gap-4 select-none"
+            className="mx-auto flex w-full max-w-130 origin-center scale-[0.72] xs:scale-[0.84] sm:scale-100 -my-3 sm:my-0 flex-col gap-3.5 sm:gap-4 select-none"
           >
             {/* Line 1: [Bar 1] Learn [Bar 2] Chord [Bar 3] */}
             <div className="flex items-center gap-2.5 sm:gap-3 w-full">
