@@ -26,7 +26,7 @@ export function CurriculumShowcase() {
 
           {/* Right Column (45%): Image Asset Created by User */}
           <div className="w-full lg:w-[45%] flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[320px] xs:max-w-[350px] sm:max-w-[390px]">
+            <div className="relative w-full max-w-[320px] xs:max-w-[350px] sm:max-w-[390px] rotate-1">
               <Image
                 src="/images/the-shift-comparison.png"
                 alt="Chord Matched vs MIDI clutter, dry theory drills, and stressful tone tests"
