@@ -162,9 +162,9 @@ export function StarterHero() {
             </div>
           </div>
 
-          {/* Subtitle value proposition */}
-          <p className="mx-auto mt-6 max-w-140 text-center text-[15px] sm:text-[17px] font-medium leading-relaxed text-slate-600 text-pretty">
-            Instant acoustic ear training for piano and guitar. Chordisol listens in real time through your device mic — turning chord progressions into playful puzzles without dry theory drills or MIDI cables.
+          {/* Subtitle / Academy attribution */}
+          <p className="mx-auto mt-4 sm:mt-5 text-center text-sm sm:text-[15.5px] font-medium text-slate-500">
+            An app made at <span className="font-semibold text-slate-800">Apple Developer Academy @ BINUS Bali</span>
           </p>
 
           {/* Quick Capability Highlights */}
