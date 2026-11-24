@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -327,11 +327,64 @@ function TicketCardContent({
 export function TopBar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMobileTicketOpen, setIsMobileTicketOpen] = useState(false);
+  const [isCtaVisible, setIsCtaVisible] = useState(false);
+
+  const shouldReduceMotion = useReducedMotion();
+  const pathname = usePathname();
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const mobileTicketRef = useRef<HTMLDivElement>(null);
+
+  // Automatically hide the top-right ticket when user views the CTA banner, and reveal again when they leave
+  useEffect(() => {
+    const ctaElement = document.getElementById("download");
+    const footerElement = document.getElementById("site-footer");
+
+    if (!ctaElement) {
+      return;
+    }
+
+    let ctaIntersecting = false;
+    let footerIntersecting = false;
+
+    const updateVisibility = () => {
+      const isVisible = ctaIntersecting || footerIntersecting;
+      setIsCtaVisible(isVisible);
+      if (isVisible) {
+        setIsMobileTicketOpen(false);
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.target === ctaElement) {
+            ctaIntersecting = entry.isIntersecting;
+          } else if (entry.target === footerElement) {
+            footerIntersecting = entry.isIntersecting;
+          }
+        }
+        updateVisibility();
+      },
+      {
+        // Trigger as soon as the CTA banner starts entering the viewport
+        rootMargin: "0px 0px -40px 0px",
+        threshold: 0,
+      }
+    );
+
+    observer.observe(ctaElement);
+    if (footerElement) {
+      observer.observe(footerElement);
+    }
+
+    return () => {
+      observer.disconnect();
+      setIsCtaVisible(false);
+    };
+  }, [pathname]);
 
   const openDrawer = useCallback(() => {
     setIsDrawerOpen(true);
@@ -443,7 +496,21 @@ export function TopBar() {
             </div>
 
             {/* Right cluster on mobile (<sm): compact button that opens ticket on tap */}
-            <div ref={mobileTicketRef} className="relative sm:hidden">
+            <motion.div
+              ref={mobileTicketRef}
+              initial={false}
+              animate={{
+                opacity: isCtaVisible ? 0 : 1,
+                scale: isCtaVisible ? 0.85 : 1,
+              }}
+              transition={{
+                duration: shouldReduceMotion ? 0.1 : 0.25,
+                ease: EASE_OUT,
+              }}
+              className={`relative sm:hidden ${
+                isCtaVisible ? "pointer-events-none" : "pointer-events-auto"
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => setIsMobileTicketOpen((prev) => !prev)}
@@ -476,7 +543,7 @@ export function TopBar() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
 
             {/* Spacer placeholder on desktop to reserve layout space in nav flex row */}
             <div
@@ -485,14 +552,27 @@ export function TopBar() {
             />
           </nav>
 
-          {/* Desktop & tablet ticket: permanently sticking to top of window, anchored at top: 0, scaled to 90% */}
-          <aside
+          {/* Desktop & tablet ticket: hides smoothly when CTA banner is in view, reveals when user leaves */}
+          <motion.aside
             id="ios-download-ticket"
             aria-label="Chordisol iOS Download Receipt"
-            className="pointer-events-auto absolute top-0 right-3 z-50 hidden w-[292px] origin-top-right scale-90 select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px]"
+            initial={false}
+            animate={{
+              y: isCtaVisible ? -360 : 0,
+              opacity: isCtaVisible ? 0 : 1,
+              scale: 0.9,
+            }}
+            style={{ transformOrigin: "top right" }}
+            transition={{
+              duration: shouldReduceMotion ? 0.1 : 0.38,
+              ease: EASE_OUT,
+            }}
+            className={`absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px] ${
+              isCtaVisible ? "pointer-events-none" : "pointer-events-auto"
+            }`}
           >
             <TicketCardContent isMobilePopup={false} />
-          </aside>
+          </motion.aside>
         </div>
       </header>
 

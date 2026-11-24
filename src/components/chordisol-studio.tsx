@@ -281,7 +281,7 @@ export function ChordisolStudio() {
 
       {/* Row 1, Right (4 cols): Airy sky "Trust Your Ear" Lottie animation card */}
       <section
-        id="recognition"
+        id="bento-recognition"
         aria-labelledby="trust-ear-heading"
         className="relative flex min-h-44 sm:min-h-46 flex-col justify-between overflow-hidden rounded-[18px] bg-linear-to-b from-[#e8f3ff] via-[#edf6ff] to-[#f4f9ff] p-4 text-fg-display md:col-span-4 shadow-[0_4px_0_#a2caf3]"
       >
@@ -313,7 +313,7 @@ export function ChordisolStudio() {
 
       {/* Row 2, Left (4 cols): Guided curriculum & vinyl drills with auto-swiping carousel */}
       <section
-        id="curriculum"
+        id="bento-curriculum"
         aria-labelledby="practice-heading"
         className="relative flex min-h-46 sm:min-h-48 flex-col justify-between overflow-hidden rounded-[18px] bg-[#eef1fb] p-3.5 text-fg-display sm:p-4 md:col-span-4 shadow-[0_4px_0_#b8c0df]"
       >
@@ -323,7 +323,7 @@ export function ChordisolStudio() {
 
       {/* Row 2, Middle (4 cols): Song Puzzles (Reverted as requested) */}
       <section
-        id="about"
+        id="bento-song-puzzles"
         aria-labelledby="puzzles-heading"
         className="relative flex min-h-46 sm:min-h-48 flex-col justify-between overflow-hidden rounded-[18px] bg-linear-to-b from-[#dfeffe] via-[#edf6ff] to-[#f4f9ff] p-3.5 text-fg-display sm:p-4 md:col-span-4 shadow-[0_4px_0_#8ea722]"
       >
@@ -371,7 +371,7 @@ export function ChordisolStudio() {
 
       {/* Row 2, Right (4 cols): Chordisol for iOS card (Spacious & uncluttered) */}
       <section
-        id="download"
+        id="bento-download"
         aria-labelledby="download-heading"
         className="relative flex min-h-46 sm:min-h-48 flex-col justify-between overflow-hidden rounded-[18px] bg-linear-to-br from-[#1b7ce3] to-[#1262bd] p-3.5 text-white sm:p-4 md:col-span-4 shadow-[0_4px_0_#08366b]"
       >
