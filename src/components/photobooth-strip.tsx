@@ -39,9 +39,6 @@ export function PhotoboothStrip({
   filter = "normal",
   stickers = [],
   stickersVisible = true,
-  caption = "Acoustic Session • Chordisol Studio",
-  showDate = true,
-  dateText = "",
   selectedStickerId = null,
   onSelectSticker,
   onUpdateSticker,
@@ -134,12 +131,6 @@ export function PhotoboothStrip({
   const isGrid = layoutVariation === "variation-3";
   const slotIndices = isGrid ? [0, 1, 2, 3] : isDuo ? [0, 1] : [0, 1, 2];
 
-  const widthClass = isGrid
-    ? "w-[310px] sm:w-[348px]"
-    : isDuo
-    ? "w-[272px] sm:w-[288px]"
-    : "w-[264px] sm:w-[280px]";
-
   return (
     <div
       ref={stripRef}
@@ -148,39 +139,17 @@ export function PhotoboothStrip({
         e.stopPropagation();
         onSelectSticker?.(null);
       }}
-      className={`relative mx-auto flex select-none flex-col ${widthClass} bg-white p-3.5 shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] justify-between ${className}`}
+      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[262px] sm:w-[280px] bg-white pt-[6%] px-[6%] pb-0 shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
     >
-      {/* 1. Header Row (Classic 3-Cut & 2x2 Grid only; Polaroid Duo keeps a clean frameless top) */}
-      {!isDuo && (
-        <div className="flex items-center justify-between pb-2.5">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="relative size-5 shrink-0 overflow-hidden rounded-[4px]">
-              <Image
-                src="/images/chordisol-logo.png"
-                alt="Chordisol"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            <span className="font-display text-xs leading-none font-bold tracking-tight text-fg-display truncate">
-              Chordisol
-            </span>
-          </div>
-
-          <span className="font-mono text-[9.5px] font-medium text-text-muted shrink-0">
-            {isGrid ? "4-cut" : "3-cut"}
-          </span>
-        </div>
-      )}
-
-      {/* 2. Photo Cuts */}
+      {/* Photo Cuts Grid (Exact 1:1 parity with 1080x1920 canvasExport) */}
       <div
-        className={
+        className={`flex-1 min-h-0 grid gap-2 ${
           isGrid
-            ? "grid grid-cols-2 gap-2"
-            : "flex flex-col gap-2"
-        }
+            ? "grid-cols-2 grid-rows-2"
+            : isDuo
+            ? "grid-rows-2"
+            : "grid-rows-3"
+        }`}
       >
         {slotIndices.map((index) => {
           const photoUrl = photos[index];
@@ -188,13 +157,7 @@ export function PhotoboothStrip({
           return (
             <div
               key={index}
-              className={`group relative w-full overflow-hidden rounded-[2px] bg-surface-secondary ${
-                isGrid
-                  ? "aspect-[5/4]"
-                  : isDuo
-                  ? "aspect-[5/4]"
-                  : "aspect-[4/2.9]"
-              }`}
+              className="group relative size-full overflow-hidden rounded-[2px] bg-surface-secondary"
             >
               {photoUrl ? (
                 <>
@@ -241,68 +204,23 @@ export function PhotoboothStrip({
         })}
       </div>
 
-      {/* 3. Footer Section */}
-      {isDuo ? (
-        /* Polaroid Duo: generous editorial bottom chin with centered brand + caption */
-        <div className="text-center pt-5 pb-1.5">
-          <div className="flex items-center justify-center gap-1.5 mb-2">
-            <div className="relative size-4.5 shrink-0 overflow-hidden rounded-[4px]">
-              <Image
-                src="/images/chordisol-logo.png"
-                alt="Chordisol"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            <span className="font-display text-xs font-bold tracking-tight text-fg-display">
-              Chordisol
-            </span>
-          </div>
-
-          <p className="font-display text-xs font-semibold tracking-tight text-fg-display truncate px-1">
-            {caption || "Acoustic Session • Chordisol Studio"}
-          </p>
-
-          {showDate && dateText && (
-            <p className="mt-0.5 font-mono text-[9px] text-text-muted tabular-nums">
-              {dateText}
-            </p>
-          )}
-
-          <div
-            aria-hidden="true"
-            className="mx-auto mt-2.5 flex h-2 w-24 items-center justify-center gap-0.5 opacity-35 text-fg-display"
-          >
-            {[3, 1.5, 4, 1.5, 5, 2, 1.5, 4, 2, 3, 1.5, 5, 2, 4, 1.5].map((w, i) => (
-              <span key={i} style={{ width: `${w}px` }} className="h-full bg-current" />
-            ))}
-          </div>
+      {/* Minimal Brand Footer (8.5% height — no caption, no date, no barcode) */}
+      <div className="h-[8.5%] shrink-0 flex items-center justify-center gap-1.5">
+        <div className="relative size-4 shrink-0 overflow-hidden rounded-[3.5px]">
+          <Image
+            src="/images/chordisol-logo.png"
+            alt="Chordisol"
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
-      ) : (
-        <div className="text-center pt-3 pb-0.5">
-          <p className="font-display text-xs font-semibold tracking-tight text-fg-display truncate px-1">
-            {caption || "Acoustic Session • Chordisol Studio"}
-          </p>
+        <span className="font-display text-xs font-bold tracking-tight text-fg-display">
+          Chordisol
+        </span>
+      </div>
 
-          {showDate && dateText && (
-            <p className="mt-0.5 font-mono text-[9px] text-text-muted tabular-nums">
-              {dateText}
-            </p>
-          )}
-
-          <div
-            aria-hidden="true"
-            className="mx-auto mt-2 flex h-2 w-26 items-center justify-center gap-0.5 opacity-35 text-fg-display"
-          >
-            {[3, 1.5, 4, 1.5, 5, 2, 1.5, 4, 2, 3, 1.5, 5, 2, 4, 1.5].map((w, i) => (
-              <span key={i} style={{ width: `${w}px` }} className="h-full bg-current" />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 4. Interactive Sticker Layer (overflow-visible so edge handles never clip) */}
+      {/* Interactive Sticker Layer (overflow-visible so edge handles never clip) */}
       {stickersVisible && stickers.length > 0 && (
         <div className="pointer-events-none absolute inset-0 z-30 overflow-visible">
           {stickers.map((sticker) => {
