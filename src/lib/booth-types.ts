@@ -87,29 +87,29 @@ export const LAYOUT_VARIATIONS: LayoutVariation[] = [
   {
     id: "variation-1",
     name: "Classic Strip",
-    tagline: "3 vertical cuts",
-    description: "Tall slim 3-cut strip with caption below",
+    tagline: "3 pics",
+    description: "3 stacked cuts in 9:16 Story format",
     photoCount: 3,
   },
   {
     id: "variation-2",
-    name: "Polaroid Duo",
-    tagline: "2 large cuts",
-    description: "Chunky 2-cut print with wide bottom margin",
+    name: "Editorial Duo",
+    tagline: "2 pics",
+    description: "2 large cuts in 9:16 Story format",
     photoCount: 2,
   },
   {
     id: "variation-3",
-    name: "2×2 Grid",
-    tagline: "4 postcard cuts",
-    description: "Wide 2×2 contact sheet grid",
-    photoCount: 4,
+    name: "Full Portrait",
+    tagline: "1 pic",
+    description: "1 full-frame portrait in 9:16 Story format",
+    photoCount: 1,
   },
 ];
 
 export function getPhotoCountForVariation(variation: LayoutVariationId): number {
   if (variation === "variation-2") return 2;
-  if (variation === "variation-3") return 4;
+  if (variation === "variation-3") return 1;
   return 3;
 }
 

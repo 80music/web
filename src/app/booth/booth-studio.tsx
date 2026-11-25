@@ -26,16 +26,15 @@ interface StripOption {
 }
 
 const STRIP_OPTIONS: readonly StripOption[] = [
-  { id: "variation-1", title: "Classic Strip", subtitle: "3 cuts" },
-  { id: "variation-2", title: "Editorial Duo", subtitle: "2 cuts" },
-  { id: "variation-3", title: "2×2 Grid", subtitle: "4 cuts" },
+  { id: "variation-1", title: "Classic Strip", subtitle: "3 pics" },
+  { id: "variation-2", title: "Editorial Duo", subtitle: "2 pics" },
+  { id: "variation-3", title: "Full Portrait", subtitle: "1 pic" },
 ];
 
 const PREVIEW_SAMPLES = [
   { src: "/images/mascots/mascot-radio.png", alt: "Studio sample 1", bg: "bg-[#eef4fb]" },
   { src: "/images/mascots/mascot-duo.png", alt: "Studio sample 2", bg: "bg-[#f3f6fa]" },
   { src: "/images/mascots/mascot-hill.png", alt: "Studio sample 3", bg: "bg-[#ebf2fa]" },
-  { src: "/images/mascots/mascot-compare.png", alt: "Studio sample 4", bg: "bg-[#f2f5fb]" },
 ] as const;
 
 function ChevronLeftIcon({ className = "size-4" }: { className?: string }) {
@@ -67,12 +66,12 @@ function PhysicalStripPreview({
   isSelected: boolean;
 }) {
   const isDuo = variation === "variation-2";
-  const isGrid = variation === "variation-3";
-  const frames = isGrid
-    ? PREVIEW_SAMPLES
+  const isSingle = variation === "variation-3";
+  const frames = isSingle
+    ? PREVIEW_SAMPLES.slice(0, 1)
     : isDuo
     ? PREVIEW_SAMPLES.slice(0, 2)
-    : PREVIEW_SAMPLES.slice(0, 3);
+    : PREVIEW_SAMPLES;
 
   return (
     <div
@@ -85,8 +84,8 @@ function PhysicalStripPreview({
       {/* Photo Cuts */}
       <div
         className={`flex-1 min-h-0 grid gap-1.5 ${
-          isGrid
-            ? "grid-cols-2 grid-rows-2"
+          isSingle
+            ? "grid-rows-1"
             : isDuo
             ? "grid-rows-2"
             : "grid-rows-3"
@@ -387,7 +386,7 @@ export function BoothStudio() {
   const completedCount = photos.slice(0, slotCount).filter(Boolean).length;
   const isAllPhotosTaken = completedCount === slotCount;
   const selectedSticker = stickers.find((s) => s.id === selectedStickerId);
-  const isGridLayout = layoutVariation === "variation-3";
+  const isSingleLayout = layoutVariation === "variation-3";
   const isDuoLayout = layoutVariation === "variation-2";
 
   return (
@@ -494,8 +493,8 @@ export function BoothStudio() {
                 <div className="w-[186px] aspect-[9/16] bg-white pt-[6%] px-[6%] pb-0 shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16)] flex flex-col">
                   <div
                     className={`flex-1 min-h-0 grid gap-1.5 ${
-                      isGridLayout
-                        ? "grid-cols-2 grid-rows-2"
+                      isSingleLayout
+                        ? "grid-rows-1"
                         : isDuoLayout
                         ? "grid-rows-2"
                         : "grid-rows-3"

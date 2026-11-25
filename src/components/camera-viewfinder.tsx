@@ -476,19 +476,21 @@ export function CameraViewfinder({
             </button>
 
             <div className="flex items-center gap-2.5 ml-auto">
-              <button
-                type="button"
-                disabled={
-                  isCountingDown ||
-                  isAutoSequenceRunning ||
-                  !hasPermission ||
-                  completedCount >= slotCount
-                }
-                onClick={handleSnapNextSequential}
-                className="inline-flex h-11 items-center justify-center rounded-full border border-border-subtle bg-white px-4 font-display text-xs font-semibold text-fg-display transition-colors hover:bg-surface-secondary active:scale-[0.98] disabled:opacity-40 cursor-pointer"
-              >
-                Take shot {currentSequentialSlot + 1}
-              </button>
+              {slotCount > 1 && (
+                <button
+                  type="button"
+                  disabled={
+                    isCountingDown ||
+                    isAutoSequenceRunning ||
+                    !hasPermission ||
+                    completedCount >= slotCount
+                  }
+                  onClick={handleSnapNextSequential}
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-border-subtle bg-white px-4 font-display text-xs font-semibold text-fg-display transition-colors hover:bg-surface-secondary active:scale-[0.98] disabled:opacity-40 cursor-pointer"
+                >
+                  Take shot {currentSequentialSlot + 1}
+                </button>
+              )}
 
               <button
                 type="button"
@@ -512,6 +514,10 @@ export function CameraViewfinder({
                 <span>
                   {isAutoSequenceRunning
                     ? "Capturing..."
+                    : slotCount === 1
+                    ? completedCount >= 1
+                      ? "Retake photo"
+                      : "Take photo"
                     : completedCount >= slotCount
                     ? `Retake all ${slotCount}`
                     : `Start ${slotCount}-shot timer`}

@@ -123,7 +123,7 @@ export async function renderStripCanvas(
 
   const variation = config.layoutVariation || "variation-1";
   const isDuo = variation === "variation-2";
-  const isGrid = variation === "variation-3";
+  const isSingle = variation === "variation-3";
 
   const width = targetWidth;
   const height = Math.round((targetWidth * 16) / 9);
@@ -187,15 +187,9 @@ export async function renderStripCanvas(
     }
   };
 
-  // 2. Draw Photo Cuts
-  if (isGrid) {
-    const cellW = Math.floor((photoAreaW - gap) / 2);
-    const cellH = Math.floor((photoAreaH - gap) / 2);
-    for (let i = 0; i < 4; i++) {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      await drawPhotoSlot(i, padX + col * (cellW + gap), padTop + row * (cellH + gap), cellW, cellH);
-    }
+  // 2. Draw Photo Cuts (3 pics, 2 pics, or 1 pic)
+  if (isSingle) {
+    await drawPhotoSlot(0, padX, padTop, photoAreaW, photoAreaH);
   } else if (isDuo) {
     const cellW = photoAreaW;
     const cellH = Math.floor((photoAreaH - gap) / 2);

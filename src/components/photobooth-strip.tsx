@@ -128,8 +128,8 @@ export function PhotoboothStrip({
   }, [activeDrag, onUpdateSticker]);
 
   const isDuo = layoutVariation === "variation-2";
-  const isGrid = layoutVariation === "variation-3";
-  const slotIndices = isGrid ? [0, 1, 2, 3] : isDuo ? [0, 1] : [0, 1, 2];
+  const isSingle = layoutVariation === "variation-3";
+  const slotIndices = isSingle ? [0] : isDuo ? [0, 1] : [0, 1, 2];
 
   return (
     <div
@@ -144,8 +144,8 @@ export function PhotoboothStrip({
       {/* Photo Cuts Grid (Exact 1:1 parity with 1080x1920 canvasExport) */}
       <div
         className={`flex-1 min-h-0 grid gap-2 ${
-          isGrid
-            ? "grid-cols-2 grid-rows-2"
+          isSingle
+            ? "grid-rows-1"
             : isDuo
             ? "grid-rows-2"
             : "grid-rows-3"
