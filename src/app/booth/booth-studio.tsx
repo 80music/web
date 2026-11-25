@@ -42,7 +42,7 @@ const TOP_LOGO_OPTIONS: readonly StripOption[] = [
 
 const PREVIEW_SAMPLES = [
   { src: "/images/mascots/mascot-radio.png", alt: "Studio sample 1", bg: "bg-[#eef4fb]" },
-  { src: "/images/mascots/mascot-duo.png", alt: "Studio sample 2", bg: "bg-[#f3f6fa]" },
+  { src: "/images/mascots/mascot-duo-1.png", alt: "Studio sample 2", bg: "bg-[#f3f6fa]" },
   { src: "/images/mascots/mascot-hill.png", alt: "Studio sample 3", bg: "bg-[#ebf2fa]" },
 ] as const;
 
