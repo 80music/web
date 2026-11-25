@@ -86,29 +86,30 @@ export interface LayoutVariation {
 export const LAYOUT_VARIATIONS: LayoutVariation[] = [
   {
     id: "variation-1",
-    name: "Variation 1",
-    tagline: "3-Shot Classic",
-    description: "3 photos with caption at the bottom",
+    name: "Classic Strip",
+    tagline: "3 vertical cuts",
+    description: "Tall slim 3-cut strip with caption below",
     photoCount: 3,
   },
   {
     id: "variation-2",
-    name: "Variation 2",
-    tagline: "2-Shot Duo",
-    description: "2 large format photos with caption at the bottom",
+    name: "Polaroid Duo",
+    tagline: "2 large cuts",
+    description: "Chunky 2-cut print with wide bottom margin",
     photoCount: 2,
   },
   {
     id: "variation-3",
-    name: "Variation 3",
-    tagline: "Top Header",
-    description: "Caption on top with 3 photos below",
-    photoCount: 3,
+    name: "2×2 Grid",
+    tagline: "4 postcard cuts",
+    description: "Wide 2×2 contact sheet grid",
+    photoCount: 4,
   },
 ];
 
 export function getPhotoCountForVariation(variation: LayoutVariationId): number {
   if (variation === "variation-2") return 2;
+  if (variation === "variation-3") return 4;
   return 3;
 }
 
@@ -225,125 +226,151 @@ export const STICKER_PALETTE: StickerAsset[] = [
     name: "Radio Note",
     src: "/images/mascots/mascot-radio.png",
     category: "mascots",
-    defaultWidthPercent: 26,
+    defaultWidthPercent: 22,
   },
   {
     id: "mascot-hill",
     name: "Puzzle Hill",
     src: "/images/mascots/mascot-hill.png",
     category: "mascots",
-    defaultWidthPercent: 28,
+    defaultWidthPercent: 24,
   },
   {
     id: "mascot-compare",
     name: "Compare Notes",
     src: "/images/mascots/mascot-compare.png",
     category: "mascots",
-    defaultWidthPercent: 26,
+    defaultWidthPercent: 22,
   },
   {
     id: "mascot-duo",
     name: "Chord Duo",
     src: "/images/mascots/mascot-duo.png",
     category: "mascots",
-    defaultWidthPercent: 28,
-  },
-  {
-    id: "mascot-sleeping",
-    name: "Cozy Note",
-    src: "/images/mascots/mascot-sleeping.png",
-    category: "mascots",
-    defaultWidthPercent: 20,
-  },
-  {
-    id: "chordisol-logo",
-    name: "Chordisol Icon",
-    src: "/images/chordisol-logo.png",
-    category: "mascots",
-    defaultWidthPercent: 18,
+    defaultWidthPercent: 24,
   },
 
-  // Chords
+  // Chords / Keys
   {
     id: "block-c",
     name: "C Major",
     src: "/stickers/block-c.svg",
     category: "chords",
-    defaultWidthPercent: 20,
+    defaultWidthPercent: 18,
+  },
+  {
+    id: "block-d",
+    name: "D Major",
+    src: "/stickers/block-d.svg",
+    category: "chords",
+    defaultWidthPercent: 18,
   },
   {
     id: "block-f",
     name: "F Major",
     src: "/stickers/block-f.svg",
     category: "chords",
-    defaultWidthPercent: 20,
+    defaultWidthPercent: 18,
   },
   {
     id: "block-g",
     name: "G Major",
     src: "/stickers/block-g.svg",
     category: "chords",
-    defaultWidthPercent: 20,
+    defaultWidthPercent: 18,
   },
   {
     id: "block-am",
     name: "Am Minor",
     src: "/stickers/block-am.svg",
     category: "chords",
-    defaultWidthPercent: 20,
+    defaultWidthPercent: 18,
+  },
+  {
+    id: "block-em",
+    name: "Em Minor",
+    src: "/stickers/block-em.svg",
+    category: "chords",
+    defaultWidthPercent: 18,
+  },
+  {
+    id: "block-dm",
+    name: "Dm Minor",
+    src: "/stickers/block-dm.svg",
+    category: "chords",
+    defaultWidthPercent: 18,
+  },
+  {
+    id: "block-cmaj7",
+    name: "Cmaj7",
+    src: "/stickers/block-cmaj7.svg",
+    category: "chords",
+    defaultWidthPercent: 18,
   },
 
-  // Badges & Stamps
+  // Circular Badges & 100% Ear Stamps
   {
     id: "stamp-acoustic",
     name: "100% Acoustic",
     src: "/stickers/stamp-acoustic.svg",
     category: "badges",
-    defaultWidthPercent: 24,
+    defaultWidthPercent: 22,
+  },
+  {
+    id: "stamp-ear-100",
+    name: "100% Pure Ear",
+    src: "/stickers/stamp-ear-100.svg",
+    category: "badges",
+    defaultWidthPercent: 22,
   },
   {
     id: "stamp-certified",
     name: "Ear Certified",
     src: "/stickers/stamp-certified.svg",
     category: "badges",
-    defaultWidthPercent: 24,
+    defaultWidthPercent: 22,
+  },
+  {
+    id: "stamp-perfect-pitch",
+    name: "Perfect Pitch",
+    src: "/stickers/stamp-perfect-pitch.svg",
+    category: "badges",
+    defaultWidthPercent: 22,
+  },
+  {
+    id: "stamp-live-take",
+    name: "Live Take",
+    src: "/stickers/stamp-live-take.svg",
+    category: "badges",
+    defaultWidthPercent: 22,
+  },
+  {
+    id: "stamp-in-tune",
+    name: "In Tune 440Hz",
+    src: "/stickers/stamp-in-tune.svg",
+    category: "badges",
+    defaultWidthPercent: 22,
   },
   {
     id: "badge-vinyl",
     name: "Vinyl Disc",
     src: "/stickers/badge-vinyl.svg",
     category: "badges",
-    defaultWidthPercent: 22,
+    defaultWidthPercent: 20,
   },
   {
-    id: "tag-smile",
-    name: "Studio Ticket",
-    src: "/stickers/tag-smile.svg",
+    id: "badge-gold-vinyl",
+    name: "Gold Vinyl",
+    src: "/stickers/badge-gold-vinyl.svg",
     category: "badges",
-    defaultWidthPercent: 28,
-  },
-
-  // Sparkles & Music
-  {
-    id: "star-sparkle",
-    name: "Golden Star",
-    src: "/stickers/star-sparkle.svg",
-    category: "sparkles",
-    defaultWidthPercent: 17,
-  },
-  {
-    id: "note-double",
-    name: "Eighth Notes",
-    src: "/stickers/note-double.svg",
-    category: "sparkles",
-    defaultWidthPercent: 19,
+    defaultWidthPercent: 20,
   },
   {
     id: "confetti-party",
     name: "Party Confetti",
     src: "/stickers/confetti-party.svg",
-    category: "sparkles",
-    defaultWidthPercent: 22,
+    category: "badges",
+    defaultWidthPercent: 24,
   },
 ];
 

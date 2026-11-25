@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <filter id="shadow-dm" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="0" flood-color="#4c0519" flood-opacity="0.25" />
+    </filter>
+  </defs>
+  <rect x="10" y="16" width="100" height="96" rx="22" fill="#9f1239" />
+  <rect x="10" y="10" width="100" height="96" rx="22" fill="#e11d48" filter="url(#shadow-dm)" />
+  <rect x="12" y="12" width="96" height="48" rx="20" fill="white" opacity="0.18" />
+  <text x="60" y="61" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="42" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-1.5">Dm</text>
+</svg>

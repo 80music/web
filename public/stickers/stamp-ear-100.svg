@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+  <circle cx="70" cy="70" r="64" fill="#ffffff" stroke="#14365f" stroke-width="4.5" stroke-dasharray="7,3.5" />
+  <circle cx="70" cy="70" r="54" fill="#eef6ff" stroke="#2391ff" stroke-width="2.5" />
+  <g transform="translate(70, 68)">
+    <text x="0" y="-12" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="25" fill="#2391ff" text-anchor="middle" letter-spacing="-0.8">100%</text>
+    <text x="0" y="8" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="13" fill="#14365f" text-anchor="middle" letter-spacing="1.2">PURE EAR</text>
+    <text x="0" y="23" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="9" fill="#4b6075" text-anchor="middle" letter-spacing="1.6">NO MIDI</text>
+  </g>
+</svg>

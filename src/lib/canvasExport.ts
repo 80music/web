@@ -1,9 +1,6 @@
-import {
-  PHOTO_FILTERS,
-  type StripConfig,
-} from "@/lib/booth-types";
+import { PHOTO_FILTERS, type StripConfig } from "@/lib/booth-types";
 
-// Base export width for Ultra HD 3.5x print: 1200px
+// Base export width for Ultra HD print: 1200px
 export const EXPORT_ULTRA_HD_WIDTH = 1200;
 // Compressed export width for QR upload: 540px (~200KB)
 export const EXPORT_COMPRESSED_WIDTH = 540;
@@ -78,9 +75,39 @@ function drawImageCover(
   }
 
   ctx.save();
-  roundRectPath(ctx, x, y, w, h, radius);
-  ctx.clip();
+  if (radius > 0) {
+    roundRectPath(ctx, x, y, w, h, radius);
+    ctx.clip();
+  }
   ctx.drawImage(img, sx, sy, sWidth, sHeight, x, y, w, h);
+  ctx.restore();
+}
+
+function drawBarcode(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  y: number,
+  barcodeW: number,
+  barcodeH: number
+) {
+  const barcodeStartX = centerX - barcodeW / 2;
+  ctx.save();
+  ctx.fillStyle = "#14365f";
+  ctx.globalAlpha = 0.38;
+  const barSegments = [
+    3.5, 1.5, 4.5, 2, 6, 2.5, 3.5, 5.5, 2, 4.5, 3, 2, 5.5, 2.5, 3.5, 2, 4.5, 2, 6, 3, 4,
+  ];
+  const totalBarUnits = barSegments.reduce((a, b) => a + b, 0);
+  const unitPx = barcodeW / totalBarUnits;
+
+  let curBarX = barcodeStartX;
+  for (let b = 0; b < barSegments.length; b++) {
+    const seg = barSegments[b];
+    if (b % 2 === 0) {
+      ctx.fillRect(curBarX, y, seg * unitPx, barcodeH);
+    }
+    curBarX += seg * unitPx;
+  }
   ctx.restore();
 }
 
@@ -121,21 +148,25 @@ export async function ensureCanvasFonts(): Promise<void> {
 }
 
 /**
- * 1:1 Pixel-Perfect Canvas Export Engine.
- * Dynamically computes all dimensions from STRIP_RATIOS to guarantee exact DOM parity.
+ * 1:1 Pixel-Perfect Print Export Engine.
+ * Pure edge-to-edge white print paper — zero outer border, zero corner cutout background.
  */
 export async function renderStripCanvas(
   config: StripConfig,
   targetWidth = EXPORT_ULTRA_HD_WIDTH
 ): Promise<HTMLCanvasElement> {
-  // Ensure fonts are loaded before canvas text measurements
   await ensureCanvasFonts();
 
   const variation = config.layoutVariation || "variation-1";
-  const numPhotos = variation === "variation-2" ? 2 : 3;
+  const isDuo = variation === "variation-2";
+  const isGrid = variation === "variation-3";
 
   const width = targetWidth;
-  const height = numPhotos === 2 ? Math.round(targetWidth * 2.12) : Math.round(targetWidth * 2.72);
+  const height = isGrid
+    ? Math.round(targetWidth * 1.18)
+    : isDuo
+    ? Math.round(targetWidth * 1.96)
+    : Math.round(targetWidth * 2.52);
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -149,33 +180,14 @@ export async function renderStripCanvas(
   const activeFilter =
     PHOTO_FILTERS.find((f) => f.id === config.filter) || PHOTO_FILTERS[0];
 
-  // Concrete font strings using loaded FontFace with robust fallbacks
   const fontDisplay =
     "'ChordisolCanvasDisplay', 'Momo Trust Display', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   const fontSans =
     "'ChordisolCanvasSans', 'Momo Trust Sans', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-  // 1. Draw frame background (ALWAYS PURE WHITE PHOTOCARD) & border
+  // 1. Edge-to-edge pure white matte paper — NO outer border, NO rounded outer clip
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
-
-  const frameBorderWidth = Math.max(3, Math.round(width * 0.01));
-  ctx.strokeStyle = "rgba(15, 23, 42, 0.08)";
-  ctx.lineWidth = frameBorderWidth;
-  roundRectPath(
-    ctx,
-    frameBorderWidth / 2,
-    frameBorderWidth / 2,
-    width - frameBorderWidth,
-    height - frameBorderWidth,
-    Math.round(width * 0.065)
-  );
-  ctx.stroke();
-
-  // 2. Draw Header
-  const headerTopY = width * 0.045;
-  const logoSize = Math.round(width * 0.095);
-  const headerLeftX = width * 0.055;
 
   let logoImg: HTMLImageElement | null = null;
   try {
@@ -184,229 +196,213 @@ export async function renderStripCanvas(
     logoImg = null;
   }
 
-  let startPhotoY = headerTopY + logoSize + width * 0.030;
+  const marginX = Math.round(width * (isGrid ? 0.045 : 0.055));
+  const photoRadius = Math.round(width * 0.01);
 
-  if (variation === "variation-3") {
-    // Variation 3: Caption at the TOP (matching Sketch 1)
-    if (logoImg) {
-      const centerX = (width - logoSize * 0.8) / 2;
-      ctx.save();
-      roundRectPath(
-        ctx,
-        centerX,
-        headerTopY,
-        logoSize * 0.8,
-        logoSize * 0.8,
-        Math.round(logoSize * 0.2)
-      );
-      ctx.clip();
-      ctx.drawImage(logoImg, centerX, headerTopY, logoSize * 0.8, logoSize * 0.8);
-      ctx.restore();
-    }
-
-    const titleFontSize = Math.round(width * 0.042);
-    ctx.fillStyle = "#0f172a";
-    ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("CHORDISOL", width / 2, headerTopY + logoSize * 0.95);
-
-    const captionFontSize = Math.round(width * 0.040);
-    ctx.font = `bold ${captionFontSize}px ${fontDisplay}`;
-    ctx.fillText(
-      config.caption || "Acoustic Session • Chordisol Studio",
-      width / 2,
-      headerTopY + logoSize * 0.95 + Math.round(width * 0.048)
-    );
-
-    startPhotoY = headerTopY + logoSize * 0.95 + Math.round(width * 0.09);
-  } else {
-    // Variation 1 & 2: Top Logo + Brand Mark
-    if (logoImg) {
-      ctx.save();
-      roundRectPath(
-        ctx,
-        headerLeftX,
-        headerTopY,
-        logoSize,
-        logoSize,
-        Math.round(logoSize * 0.24)
-      );
-      ctx.clip();
-      ctx.drawImage(logoImg, headerLeftX, headerTopY, logoSize, logoSize);
-      ctx.restore();
-    }
-
-    const textLeftX = headerLeftX + logoSize + Math.round(width * 0.032);
-    const titleFontSize = Math.round(width * 0.052);
-    ctx.fillStyle = "#0f172a";
-    ctx.font = `bold ${titleFontSize}px ${fontDisplay}`;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillText("CHORDISOL", textLeftX, headerTopY + logoSize * 0.32);
-
-    const subFontSize = Math.round(width * 0.028);
-    ctx.fillStyle = "#64748b";
-    ctx.font = `700 ${subFontSize}px ${fontSans}`;
-    ctx.fillText("ACOUSTIC STUDIO", textLeftX, headerTopY + logoSize * 0.76);
-
-    // Badge on right: "3-SHOT" or "2-SHOT"
-    const badgeW = Math.round(width * 0.16);
-    const badgeH = Math.round(width * 0.065);
-    const badgeX = width - width * 0.055 - badgeW;
-    const badgeY = headerTopY + (logoSize - badgeH) / 2;
-
-    ctx.fillStyle = "rgba(15, 23, 42, 0.05)";
-    roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
-    ctx.fill();
-
-    ctx.fillStyle = "#0f172a";
-    ctx.font = `bold ${Math.round(width * 0.026)}px ${fontSans}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(numPhotos === 2 ? "2-SHOT" : "3-SHOT", badgeX + badgeW / 2, badgeY + badgeH / 2);
-  }
-
-  // 3. Draw Photo Slots
-  const photoMarginX = width * 0.055;
-  const photoW = width * 0.89;
-  const photoH = numPhotos === 2 ? width * 0.72 : width * 0.62;
-  const photoGap = width * 0.028;
-  const photoRadius = Math.round(width * 0.040);
-
-  for (let i = 0; i < numPhotos; i++) {
-    const currentY = startPhotoY + i * (photoH + photoGap);
-    const photoData = config.photos[i];
-
+  const drawPhotoSlot = async (
+    slotIdx: number,
+    x: number,
+    y: number,
+    w: number,
+    h: number
+  ) => {
+    const photoData = config.photos[slotIdx];
     if (photoData) {
       try {
         const photoImg = await preloadImage(photoData);
-
         ctx.save();
-        if (activeFilter.canvasFilter && activeFilter.canvasFilter !== "none") {
-          ctx.filter = activeFilter.canvasFilter;
-        } else {
-          ctx.filter = "none";
-        }
-
-        drawImageCover(
-          ctx,
-          photoImg,
-          photoMarginX,
-          currentY,
-          photoW,
-          photoH,
-          photoRadius
-        );
+        ctx.filter =
+          activeFilter.canvasFilter && activeFilter.canvasFilter !== "none"
+            ? activeFilter.canvasFilter
+            : "none";
+        drawImageCover(ctx, photoImg, x, y, w, h, photoRadius);
         ctx.restore();
       } catch (err) {
-        console.warn(`Error drawing photo slot ${i}:`, err);
-        ctx.fillStyle = "#e2e8f0";
-        roundRectPath(ctx, photoMarginX, currentY, photoW, photoH, photoRadius);
+        console.warn(`Error drawing photo slot ${slotIdx}:`, err);
+        ctx.fillStyle = "#f4f6fa";
+        roundRectPath(ctx, x, y, w, h, photoRadius);
         ctx.fill();
       }
     } else {
-      ctx.fillStyle = "rgba(15, 23, 42, 0.04)";
-      roundRectPath(ctx, photoMarginX, currentY, photoW, photoH, photoRadius);
+      ctx.fillStyle = "#f4f6fa";
+      roundRectPath(ctx, x, y, w, h, photoRadius);
       ctx.fill();
+    }
+  };
 
-      ctx.fillStyle = "#64748b";
-      ctx.font = `bold ${Math.round(width * 0.04)}px ${fontSans}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        `Shot ${i + 1}`,
-        photoMarginX + photoW / 2,
-        currentY + photoH / 2
-      );
+  if (isGrid) {
+    // =========================================================================
+    // VARIATION 3: 2x2 POSTCARD GRID (4 cuts)
+    // =========================================================================
+    const headerTopY = Math.round(width * 0.036);
+    const logoSize = Math.round(width * 0.056);
+
+    if (logoImg) {
+      ctx.save();
+      roundRectPath(ctx, marginX, headerTopY, logoSize, logoSize, Math.round(logoSize * 0.22));
+      ctx.clip();
+      ctx.drawImage(logoImg, marginX, headerTopY, logoSize, logoSize);
+      ctx.restore();
     }
 
-    // Photo outer border
-    ctx.strokeStyle = "rgba(15, 23, 42, 0.08)";
-    ctx.lineWidth = Math.max(1.5, Math.round(width * 0.003));
-    roundRectPath(ctx, photoMarginX, currentY, photoW, photoH, photoRadius);
-    ctx.stroke();
-  }
+    ctx.fillStyle = "#14365f";
+    ctx.font = `700 ${Math.round(width * 0.034)}px ${fontDisplay}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Chordisol", marginX + logoSize + Math.round(width * 0.02), headerTopY + logoSize / 2);
 
-  // 4. Draw Footer
-  const footerStartY = startPhotoY + numPhotos * (photoH + photoGap) + width * 0.02;
+    ctx.fillStyle = "#4b6075";
+    ctx.font = `600 ${Math.round(width * 0.024)}px ${fontSans}`;
+    ctx.textAlign = "right";
+    ctx.fillText("4-cut", width - marginX, headerTopY + logoSize / 2);
 
-  if (variation === "variation-3") {
-    // Variation 3: Minimal barcode footer on bottom (caption is at the top)
-    const barcodeY = footerStartY + Math.round(width * 0.01);
-    const barcodeW = width * 0.35;
-    const barcodeH = width * 0.020;
-    const barcodeStartX = (width - barcodeW) / 2;
+    const startY = headerTopY + logoSize + Math.round(width * 0.03);
+    const gap = Math.round(width * 0.022);
+    const cellW = Math.floor((width - marginX * 2 - gap) / 2);
+    const cellH = Math.round(cellW * 0.8);
 
-    ctx.fillStyle = "#64748b";
-    ctx.globalAlpha = 0.45;
-    const barSegments = [3.5, 1.5, 4.5, 2, 6, 2.5, 3.5, 5.5, 2, 4.5, 3, 2, 5.5, 2.5, 3.5, 2, 4.5, 2, 6, 3, 4];
-    const totalBarUnits = barSegments.reduce((a, b) => a + b, 0);
-    const unitPx = barcodeW / totalBarUnits;
-
-    let curBarX = barcodeStartX;
-    for (let b = 0; b < barSegments.length; b++) {
-      const seg = barSegments[b];
-      if (b % 2 === 0) {
-        ctx.fillRect(curBarX, barcodeY, seg * unitPx, barcodeH);
-      }
-      curBarX += seg * unitPx;
+    for (let i = 0; i < 4; i++) {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = marginX + col * (cellW + gap);
+      const y = startY + row * (cellH + gap);
+      await drawPhotoSlot(i, x, y, cellW, cellH);
     }
-    ctx.globalAlpha = 1.0;
-  } else {
-    // Variation 1 & 2: Caption at bottom
-    const captionFontSize = Math.round(width * 0.044);
-    ctx.fillStyle = "#0f172a";
-    ctx.font = `bold ${captionFontSize}px ${fontDisplay}`;
+
+    // Editorial bottom bar
+    const footerY = startY + cellH * 2 + gap + Math.round(width * 0.055);
+    ctx.fillStyle = "#14365f";
+    ctx.font = `700 ${Math.round(width * 0.033)}px ${fontDisplay}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(
-      config.caption || "Acoustic Session • Chordisol Studio",
-      width / 2,
-      footerStartY + Math.round(width * 0.02)
-    );
+    ctx.fillText(config.caption || "Acoustic Session • Chordisol Studio", width / 2, footerY);
 
-    let nextY = footerStartY + Math.round(width * 0.02);
+    let nextY = footerY;
     if (config.showDate && config.dateText) {
-      nextY += Math.round(width * 0.045);
-      const dateFontSize = Math.round(width * 0.028);
-      ctx.fillStyle = "#64748b";
-      ctx.font = `600 ${dateFontSize}px ${fontSans}`;
+      nextY += Math.round(width * 0.035);
+      ctx.fillStyle = "#4b6075";
+      ctx.font = `600 ${Math.round(width * 0.021)}px ${fontSans}`;
       ctx.fillText(config.dateText, width / 2, nextY);
     }
 
-    // Decorative barcode bar
-    const barcodeY = nextY + Math.round(width * 0.038);
-    const barcodeW = width * 0.40;
-    const barcodeH = width * 0.020;
-    const barcodeStartX = (width - barcodeW) / 2;
+    drawBarcode(ctx, width / 2, nextY + Math.round(width * 0.028), width * 0.28, width * 0.015);
+  } else if (isDuo) {
+    // =========================================================================
+    // VARIATION 2: POLAROID DUO (2 large cuts, wide editorial Polaroid chin)
+    // =========================================================================
+    const topPad = Math.round(width * 0.055);
+    const photoW = width - marginX * 2;
+    const photoH = Math.round(photoW * 0.8);
+    const gap = Math.round(width * 0.03);
 
-    ctx.fillStyle = "#64748b";
-    ctx.globalAlpha = 0.45;
+    await drawPhotoSlot(0, marginX, topPad, photoW, photoH);
+    await drawPhotoSlot(1, marginX, topPad + photoH + gap, photoW, photoH);
 
-    const barSegments = [
-      3.5, 1.5, 4.5, 2, 6, 2.5, 3.5, 5.5, 2, 4.5, 3, 2, 5.5, 2.5, 3.5, 2, 4.5, 2,
-      6, 3, 4,
-    ];
-    const totalBarUnits = barSegments.reduce((a, b) => a + b, 0);
-    const unitPx = barcodeW / totalBarUnits;
+    // Generous Polaroid-style bottom chin
+    const chinStartY = topPad + photoH * 2 + gap;
+    const chinCenterY = chinStartY + Math.round((height - chinStartY) * 0.34);
 
-    let curBarX = barcodeStartX;
-    for (let b = 0; b < barSegments.length; b++) {
-      const seg = barSegments[b];
-      if (b % 2 === 0) {
-        ctx.fillRect(curBarX, barcodeY, seg * unitPx, barcodeH);
-      }
-      curBarX += seg * unitPx;
+    const logoSize = Math.round(width * 0.068);
+    const brandText = "Chordisol";
+    ctx.font = `700 ${Math.round(width * 0.048)}px ${fontDisplay}`;
+    const brandW = ctx.measureText(brandText).width;
+    const totalBrandW = logoSize + Math.round(width * 0.024) + brandW;
+    const brandStartX = (width - totalBrandW) / 2;
+
+    if (logoImg) {
+      ctx.save();
+      roundRectPath(
+        ctx,
+        brandStartX,
+        chinCenterY - logoSize / 2,
+        logoSize,
+        logoSize,
+        Math.round(logoSize * 0.22)
+      );
+      ctx.clip();
+      ctx.drawImage(logoImg, brandStartX, chinCenterY - logoSize / 2, logoSize, logoSize);
+      ctx.restore();
     }
-    ctx.globalAlpha = 1.0;
+
+    ctx.fillStyle = "#14365f";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(brandText, brandStartX + logoSize + Math.round(width * 0.024), chinCenterY);
+
+    const capY = chinCenterY + Math.round(width * 0.072);
+    ctx.font = `700 ${Math.round(width * 0.036)}px ${fontDisplay}`;
+    ctx.textAlign = "center";
+    ctx.fillText(config.caption || "Acoustic Session • Chordisol Studio", width / 2, capY);
+
+    let nextY = capY;
+    if (config.showDate && config.dateText) {
+      nextY += Math.round(width * 0.045);
+      ctx.fillStyle = "#4b6075";
+      ctx.font = `600 ${Math.round(width * 0.025)}px ${fontSans}`;
+      ctx.fillText(config.dateText, width / 2, nextY);
+    }
+
+    drawBarcode(ctx, width / 2, nextY + Math.round(width * 0.04), width * 0.34, width * 0.018);
+  } else {
+    // =========================================================================
+    // VARIATION 1: CLASSIC 3-CUT VERTICAL STRIP
+    // =========================================================================
+    const headerTopY = Math.round(width * 0.045);
+    const logoSize = Math.round(width * 0.072);
+
+    if (logoImg) {
+      ctx.save();
+      roundRectPath(ctx, marginX, headerTopY, logoSize, logoSize, Math.round(logoSize * 0.22));
+      ctx.clip();
+      ctx.drawImage(logoImg, marginX, headerTopY, logoSize, logoSize);
+      ctx.restore();
+    }
+
+    ctx.fillStyle = "#14365f";
+    ctx.font = `700 ${Math.round(width * 0.045)}px ${fontDisplay}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      "Chordisol",
+      marginX + logoSize + Math.round(width * 0.026),
+      headerTopY + logoSize / 2
+    );
+
+    ctx.fillStyle = "#4b6075";
+    ctx.font = `600 ${Math.round(width * 0.028)}px ${fontSans}`;
+    ctx.textAlign = "right";
+    ctx.fillText("3-cut", width - marginX, headerTopY + logoSize / 2);
+
+    const startY = headerTopY + logoSize + Math.round(width * 0.035);
+    const photoW = width - marginX * 2;
+    const photoH = Math.round(photoW * 0.72);
+    const gap = Math.round(width * 0.028);
+
+    for (let i = 0; i < 3; i++) {
+      await drawPhotoSlot(i, marginX, startY + i * (photoH + gap), photoW, photoH);
+    }
+
+    const footerY = startY + 3 * photoH + 2 * gap + Math.round(width * 0.068);
+    ctx.fillStyle = "#14365f";
+    ctx.font = `700 ${Math.round(width * 0.04)}px ${fontDisplay}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(config.caption || "Acoustic Session • Chordisol Studio", width / 2, footerY);
+
+    let nextY = footerY;
+    if (config.showDate && config.dateText) {
+      nextY += Math.round(width * 0.046);
+      ctx.fillStyle = "#4b6075";
+      ctx.font = `600 ${Math.round(width * 0.026)}px ${fontSans}`;
+      ctx.fillText(config.dateText, width / 2, nextY);
+    }
+
+    drawBarcode(ctx, width / 2, nextY + Math.round(width * 0.04), width * 0.36, width * 0.018);
   }
 
-  // 5. Draw Placed Stickers (Normalized math: xPercent, yPercent, widthPercent, rotationDeg)
+  // Draw Placed Stickers (Normalized math: xPercent, yPercent, widthPercent, rotationDeg)
   if (config.stickersVisible && config.stickers && config.stickers.length > 0) {
-    const sortedStickers = [...config.stickers].sort(
-      (a, b) => a.zIndex - b.zIndex
-    );
+    const sortedStickers = [...config.stickers].sort((a, b) => a.zIndex - b.zIndex);
 
     for (const sticker of sortedStickers) {
       try {
@@ -424,10 +420,9 @@ export async function renderStripCanvas(
         ctx.translate(centerX, centerY);
         ctx.rotate((sticker.rotationDeg * Math.PI) / 180);
 
-        // Soft drop shadow matching DOM
-        ctx.shadowColor = "rgba(15, 23, 42, 0.28)";
-        ctx.shadowBlur = Math.round(drawW * 0.12);
-        ctx.shadowOffsetY = Math.round(drawW * 0.06);
+        ctx.shadowColor = "rgba(20, 54, 95, 0.22)";
+        ctx.shadowBlur = Math.round(drawW * 0.1);
+        ctx.shadowOffsetY = Math.round(drawW * 0.05);
 
         ctx.drawImage(stickerImg, -drawW / 2, -drawH / 2, drawW, drawH);
         ctx.restore();
@@ -440,10 +435,6 @@ export async function renderStripCanvas(
   return canvas;
 }
 
-/**
- * Dual-Resolution Export Pipeline:
- * Export at 3.5x Ultra HD (1200px wide, ~3790px tall) as full-quality PNG for local saving.
- */
 export async function downloadUltraHdStrip(
   config: StripConfig,
   filename?: string
@@ -459,8 +450,7 @@ export async function downloadUltraHdStrip(
         }
 
         const name =
-          filename ||
-          `chordisol-strip-${new Date().toISOString().slice(0, 10)}.png`;
+          filename || `chordisol-strip-${new Date().toISOString().slice(0, 10)}.png`;
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -477,10 +467,6 @@ export async function downloadUltraHdStrip(
   });
 }
 
-/**
- * Dual-Resolution Export Pipeline:
- * Export at 1.5x scale (540px wide, ~1700px tall) as compressed JPEG (~200KB - 300KB) to prevent Vercel 413 Payload Errors.
- */
 export async function exportCompressedStripForUpload(
   config: StripConfig
 ): Promise<string> {

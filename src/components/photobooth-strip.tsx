@@ -95,8 +95,8 @@ export function PhotoboothStrip({
       if (mode === "move") {
         const deltaXPercent = ((e.clientX - startPointerX) / rect.width) * 100;
         const deltaYPercent = ((e.clientY - startPointerY) / rect.height) * 100;
-        const newX = Math.max(6, Math.min(94, initialX + deltaXPercent));
-        const newY = Math.max(5, Math.min(95, initialY + deltaYPercent));
+        const newX = Math.max(5, Math.min(95, initialX + deltaXPercent));
+        const newY = Math.max(4, Math.min(96, initialY + deltaYPercent));
         onUpdateSticker(id, {
           xPercent: Math.round(newX * 10) / 10,
           yPercent: Math.round(newY * 10) / 10,
@@ -110,7 +110,7 @@ export function PhotoboothStrip({
       } else if (mode === "scale") {
         const deltaPixels = e.clientX - startPointerX;
         const deltaPercent = (deltaPixels / rect.width) * 100;
-        const newWidth = Math.max(12, Math.min(58, initialWidth + deltaPercent));
+        const newWidth = Math.max(10, Math.min(54, initialWidth + deltaPercent));
         onUpdateSticker(id, { widthPercent: Math.round(newWidth * 10) / 10 });
       }
     };
@@ -130,9 +130,15 @@ export function PhotoboothStrip({
     };
   }, [activeDrag, onUpdateSticker]);
 
-  const slotIndices = layoutVariation === "variation-2" ? [0, 1] : [0, 1, 2];
-  const isTwoSlot = layoutVariation === "variation-2";
-  const isTopHeader = layoutVariation === "variation-3";
+  const isDuo = layoutVariation === "variation-2";
+  const isGrid = layoutVariation === "variation-3";
+  const slotIndices = isGrid ? [0, 1, 2, 3] : isDuo ? [0, 1] : [0, 1, 2];
+
+  const widthClass = isGrid
+    ? "w-[310px] sm:w-[348px]"
+    : isDuo
+    ? "w-[272px] sm:w-[288px]"
+    : "w-[264px] sm:w-[280px]";
 
   return (
     <div
@@ -142,38 +148,13 @@ export function PhotoboothStrip({
         e.stopPropagation();
         onSelectSticker?.(null);
       }}
-      className={`relative mx-auto flex select-none flex-col w-[276px] sm:w-[292px] rounded-[6px] border border-border-subtle bg-white p-3.5 shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] justify-between ${className}`}
+      className={`relative mx-auto flex select-none flex-col ${widthClass} bg-white p-3.5 shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] justify-between ${className}`}
     >
-      {/* 1. Header Row */}
-      {isTopHeader ? (
-        <div className="flex flex-col items-center justify-center text-center pb-2.5 border-b border-border-subtle/70">
-          <div className="flex items-center gap-1.5 mb-1">
-            <div className="relative size-4.5 shrink-0 overflow-hidden rounded-[4px]">
-              <Image
-                src="/images/chordisol-logo.png"
-                alt="Chordisol"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            <span className="font-display text-[11px] font-bold tracking-tight text-fg-display">
-              Chordisol
-            </span>
-          </div>
-          <p className="font-display text-xs font-semibold tracking-tight text-fg-display truncate max-w-full px-1">
-            {caption || "Acoustic Session • Chordisol Studio"}
-          </p>
-          {showDate && dateText && (
-            <p className="mt-0.5 font-mono text-[9px] text-text-muted tabular-nums">
-              {dateText}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="flex items-center justify-between pb-2">
+      {/* 1. Header Row (Classic 3-Cut & 2x2 Grid only; Polaroid Duo keeps a clean frameless top) */}
+      {!isDuo && (
+        <div className="flex items-center justify-between pb-2.5">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="relative size-5.5 shrink-0 overflow-hidden rounded-[5px]">
+            <div className="relative size-5 shrink-0 overflow-hidden rounded-[4px]">
               <Image
                 src="/images/chordisol-logo.png"
                 alt="Chordisol"
@@ -187,22 +168,32 @@ export function PhotoboothStrip({
             </span>
           </div>
 
-          <span className="font-mono text-[9px] font-medium text-text-muted shrink-0">
-            {isTwoSlot ? "2-cut" : "3-cut"}
+          <span className="font-mono text-[9.5px] font-medium text-text-muted shrink-0">
+            {isGrid ? "4-cut" : "3-cut"}
           </span>
         </div>
       )}
 
-      {/* 2. Photo Slots */}
-      <div className="flex flex-col gap-2 my-1.5 flex-1 justify-center">
+      {/* 2. Photo Cuts */}
+      <div
+        className={
+          isGrid
+            ? "grid grid-cols-2 gap-2"
+            : "flex flex-col gap-2"
+        }
+      >
         {slotIndices.map((index) => {
           const photoUrl = photos[index];
 
           return (
             <div
               key={index}
-              className={`group relative w-full overflow-hidden rounded-[3px] bg-surface-secondary ring-1 ring-inset ring-black/6 ${
-                isTwoSlot ? "aspect-[4/3.2]" : "aspect-4/3"
+              className={`group relative w-full overflow-hidden rounded-[2px] bg-surface-secondary ${
+                isGrid
+                  ? "aspect-[5/4]"
+                  : isDuo
+                  ? "aspect-[5/4]"
+                  : "aspect-[4/2.9]"
               }`}
             >
               {photoUrl ? (
@@ -215,7 +206,6 @@ export function PhotoboothStrip({
                     className="size-full object-cover"
                   />
 
-                  {/* Retake Button on Hover */}
                   {onRetakeSlot && (
                     <button
                       type="button"
@@ -252,19 +242,24 @@ export function PhotoboothStrip({
       </div>
 
       {/* 3. Footer Section */}
-      {isTopHeader ? (
-        <div className="pt-2 border-t border-border-subtle/70 flex justify-center">
-          <div
-            aria-hidden="true"
-            className="flex h-2.5 w-24 items-center justify-center gap-0.5 opacity-35 text-fg-display"
-          >
-            {[3, 1.5, 4, 1.5, 5, 2, 1.5, 4, 2, 3, 1.5, 5, 2, 4, 1.5].map((w, i) => (
-              <span key={i} style={{ width: `${w}px` }} className="h-full bg-current" />
-            ))}
+      {isDuo ? (
+        /* Polaroid Duo: generous editorial bottom chin with centered brand + caption */
+        <div className="text-center pt-5 pb-1.5">
+          <div className="flex items-center justify-center gap-1.5 mb-2">
+            <div className="relative size-4.5 shrink-0 overflow-hidden rounded-[4px]">
+              <Image
+                src="/images/chordisol-logo.png"
+                alt="Chordisol"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <span className="font-display text-xs font-bold tracking-tight text-fg-display">
+              Chordisol
+            </span>
           </div>
-        </div>
-      ) : (
-        <div className="text-center pt-2 border-t border-border-subtle/70">
+
           <p className="font-display text-xs font-semibold tracking-tight text-fg-display truncate px-1">
             {caption || "Acoustic Session • Chordisol Studio"}
           </p>
@@ -277,7 +272,28 @@ export function PhotoboothStrip({
 
           <div
             aria-hidden="true"
-            className="mx-auto mt-2 flex h-2 w-28 items-center justify-center gap-0.5 opacity-35 text-fg-display"
+            className="mx-auto mt-2.5 flex h-2 w-24 items-center justify-center gap-0.5 opacity-35 text-fg-display"
+          >
+            {[3, 1.5, 4, 1.5, 5, 2, 1.5, 4, 2, 3, 1.5, 5, 2, 4, 1.5].map((w, i) => (
+              <span key={i} style={{ width: `${w}px` }} className="h-full bg-current" />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center pt-3 pb-0.5">
+          <p className="font-display text-xs font-semibold tracking-tight text-fg-display truncate px-1">
+            {caption || "Acoustic Session • Chordisol Studio"}
+          </p>
+
+          {showDate && dateText && (
+            <p className="mt-0.5 font-mono text-[9px] text-text-muted tabular-nums">
+              {dateText}
+            </p>
+          )}
+
+          <div
+            aria-hidden="true"
+            className="mx-auto mt-2 flex h-2 w-26 items-center justify-center gap-0.5 opacity-35 text-fg-display"
           >
             {[3, 1.5, 4, 1.5, 5, 2, 1.5, 4, 2, 3, 1.5, 5, 2, 4, 1.5].map((w, i) => (
               <span key={i} style={{ width: `${w}px` }} className="h-full bg-current" />
@@ -322,7 +338,6 @@ export function PhotoboothStrip({
                   />
                 </div>
 
-                {/* Corner Controls when selected */}
                 {isSelected && (
                   <>
                     {/* Top-Left: Rotate */}

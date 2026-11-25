@@ -25,15 +25,16 @@ interface StripOption {
 }
 
 const STRIP_OPTIONS: readonly StripOption[] = [
-  { id: "variation-1", title: "Classic", subtitle: "3 cuts" },
-  { id: "variation-2", title: "Duo", subtitle: "2 large cuts" },
-  { id: "variation-3", title: "Top Header", subtitle: "3 cuts" },
+  { id: "variation-1", title: "Classic Strip", subtitle: "3 vertical cuts" },
+  { id: "variation-2", title: "Polaroid Duo", subtitle: "2 large cuts" },
+  { id: "variation-3", title: "2×2 Grid", subtitle: "4 postcard cuts" },
 ];
 
 const PREVIEW_SAMPLES = [
   { src: "/images/mascots/mascot-radio.png", alt: "Studio sample 1", bg: "bg-[#eef4fb]" },
   { src: "/images/mascots/mascot-duo.png", alt: "Studio sample 2", bg: "bg-[#f3f6fa]" },
   { src: "/images/mascots/mascot-hill.png", alt: "Studio sample 3", bg: "bg-[#ebf2fa]" },
+  { src: "/images/mascots/mascot-compare.png", alt: "Studio sample 4", bg: "bg-[#f2f5fb]" },
 ] as const;
 
 function ChevronLeftIcon({ className = "size-4" }: { className?: string }) {
@@ -54,8 +55,8 @@ function ChevronLeftIcon({ className = "size-4" }: { className?: string }) {
 }
 
 /**
- * Physical miniature white photo strip preview for Step 1.
- * Uses Chordisol's real mascot artwork on soft studio paper tones.
+ * Physical miniature white photo print preview for Step 1.
+ * Natural height & width per format so each variant has a distinct physical silhouette.
  */
 function PhysicalStripPreview({
   variation,
@@ -64,70 +65,55 @@ function PhysicalStripPreview({
   variation: LayoutVariationId;
   isSelected: boolean;
 }) {
-  const isTwoSlot = variation === "variation-2";
-  const isTopHeader = variation === "variation-3";
-  const frames = isTwoSlot ? PREVIEW_SAMPLES.slice(0, 2) : PREVIEW_SAMPLES;
+  const isDuo = variation === "variation-2";
+  const isGrid = variation === "variation-3";
+  const frames = isGrid
+    ? PREVIEW_SAMPLES
+    : isDuo
+    ? PREVIEW_SAMPLES.slice(0, 2)
+    : PREVIEW_SAMPLES.slice(0, 3);
+
+  const widthClass = isGrid
+    ? "w-[224px] sm:w-[238px]"
+    : isDuo
+    ? "w-[172px] sm:w-[180px]"
+    : "w-[156px] sm:w-[164px]";
 
   return (
     <div
-      className={`relative mx-auto flex select-none flex-col w-[176px] sm:w-[188px] h-[332px] sm:h-[352px] rounded-[6px] bg-white p-2.5 justify-between transition-all duration-200 ${
+      className={`relative mx-auto flex select-none flex-col ${widthClass} bg-white p-2.5 justify-between transition-all duration-200 ${
         isSelected
           ? "ring-2 ring-brand-primary ring-offset-4 ring-offset-white -translate-y-1.5 shadow-[0_24px_48px_-14px_rgba(20,54,95,0.22),0_4px_12px_rgba(20,54,95,0.08)]"
-          : "border border-border-subtle shadow-[0_14px_32px_-12px_rgba(20,54,95,0.14),0_2px_6px_rgba(20,54,95,0.05)] group-hover:-translate-y-1 group-hover:shadow-[0_20px_40px_-14px_rgba(20,54,95,0.18)]"
+          : "shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16),0_2px_8px_rgba(20,54,95,0.06)] group-hover:-translate-y-1 group-hover:shadow-[0_20px_40px_-14px_rgba(20,54,95,0.2)]"
       }`}
     >
-      {/* Top Area */}
-      {isTopHeader ? (
-        <div className="border-b border-border-subtle/70 pb-1.5 text-center">
-          <div className="flex items-center justify-center gap-1 mb-0.5">
-            <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
-              <Image
-                src="/images/chordisol-logo.png"
-                alt=""
-                fill
-                className="object-cover"
-              />
-            </div>
-            <span className="font-display text-[9px] font-bold text-fg-display tracking-tight">
-              Chordisol
-            </span>
-          </div>
-          <p className="font-display text-[8.5px] font-semibold text-fg-display truncate">
-            Acoustic Session
-          </p>
-          <p className="font-mono text-[7px] text-text-muted tabular-nums">2026.11.25</p>
-        </div>
-      ) : (
+      {/* Top Area (Classic & 2x2 Grid have slim top bar; Polaroid Duo is frameless on top) */}
+      {!isDuo && (
         <div className="flex items-center justify-between pb-1.5">
           <div className="flex items-center gap-1">
             <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
-              <Image
-                src="/images/chordisol-logo.png"
-                alt=""
-                fill
-                className="object-cover"
-              />
+              <Image src="/images/chordisol-logo.png" alt="" fill className="object-cover" />
             </div>
             <span className="font-display text-[9px] font-bold text-fg-display leading-none tracking-tight">
               Chordisol
             </span>
           </div>
           <span className="font-mono text-[7.5px] text-text-muted">
-            {isTwoSlot ? "2-cut" : "3-cut"}
+            {isGrid ? "4-cut" : "3-cut"}
           </span>
         </div>
       )}
 
       {/* Photo Cuts */}
-      <div className="flex flex-col gap-1.5 my-1 flex-1 justify-center">
+      <div className={isGrid ? "grid grid-cols-2 gap-1.5" : "flex flex-col gap-1.5"}>
         {frames.map((frame, i) => (
           <div
             key={i}
-            className={`relative w-full overflow-hidden rounded-[3px] ring-1 ring-inset ring-black/6 ${
-              frame.bg
-            } ${isTwoSlot ? "aspect-[4/3.2]" : "aspect-4/3"}`}
+            className={`relative w-full overflow-hidden rounded-[2px] ${frame.bg} ${
+              isGrid ? "aspect-[5/4]" : isDuo ? "aspect-[5/4]" : "aspect-[4/2.9]"
+            }`}
           >
-            <div className="absolute inset-2">
+            <div className="absolute inset-1.5">
               <Image
                 src={frame.src}
                 alt={frame.alt}
@@ -141,11 +127,23 @@ function PhysicalStripPreview({
       </div>
 
       {/* Bottom Area */}
-      {isTopHeader ? (
-        <div className="border-t border-border-subtle/70 pt-1.5 flex justify-center">
+      {isDuo ? (
+        <div className="pt-4 pb-1 text-center">
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+              <Image src="/images/chordisol-logo.png" alt="" fill className="object-cover" />
+            </div>
+            <span className="font-display text-[9px] font-bold text-fg-display tracking-tight">
+              Chordisol
+            </span>
+          </div>
+          <p className="font-display text-[8.5px] font-semibold text-fg-display truncate">
+            Acoustic Session
+          </p>
+          <p className="font-mono text-[7px] text-text-muted tabular-nums">2026.11.25</p>
           <div
             aria-hidden="true"
-            className="flex h-1.5 w-16 items-center justify-center gap-0.5 opacity-35 text-fg-display"
+            className="mx-auto mt-1.5 flex h-1.5 w-16 items-center justify-center gap-0.5 opacity-35 text-fg-display"
           >
             {[2.5, 1, 3.5, 1.5, 4, 1.5, 2.5, 3, 1.5, 4].map((w, i) => (
               <span key={i} style={{ width: `${w}px` }} className="h-full bg-current" />
@@ -153,7 +151,7 @@ function PhysicalStripPreview({
           </div>
         </div>
       ) : (
-        <div className="border-t border-border-subtle/70 pt-1.5 text-center">
+        <div className="pt-2 text-center">
           <p className="font-display text-[8.5px] font-semibold text-fg-display truncate">
             Acoustic Session
           </p>
@@ -181,9 +179,9 @@ function createStickerId() {
 }
 
 function buildStickerItem(asset: StickerAsset, id: string, zIndex: number): StickerItem {
-  const jitterX = Math.floor(Math.random() * 20) - 10;
-  const jitterY = Math.floor(Math.random() * 20) - 10;
-  const jitterRot = Math.floor(Math.random() * 20) - 10;
+  const jitterX = Math.floor(Math.random() * 16) - 8;
+  const jitterY = Math.floor(Math.random() * 16) - 8;
+  const jitterRot = Math.floor(Math.random() * 18) - 9;
 
   return {
     id,
@@ -198,21 +196,83 @@ function buildStickerItem(asset: StickerAsset, id: string, zIndex: number): Stic
   };
 }
 
-function buildShuffledStickers(): StickerItem[] {
-  const randomAssets = [...STICKER_PALETTE].sort(() => 0.5 - Math.random()).slice(0, 3);
-  const ySpots = [24, 52, 78];
+/**
+ * Perimeter-aware shuffle: places 6 curated stickers (mix of mascots, keys, and circular badges)
+ * strictly around the corners, edges, and footer margins — never over the middle of a photo.
+ */
+function buildShuffledStickers(variation: LayoutVariationId): StickerItem[] {
+  const mascots = STICKER_PALETTE.filter((s) => s.category === "mascots").sort(
+    () => 0.5 - Math.random()
+  );
+  const chords = STICKER_PALETTE.filter((s) => s.category === "chords").sort(
+    () => 0.5 - Math.random()
+  );
+  const badges = STICKER_PALETTE.filter((s) => s.category === "badges").sort(
+    () => 0.5 - Math.random()
+  );
 
-  return randomAssets.map((asset, i) => ({
-    id: `sticker-${Date.now()}-${i}`,
-    assetId: asset.id,
-    src: asset.src,
-    name: asset.name,
-    xPercent: i % 2 === 0 ? 22 + Math.random() * 14 : 64 + Math.random() * 14,
-    yPercent: ySpots[i] + (Math.random() * 6 - 3),
-    widthPercent: asset.defaultWidthPercent,
-    rotationDeg: Math.floor(Math.random() * 24) - 12,
-    zIndex: i + 1,
-  }));
+  // Curated balanced set of 6 stickers: 2 mascots, 2 keys, 2 circular badges/confetti
+  const chosen: StickerAsset[] = [
+    mascots[0],
+    badges[0],
+    chords[0],
+    chords[1],
+    badges[1],
+    mascots[1],
+  ].filter(Boolean);
+
+  const isGrid = variation === "variation-3";
+  const isDuo = variation === "variation-2";
+
+  // Strictly perimeter / corner / margin anchors so faces in the center stay unobstructed
+  const anchors = isGrid
+    ? [
+        { x: 9, y: 15, rot: -12, scale: 0.78 },
+        { x: 91, y: 16, rot: 11, scale: 0.78 },
+        { x: 8, y: 49, rot: -9, scale: 0.74 },
+        { x: 92, y: 50, rot: 12, scale: 0.74 },
+        { x: 11, y: 85, rot: -8, scale: 0.8 },
+        { x: 89, y: 86, rot: 9, scale: 0.8 },
+      ]
+    : isDuo
+    ? [
+        { x: 11, y: 10, rot: -12, scale: 0.88 },
+        { x: 89, y: 12, rot: 11, scale: 0.88 },
+        { x: 9, y: 42, rot: -10, scale: 0.84 },
+        { x: 91, y: 45, rot: 12, scale: 0.84 },
+        { x: 13, y: 76, rot: -8, scale: 0.9 },
+        { x: 87, y: 86, rot: 10, scale: 0.9 },
+      ]
+    : [
+        { x: 11, y: 13, rot: -12, scale: 0.88 },
+        { x: 89, y: 18, rot: 11, scale: 0.88 },
+        { x: 9, y: 44, rot: -9, scale: 0.84 },
+        { x: 91, y: 51, rot: 12, scale: 0.84 },
+        { x: 11, y: 77, rot: -10, scale: 0.88 },
+        { x: 88, y: 89, rot: 9, scale: 0.9 },
+      ];
+
+  // Shuffle anchor assignment slightly so repeated shuffles feel fresh
+  const shuffledAnchors = [...anchors].sort(() => 0.5 - Math.random());
+
+  return chosen.map((asset, i) => {
+    const anchor = shuffledAnchors[i % shuffledAnchors.length];
+    const jitterX = (Math.random() - 0.5) * 4;
+    const jitterY = (Math.random() - 0.5) * 4;
+    const jitterRot = Math.round((Math.random() - 0.5) * 8);
+
+    return {
+      id: `sticker-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 5)}`,
+      assetId: asset.id,
+      src: asset.src,
+      name: asset.name,
+      xPercent: Math.max(7, Math.min(93, Math.round((anchor.x + jitterX) * 10) / 10)),
+      yPercent: Math.max(7, Math.min(93, Math.round((anchor.y + jitterY) * 10) / 10)),
+      widthPercent: Math.round(asset.defaultWidthPercent * anchor.scale),
+      rotationDeg: anchor.rot + jitterRot,
+      zIndex: i + 1,
+    };
+  });
 }
 
 function formatCurrentDate() {
@@ -281,11 +341,6 @@ export function BoothStudio() {
 
   const filteredStickerPalette = useMemo(() => {
     if (selectedStickerCategory === "all") return STICKER_PALETTE;
-    if (selectedStickerCategory === "badges") {
-      return STICKER_PALETTE.filter(
-        (s) => s.category === "badges" || s.category === "sparkles"
-      );
-    }
     return STICKER_PALETTE.filter((s) => s.category === selectedStickerCategory);
   }, [selectedStickerCategory]);
 
@@ -337,7 +392,7 @@ export function BoothStudio() {
   };
 
   const handleShuffleStickers = () => {
-    setStickers(buildShuffledStickers());
+    setStickers(buildShuffledStickers(layoutVariation));
     setSelectedStickerId(null);
   };
 
@@ -399,6 +454,8 @@ export function BoothStudio() {
   const completedCount = photos.slice(0, slotCount).filter(Boolean).length;
   const isAllPhotosTaken = completedCount === slotCount;
   const selectedSticker = stickers.find((s) => s.id === selectedStickerId);
+  const isGridLayout = layoutVariation === "variation-3";
+  const isDuoLayout = layoutVariation === "variation-2";
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-bg text-fg-regular px-4 py-8 sm:px-6 sm:py-12">
@@ -426,7 +483,7 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 1: PICK YOUR STRIP (3 physical prints directly on white canvas)
+            STEP 1: PICK YOUR STRIP (3 distinct physical print silhouettes)
            ========================================================================= */}
         {currentStep === 1 && (
           <section className="flex flex-col items-center">
@@ -436,7 +493,7 @@ export function BoothStudio() {
               </h1>
             </div>
 
-            <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 items-start justify-items-center">
+            <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-8 items-end justify-items-center">
               {STRIP_OPTIONS.map((option) => {
                 const isSelected = layoutVariation === option.id;
                 return (
@@ -476,7 +533,7 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 2: CAMERA VIEWFINDER + LIVE VERTICAL PHOTO STRIP
+            STEP 2: CAMERA VIEWFINDER + LIVE FILLING PHOTO PRINT
            ========================================================================= */}
         {currentStep === 2 && (
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
@@ -495,11 +552,14 @@ export function BoothStudio() {
               />
             </div>
 
-            {/* Right: Live Filling White Photo Strip on Soft Studio Mat */}
+            {/* Right: Live Filling White Print on Soft Studio Mat */}
             <aside className="lg:col-span-4 flex flex-col items-center gap-5">
               <div className="w-full rounded-2xl bg-surface-secondary py-6 px-5 flex flex-col items-center">
-                {/* Live Strip */}
-                <div className="w-[186px] rounded-[6px] border border-border-subtle bg-white p-2.5 shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16)] flex flex-col gap-2">
+                <div
+                  className={`${
+                    isGridLayout ? "w-[228px]" : "w-[180px]"
+                  } bg-white p-2.5 shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16)] flex flex-col gap-2`}
+                >
                   <div className="flex items-center justify-between pb-1">
                     <span className="font-display text-[10px] font-bold text-fg-display">
                       Chordisol
@@ -509,11 +569,14 @@ export function BoothStudio() {
                     </span>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
+                  <div
+                    className={
+                      isGridLayout ? "grid grid-cols-2 gap-1.5" : "flex flex-col gap-1.5"
+                    }
+                  >
                     {new Array(slotCount).fill(0).map((_, slotIdx) => {
                       const photo = photos[slotIdx];
                       const isRetakingThis = retakeSlotIndex === slotIdx;
-                      const isTwoSlot = layoutVariation === "variation-2";
 
                       return (
                         <div
@@ -523,13 +586,17 @@ export function BoothStudio() {
                               setRetakeSlotIndex(slotIdx);
                             }
                           }}
-                          className={`group relative w-full overflow-hidden rounded-[3px] transition-all ${
-                            isTwoSlot ? "aspect-[4/3.2]" : "aspect-4/3"
+                          className={`group relative w-full overflow-hidden rounded-[2px] transition-all ${
+                            isGridLayout
+                              ? "aspect-[5/4]"
+                              : isDuoLayout
+                              ? "aspect-[5/4]"
+                              : "aspect-[4/2.9]"
                           } ${
                             isRetakingThis
                               ? "ring-2 ring-brand-primary ring-offset-1"
                               : photo
-                              ? "ring-1 ring-inset ring-black/8 cursor-pointer"
+                              ? "cursor-pointer"
                               : "bg-surface-secondary"
                           }`}
                         >
@@ -563,7 +630,7 @@ export function BoothStudio() {
                 <p className="mt-4 text-center text-xs text-text-muted">
                   {completedCount > 0
                     ? "Click any captured photo to retake it"
-                    : "Photos fill in order from top to bottom"}
+                    : "Photos fill in order automatically"}
                 </p>
               </div>
 
@@ -672,7 +739,7 @@ export function BoothStudio() {
                       type="button"
                       onClick={() =>
                         handleUpdateSticker(selectedSticker.id, {
-                          widthPercent: Math.max(12, selectedSticker.widthPercent - 4),
+                          widthPercent: Math.max(10, selectedSticker.widthPercent - 4),
                         })
                       }
                       aria-label="Make smaller"
@@ -720,7 +787,7 @@ export function BoothStudio() {
               </div>
             </div>
 
-            {/* Right: Clean, Flat Studio Workbench (No boxed card wrapper) */}
+            {/* Right: Clean, Flat Studio Workbench */}
             <aside className="lg:col-span-7 flex flex-col gap-7">
               {/* 1. Film Tone (Normal, B&W, Grainy) */}
               <div>
@@ -793,8 +860,8 @@ export function BoothStudio() {
                   {[
                     { id: "all", label: "All" },
                     { id: "mascots", label: "Mascots" },
-                    { id: "chords", label: "Chords" },
-                    { id: "badges", label: "Stamps" },
+                    { id: "chords", label: "Keys" },
+                    { id: "badges", label: "Badges" },
                   ].map((tab) => {
                     const isTabActive = selectedStickerCategory === tab.id;
                     return (
@@ -910,7 +977,7 @@ export function BoothStudio() {
            ========================================================================= */}
         {currentStep === 4 && (
           <section className="flex flex-col items-center">
-            <div className="w-full max-w-md rounded-2xl bg-surface-secondary py-9 px-6 flex justify-center">
+            <div className="w-full max-w-lg rounded-2xl bg-surface-secondary py-9 px-6 flex justify-center">
               <PhotoboothStrip
                 photos={photos}
                 layoutVariation={layoutVariation}
