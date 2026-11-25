@@ -7,7 +7,6 @@ import { PhotoboothStrip } from "@/components/photobooth-strip";
 import { BoothQrModal } from "@/components/booth-qr-modal";
 import {
   LAYOUT_VARIATIONS,
-  PHOTO_FILTERS,
   STICKER_PALETTE,
   getPhotoCountForVariation,
   type LayoutVariationId,
@@ -20,11 +19,93 @@ import { downloadUltraHdStrip, exportCompressedStripForUpload } from "@/lib/canv
 
 type WizardStep = 1 | 2 | 3 | 4;
 
+function MiniStripPreview({ variation }: { variation: LayoutVariationId }) {
+  const isTwoSlot = variation === "variation-2";
+  const isTopHeader = variation === "variation-3";
+
+  return (
+    <div className="relative mx-auto flex select-none flex-col w-[156px] h-[286px] rounded-2xl border-2 border-slate-900/10 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] justify-between transition-transform duration-200 group-hover:scale-[1.03]">
+      {/* Top Header */}
+      {isTopHeader ? (
+        <div className="border-b border-slate-100 pb-1 text-center">
+          <div className="flex items-center justify-center gap-1 mb-0.5">
+            <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+              <Image src="/images/chordisol-logo.png" alt="Chordisol Logo" fill className="object-cover" />
+            </div>
+            <span className="font-display text-[9px] font-black text-slate-900 tracking-tight">CHORDISOL</span>
+          </div>
+          <p className="font-display text-[8px] font-bold text-slate-800 truncate leading-tight">Acoustic Session</p>
+          <p className="font-sans text-[7px] text-slate-400">Studio Take • 2026</p>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between py-0.5 border-b border-slate-100">
+          <div className="flex items-center gap-1">
+            <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+              <Image src="/images/chordisol-logo.png" alt="Chordisol Logo" fill className="object-cover" />
+            </div>
+            <span className="font-display text-[9px] font-black text-slate-900 leading-none tracking-tight">CHORDISOL</span>
+          </div>
+          <span className="rounded bg-slate-100 px-1 py-0.2 font-mono text-[7px] font-bold text-slate-600 border border-slate-200">
+            {isTwoSlot ? "2-SHOT" : "3-SHOT"}
+          </span>
+        </div>
+      )}
+
+      {/* Photo Frames with authentic studio take sample photos */}
+      <div className="flex flex-col gap-1.5 my-1.5 justify-center flex-1">
+        {isTwoSlot ? (
+          <>
+            <div className="relative aspect-[4/3.2] w-full overflow-hidden rounded-lg border border-slate-900/10 bg-slate-100 shadow-2xs">
+              <Image src="/images/booth-samples/sample-1.svg" alt="Take 01" fill className="object-cover" />
+            </div>
+            <div className="relative aspect-[4/3.2] w-full overflow-hidden rounded-lg border border-slate-900/10 bg-slate-100 shadow-2xs">
+              <Image src="/images/booth-samples/sample-2.svg" alt="Take 02" fill className="object-cover" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg border border-slate-900/10 bg-slate-100 shadow-2xs">
+              <Image src="/images/booth-samples/sample-1.svg" alt="Take 01" fill className="object-cover" />
+            </div>
+            <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg border border-slate-900/10 bg-slate-100 shadow-2xs">
+              <Image src="/images/booth-samples/sample-2.svg" alt="Take 02" fill className="object-cover" />
+            </div>
+            <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg border border-slate-900/10 bg-slate-100 shadow-2xs">
+              <Image src="/images/booth-samples/sample-3.svg" alt="Take 03" fill className="object-cover" />
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Bottom Footer */}
+      {isTopHeader ? (
+        <div className="border-t border-slate-100 pt-1 flex justify-center opacity-40">
+          <div className="flex h-1.5 w-16 items-center justify-center gap-0.5 text-slate-700">
+            {[3, 2, 4, 2, 5, 2, 3, 4, 2, 5].map((w, i) => (
+              <span key={i} style={{ width: `${w}px` }} className="h-full bg-current rounded-[0.5px]" />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="border-t border-slate-100 pt-1 text-center">
+          <p className="font-display text-[8px] font-bold text-slate-800 truncate leading-tight">Acoustic Session</p>
+          <p className="font-sans text-[7px] text-slate-400">Studio Take • 2026</p>
+          <div className="mx-auto mt-1 flex h-1.5 w-20 items-center justify-center gap-0.5 opacity-40 text-slate-700">
+            {[3, 2, 4, 2, 5, 2, 3, 4, 2, 5, 3, 2].map((w, i) => (
+              <span key={i} style={{ width: `${w}px` }} className="h-full bg-current rounded-[0.5px]" />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function BoothStudio() {
-  // 4 Steps: 1 (Variation) -> 2 (Camera) -> 3 (Decorate & Filter) -> 4 (Download & Share)
+  // 4 Steps: 1 (Format) -> 2 (Camera) -> 3 (Decorate & Filter) -> 4 (Export & Share)
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
 
-  // Layout variation: variation-1 (3 shots), variation-2 (2 shots), variation-3 (3 shots, top header)
+  // Layout variation: variation-1 (3 cuts), variation-2 (2 cuts), variation-3 (3 cuts, top caption)
   const [layoutVariation, setLayoutVariation] = useState<LayoutVariationId>("variation-1");
   const slotCount = getPhotoCountForVariation(layoutVariation);
 
@@ -40,6 +121,7 @@ export function BoothStudio() {
   // Stickers & Caption
   const [stickers, setStickers] = useState<StickerItem[]>([]);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
+  const [selectedStickerCategory, setSelectedStickerCategory] = useState<"all" | "mascots" | "chords" | "badges">("all");
   const [caption, setCaption] = useState("Acoustic Session • Chordisol Studio");
   const [showDate, setShowDate] = useState(true);
 
@@ -76,7 +158,7 @@ export function BoothStudio() {
     stripId: "",
   });
 
-  // Current strip config (Frame color is fixed to pure white)
+  // Current strip config (Frame color is permanently fixed to classic white)
   const currentStripConfig: StripConfig = useMemo(
     () => ({
       photos,
@@ -91,6 +173,17 @@ export function BoothStudio() {
     }),
     [photos, layoutVariation, filter, stickers, caption, showDate, dateText]
   );
+
+  // Filtered sticker list based on category tab
+  const filteredStickerPalette = useMemo(() => {
+    if (selectedStickerCategory === "all") return STICKER_PALETTE;
+    if (selectedStickerCategory === "badges") {
+      return STICKER_PALETTE.filter(
+        (s) => s.category === "badges" || s.category === "sparkles"
+      );
+    }
+    return STICKER_PALETTE.filter((s) => s.category === selectedStickerCategory);
+  }, [selectedStickerCategory]);
 
   // When changing layout variation in Step 1, reset photo array if needed
   const handleSelectVariation = (varId: LayoutVariationId) => {
@@ -180,7 +273,7 @@ export function BoothStudio() {
   };
 
   const handleResetSession = () => {
-    if (confirm("Start over? This will reset your photos and stickers.")) {
+    if (confirm("Start a new session? This will reset your photos and stickers.")) {
       setPhotos(new Array(slotCount).fill(null));
       setStickers([]);
       setSelectedStickerId(null);
@@ -255,47 +348,64 @@ export function BoothStudio() {
   const selectedSticker = stickers.find((s) => s.id === selectedStickerId);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 px-3 py-4 sm:px-6 sm:py-6">
+    <div className="min-h-[calc(100vh-64px)] bg-white text-slate-900 px-3 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-5xl">
-        {/* Simple Header matching user sketch */}
-        <header className="mb-6 flex items-center justify-between rounded-2xl border-2 border-slate-900/10 bg-white px-5 py-3.5 shadow-[0_4px_0_rgba(15,23,42,0.06)]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-[#5eb0fa] text-white shadow-xs">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="size-5">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
-            </div>
-            <span className="font-display text-lg font-black text-slate-900 tracking-tight">
-              Chordisol
-            </span>
+        {/* Modern Stepper Header */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-5">
+          <div>
+            <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+              {currentStep === 1 && "Choose Photobooth Layout"}
+              {currentStep === 2 && "Take Studio Shots"}
+              {currentStep === 3 && "Decorate Your Strip"}
+              {currentStep === 4 && "Download & Share"}
+            </h1>
+            <p className="font-sans text-xs sm:text-sm font-medium text-slate-500 mt-0.5">
+              {currentStep === 1 && "Select your favorite photobooth arrangement to begin."}
+              {currentStep === 2 && `Capture ${slotCount} poses with the live camera or countdown timer.`}
+              {currentStep === 3 && "Apply photographic film tone and customize with stickers & mascots."}
+              {currentStep === 4 && "Your authentic acoustic photobooth memory strip is ready."}
+            </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleResetSession}
-              title="Reset Photobooth Session"
-              className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50 active:scale-95 transition-all cursor-pointer"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5">
-                <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-                <path d="M21 3v5h-5" />
-                <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-                <path d="M3 21v-5h5" />
-              </svg>
-              <span>Reset</span>
-            </button>
+          {/* Step Badges */}
+          <div className="flex items-center gap-1.5 self-start sm:self-center">
+            {[
+              { step: 1, label: "Format" },
+              { step: 2, label: "Snap" },
+              { step: 3, label: "Decorate" },
+              { step: 4, label: "Export" },
+            ].map((item) => {
+              const isActive = currentStep === item.step;
+              const isPast = currentStep > item.step;
+              return (
+                <div key={item.step} className="flex items-center gap-1.5">
+                  <div
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold transition-all ${
+                      isActive
+                        ? "bg-brand-primary text-white shadow-xs"
+                        : isPast
+                        ? "bg-slate-100 text-slate-700"
+                        : "bg-transparent text-slate-400"
+                    }`}
+                  >
+                    <span className="flex size-4 items-center justify-center rounded-full text-[10px] font-black">
+                      {isPast ? "✓" : item.step}
+                    </span>
+                    <span className="hidden sm:inline">{item.label}</span>
+                  </div>
+                  {item.step < 4 && <span className="text-slate-200 text-xs">/</span>}
+                </div>
+              );
+            })}
           </div>
-        </header>
+        </div>
 
         {/* =========================================================================
-            STEP 1: VARIATION PICKER (Matching Sketch 1)
-            Clean, 3 variations side-by-side, NO color picker, NO extra cards
+            STEP 1: VARIATION PICKER WITH AUTHENTIC MINIATURE STRIP PREVIEWS
            ========================================================================= */}
         {currentStep === 1 && (
-          <section className="flex flex-col items-center gap-6 rounded-2xl border-2 border-slate-900/10 bg-white p-6 sm:p-10 shadow-[0_4px_0_rgba(15,23,42,0.06)]">
-            {/* 3 Variations Side by Side (Matching Sketch 1) */}
+          <section className="flex flex-col items-center gap-8 py-2">
+            {/* 3 Variations Side by Side with authentic strip previews */}
             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl">
               {LAYOUT_VARIATIONS.map((variant) => {
                 const isSelected = layoutVariation === variant.id;
@@ -306,88 +416,28 @@ export function BoothStudio() {
                     onClick={() => handleSelectVariation(variant.id)}
                     className={`group flex flex-col items-center justify-between rounded-2xl border-2 p-5 text-center transition-all cursor-pointer ${
                       isSelected
-                        ? "border-brand-primary ring-2 ring-brand-primary/25 bg-blue-50/20 shadow-md"
-                        : "border-slate-900/10 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        ? "border-brand-primary ring-2 ring-brand-primary/20 bg-blue-50/20 shadow-md"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60 shadow-xs"
                     }`}
                   >
-                    {/* Visual Photocard Illustration matching Sketch 1 */}
-                    <div className="w-[140px] h-[250px] rounded-xl border-2 border-slate-900/20 bg-white p-3 shadow-xs flex flex-col justify-between transition-transform group-hover:scale-105">
-                      {variant.id === "variation-3" ? (
-                        <>
-                          {/* Caption on Top */}
-                          <div className="w-full border-b border-slate-200 pb-1.5 text-center">
-                            <span className="font-display text-[10px] font-bold text-slate-800">
-                              Blabla
-                            </span>
-                          </div>
+                    {/* Real Miniature Strip Preview */}
+                    <MiniStripPreview variation={variant.id} />
 
-                          {/* 3 Photo Boxes */}
-                          <div className="flex flex-col gap-2 my-auto">
-                            {[1, 2, 3].map((num) => (
-                              <div
-                                key={num}
-                                className="h-[44px] w-full rounded-md border-2 border-slate-900/15 bg-[#bbf7d0]/60 flex items-center justify-center font-mono text-[9px] font-bold text-slate-700"
-                              >
-                                {num}
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      ) : variant.id === "variation-2" ? (
-                        <>
-                          {/* 2 Larger Photo Boxes */}
-                          <div className="flex flex-col gap-2.5 my-auto">
-                            {[1, 2].map((num) => (
-                              <div
-                                key={num}
-                                className="h-[74px] w-full rounded-md border-2 border-slate-900/15 bg-[#bbf7d0]/60 flex items-center justify-center font-mono text-xs font-bold text-slate-700"
-                              >
-                                {num}
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Caption on Bottom */}
-                          <div className="w-full border-t border-slate-200 pt-1.5 text-center">
-                            <span className="font-display text-[10px] font-bold text-slate-800">
-                              Blabla
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Variation 1: 3 Photo Boxes */}
-                          <div className="flex flex-col gap-2 my-auto">
-                            {[1, 2, 3].map((num) => (
-                              <div
-                                key={num}
-                                className="h-[44px] w-full rounded-md border-2 border-slate-900/15 bg-[#bbf7d0]/60 flex items-center justify-center font-mono text-[9px] font-bold text-slate-700"
-                              >
-                                {num}
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Caption on Bottom */}
-                          <div className="w-full border-t border-slate-200 pt-1.5 text-center">
-                            <span className="font-display text-[10px] font-bold text-slate-800">
-                              Blabla
-                            </span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Label matching Sketch 1 */}
-                    <div className="mt-4 flex items-center justify-center gap-1.5">
-                      <span className="font-display text-sm font-bold text-slate-900">
-                        {variant.name.toLowerCase()}
-                      </span>
-                      {isSelected && (
-                        <span className="flex size-4 items-center justify-center rounded-full bg-brand-primary text-[9px] font-black text-white">
-                          ✓
+                    {/* Metadata */}
+                    <div className="mt-4 flex flex-col items-center gap-1 w-full">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-display text-sm font-bold text-slate-900">
+                          {variant.name}
                         </span>
-                      )}
+                        {isSelected && (
+                          <span className="flex size-4 items-center justify-center rounded-full bg-brand-primary text-[10px] font-black text-white">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-sans text-xs text-slate-500 font-medium">
+                        {variant.tagline}
+                      </span>
                     </div>
                   </button>
                 );
@@ -395,22 +445,23 @@ export function BoothStudio() {
             </div>
 
             {/* Action Button */}
-            <div className="w-full max-w-3xl pt-2 flex justify-center">
+            <div className="w-full max-w-md pt-2 flex flex-col items-center gap-2">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-brand-primary px-10 font-display text-sm font-bold text-white shadow-[0_4px_0_#0f5298] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] transition-all cursor-pointer"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-primary px-10 font-display text-sm font-bold text-white shadow-[0_4px_0_#0f5298] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] transition-all cursor-pointer"
               >
                 <span>Enter Camera Booth →</span>
               </button>
+              <p className="font-sans text-xs text-slate-400">
+                Printed on classic white photocard paper
+              </p>
             </div>
           </section>
         )}
 
         {/* =========================================================================
-            STEP 2: CAMERA BOOTH & STACKED SLOTS (Matching Sketch 2)
-            Left: Camera Viewfinder
-            Right: 1..N Slots Stacked vertically with "click 1...N to retake pics"
+            STEP 2: STUDIO CAMERA BOOTH & CAPTURED FILM RAIL
            ========================================================================= */}
         {currentStep === 2 && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -418,7 +469,7 @@ export function BoothStudio() {
             <section className="lg:col-span-7 flex flex-col gap-3">
               {retakeSlotIndex !== null && (
                 <div className="flex items-center justify-between rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-900 font-semibold shadow-2xs">
-                  <span>Retaking Shot {retakeSlotIndex + 1}. Pose and snap!</span>
+                  <span>Retaking Shot {retakeSlotIndex + 1}. Smile and strike your pose!</span>
                   <button
                     type="button"
                     onClick={() => setRetakeSlotIndex(null)}
@@ -442,13 +493,32 @@ export function BoothStudio() {
               />
             </section>
 
-            {/* RIGHT COLUMN: Stacked Slots (Matching Sketch 2) */}
-            <aside className="lg:col-span-5 flex flex-col gap-3 rounded-2xl border-2 border-slate-900/10 bg-white p-5 shadow-[0_4px_0_rgba(15,23,42,0.06)]">
-              {/* Stacked Vertical Slots */}
+            {/* RIGHT COLUMN: Studio Film Strip Rail */}
+            <aside className="lg:col-span-5 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h2 className="font-display text-sm font-bold text-slate-900">
+                    Captured Takes
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Click any shot to retake individually
+                  </p>
+                </div>
+                <span className="rounded-full bg-brand-primary/10 px-2.5 py-1 text-xs font-bold text-brand-primary">
+                  {completedCount} / {slotCount} Shots
+                </span>
+              </div>
+
+              {/* Slot Cards */}
               <div className="flex flex-col gap-3">
                 {new Array(slotCount).fill(0).map((_, slotIdx) => {
                   const photo = photos[slotIdx];
                   const isRetakingThis = retakeSlotIndex === slotIdx;
+                  const poseSuggestions = [
+                    "Acoustic Smile & Pose",
+                    "Fingers on Keys or Strings",
+                    "Listening Ear & Groove",
+                  ];
 
                   return (
                     <div
@@ -458,45 +528,58 @@ export function BoothStudio() {
                           setRetakeSlotIndex(slotIdx);
                         }
                       }}
-                      className={`group relative flex items-center gap-3 rounded-xl border-2 p-3 transition-all cursor-pointer ${
+                      className={`group relative flex items-center gap-3.5 rounded-xl border p-3 transition-all cursor-pointer ${
                         isRetakingThis
-                          ? "border-amber-400 bg-amber-50/60 ring-2 ring-amber-300/50 shadow-xs"
+                          ? "border-amber-400 bg-amber-50/50 ring-2 ring-amber-300/60 shadow-xs"
                           : photo
-                          ? "border-slate-900/10 bg-white hover:border-slate-300 hover:bg-slate-50"
-                          : "border-dashed border-slate-200 bg-slate-50/60"
+                          ? "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs"
+                          : "border-dashed border-slate-200 bg-slate-50/50"
                       }`}
                     >
-                      {/* Thumbnail or Slot Number */}
-                      <div className="relative aspect-4/3 w-22 shrink-0 overflow-hidden rounded-lg bg-slate-900 border border-slate-200">
+                      {/* Photo Thumbnail */}
+                      <div className="relative aspect-4/3 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-900 border border-slate-200 shadow-2xs">
                         {photo ? (
                           <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={photo}
-                              alt={`Captured shot ${slotIdx + 1}`}
+                              alt={`Take ${slotIdx + 1}`}
                               className="size-full object-cover"
                             />
-                            <span className="absolute top-1 left-1 flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-bold text-white shadow-xs">
-                              ✓
+                            <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1 py-0.2 font-mono text-[8px] font-bold text-white backdrop-blur-xs">
+                              0{slotIdx + 1}
                             </span>
                           </>
                         ) : (
-                          <div className="flex size-full items-center justify-center text-slate-400">
-                            <span className="font-display text-base font-bold text-slate-700">
-                              {slotIdx + 1}
+                          <div className="flex size-full flex-col items-center justify-center text-slate-400 bg-slate-100">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="size-5 text-slate-400 mb-0.5">
+                              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                              <circle cx="12" cy="13" r="4" />
+                            </svg>
+                            <span className="font-mono text-[9px] font-bold text-slate-500">
+                              SLOT {slotIdx + 1}
                             </span>
                           </div>
                         )}
                       </div>
 
-                      {/* Slot Label */}
+                      {/* Details */}
                       <div className="flex-1 min-w-0">
-                        <span className="font-display text-sm font-bold text-slate-900 block">
-                          Slot {slotIdx + 1}
-                        </span>
-                        <span className="text-[11px] font-medium text-slate-500">
-                          {photo ? "Tap to retake" : "Ready for pose"}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-display text-xs font-bold text-slate-900">
+                            Take {slotIdx + 1}
+                          </span>
+                          {photo && (
+                            <span className="flex size-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white">
+                              ✓
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] font-medium text-slate-500 truncate mt-0.5">
+                          {photo
+                            ? "Captured • Tap to retake"
+                            : poseSuggestions[slotIdx] || "Ready for pose"}
+                        </p>
                       </div>
 
                       {photo && (
@@ -506,7 +589,7 @@ export function BoothStudio() {
                             e.stopPropagation();
                             setRetakeSlotIndex(slotIdx);
                           }}
-                          className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-700 hover:bg-slate-100"
+                          className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors cursor-pointer"
                         >
                           Retake
                         </button>
@@ -516,13 +599,8 @@ export function BoothStudio() {
                 })}
               </div>
 
-              {/* Exact Phrase from Sketch 2 */}
-              <p className="text-center text-xs font-bold text-slate-500 pt-1">
-                click 1...{slotCount} to retake pics
-              </p>
-
-              {/* Bottom Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+              {/* Bottom Actions */}
+              <div className="mt-2 pt-3 border-t border-slate-100 flex flex-col gap-2">
                 <button
                   type="button"
                   disabled={completedCount === 0}
@@ -532,7 +610,7 @@ export function BoothStudio() {
                   <span>
                     {isAllPhotosTaken
                       ? "Decorate Strip →"
-                      : `Proceed with ${completedCount}/${slotCount} Shots →`}
+                      : `Continue with ${completedCount}/${slotCount} Shots →`}
                   </span>
                 </button>
 
@@ -541,7 +619,7 @@ export function BoothStudio() {
                   onClick={() => setCurrentStep(1)}
                   className="text-center font-bold text-xs text-slate-500 hover:text-slate-800 hover:underline py-1 cursor-pointer"
                 >
-                  ← Back to Variations
+                  ← Change Layout Format
                 </button>
               </div>
             </aside>
@@ -549,17 +627,14 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 3: DECORATE STRIP, STICKERS & FILTER TONE (Matching Sketch 3)
-            Left: White Photocard Strip
-            Right: Filter (normal, bnw, grainy), Sticker Picks & Caption
+            STEP 3: DECORATE STRIP, STICKERS & FILTER TONE (Normal, B&W, Grainy)
            ========================================================================= */}
         {currentStep === 3 && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* LEFT COLUMN: The White Photocard Strip */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* LEFT COLUMN: Photocard Strip Preview */}
             <section className="lg:col-span-5 flex flex-col items-center justify-center gap-3">
-              <div className="w-full rounded-2xl border-2 border-slate-900/10 bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.08)] flex flex-col items-center">
-                {/* Photocard Strip (Fixed Pure White) */}
-                <div className="w-full flex justify-center py-1">
+              <div className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.06)] flex flex-col items-center">
+                <div className="w-full flex justify-center py-2">
                   <PhotoboothStrip
                     photos={photos}
                     layoutVariation={layoutVariation}
@@ -580,13 +655,13 @@ export function BoothStudio() {
                   />
                 </div>
 
-                {/* Selected Sticker Floating Tooltip Bar */}
+                {/* Selected Sticker Floating Toolbar */}
                 {selectedSticker && (
-                  <div className="w-full mt-3 flex items-center justify-between rounded-xl bg-slate-900 p-2 text-white shadow-md">
-                    <span className="text-xs font-bold px-2 truncate">
+                  <div className="w-full mt-3 flex items-center justify-between rounded-xl bg-slate-900 px-3 py-2 text-white shadow-md">
+                    <span className="text-xs font-bold truncate max-w-[120px]">
                       {selectedSticker.name}
                     </span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() =>
@@ -594,7 +669,7 @@ export function BoothStudio() {
                             rotationDeg: (selectedSticker.rotationDeg - 15) % 360,
                           })
                         }
-                        title="Rotate Left"
+                        title="Rotate -15°"
                         className="flex size-7 items-center justify-center rounded-lg bg-white/20 text-xs font-bold hover:bg-white/30 cursor-pointer"
                       >
                         ↺
@@ -606,7 +681,7 @@ export function BoothStudio() {
                             rotationDeg: (selectedSticker.rotationDeg + 15) % 360,
                           })
                         }
-                        title="Rotate Right"
+                        title="Rotate +15°"
                         className="flex size-7 items-center justify-center rounded-lg bg-white/20 text-xs font-bold hover:bg-white/30 cursor-pointer"
                       >
                         ↻
@@ -615,7 +690,7 @@ export function BoothStudio() {
                         type="button"
                         onClick={() =>
                           handleUpdateSticker(selectedSticker.id, {
-                            widthPercent: Math.max(14, selectedSticker.widthPercent - 4),
+                            widthPercent: Math.max(12, selectedSticker.widthPercent - 4),
                           })
                         }
                         title="Smaller"
@@ -627,7 +702,7 @@ export function BoothStudio() {
                         type="button"
                         onClick={() =>
                           handleUpdateSticker(selectedSticker.id, {
-                            widthPercent: Math.min(48, selectedSticker.widthPercent + 4),
+                            widthPercent: Math.min(52, selectedSticker.widthPercent + 4),
                           })
                         }
                         title="Bigger"
@@ -639,53 +714,69 @@ export function BoothStudio() {
                         type="button"
                         onClick={() => handleDeleteSticker(selectedSticker.id)}
                         title="Delete Sticker"
-                        className="flex size-7 items-center justify-center rounded-lg bg-rose-500 text-xs font-bold hover:bg-rose-600 cursor-pointer ml-1"
+                        className="flex size-7 items-center justify-center rounded-lg bg-rose-600 text-xs font-bold hover:bg-rose-700 cursor-pointer ml-1"
                       >
                         ✕
                       </button>
                     </div>
                   </div>
                 )}
+                {!selectedSticker && (
+                  <p className="mt-2 text-center text-[11px] font-medium text-slate-400">
+                    Touch or drag stickers on the strip to reposition
+                  </p>
+                )}
               </div>
             </section>
 
-            {/* RIGHT COLUMN: Filter Tone (normal, bnw, grainy), Sticker Picks & Caption */}
-            <aside className="lg:col-span-7 flex flex-col gap-5 rounded-2xl border-2 border-slate-900/10 bg-white p-5 sm:p-6 shadow-[0_4px_0_rgba(15,23,42,0.06)]">
-              {/* 1. Photographic Film Filter Tone: normal, bnw, grainy (Only after taking pictures!) */}
-              <div className="space-y-2">
-                <label className="font-display text-xs font-bold text-slate-900 uppercase tracking-wider block">
-                  Photographic Film Filter Tone
-                </label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {PHOTO_FILTERS.map((f) => {
+            {/* RIGHT COLUMN: Filter Tone, Stickers, Caption */}
+            <aside className="lg:col-span-7 flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
+              {/* 1. Filter Tone: Only Normal, B&W, Grainy */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-display text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Photographic Film Filter Tone
+                  </label>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    Adjusts photo mood
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { id: "normal", name: "Normal", desc: "Natural Studio" },
+                    { id: "bnw", name: "B&W", desc: "Monochrome" },
+                    { id: "grainy", name: "Grainy", desc: "35mm Analog" },
+                  ].map((f) => {
                     const isSelected = filter === f.id;
                     return (
                       <button
                         key={f.id}
                         type="button"
-                        onClick={() => setFilter(f.id)}
-                        className={`flex h-11 items-center justify-center gap-2 rounded-xl border-2 font-display text-xs font-bold transition-all cursor-pointer ${
+                        onClick={() => setFilter(f.id as PhotoFilterId)}
+                        className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 font-display transition-all cursor-pointer ${
                           isSelected
                             ? "border-brand-primary bg-brand-primary text-white shadow-xs"
-                            : "border-slate-900/10 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            : "border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-slate-300"
                         }`}
                       >
-                        <span>{f.name}</span>
-                        {isSelected && <span className="text-[10px]">✓</span>}
+                        <span className="text-xs font-bold">{f.name}</span>
+                        <span className={`text-[10px] font-sans ${isSelected ? "text-white/80" : "text-slate-500"}`}>
+                          {f.desc}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* 2. Sticker Picks (Matching Sketch 3) */}
-              <div className="space-y-2.5 pt-3 border-t border-slate-100">
+              {/* 2. Sticker Palette */}
+              <div className="space-y-3 pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <label className="font-display text-xs font-bold text-slate-900 uppercase tracking-wider">
-                    sticker picks
+                    Sticker Picks
                   </label>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handleShuffleStickers}
@@ -700,21 +791,47 @@ export function BoothStudio() {
                         onClick={handleClearStickers}
                         className="flex h-7 items-center gap-1 rounded-full bg-rose-50 px-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-100 active:scale-95 transition-all cursor-pointer"
                       >
-                        <span>Clear</span>
+                        <span>Clear All</span>
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* Sticker Picks Grid */}
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-[190px] overflow-y-auto p-2 border rounded-xl border-slate-100 bg-slate-50">
-                  {STICKER_PALETTE.map((asset) => (
+                {/* Category Filter Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                  {[
+                    { id: "all", label: "All Stickers" },
+                    { id: "mascots", label: "Mascots" },
+                    { id: "chords", label: "Chords" },
+                    { id: "badges", label: "Stamps & Stars" },
+                  ].map((tab) => {
+                    const isTabActive = selectedStickerCategory === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setSelectedStickerCategory(tab.id as typeof selectedStickerCategory)}
+                        className={`rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                          isTabActive
+                            ? "bg-slate-900 text-white shadow-2xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Roomy Sticker Grid */}
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2.5 max-h-[220px] overflow-y-auto p-3 border border-slate-200 rounded-xl bg-slate-50/60">
+                  {filteredStickerPalette.map((asset) => (
                     <button
                       key={asset.id}
                       type="button"
                       onClick={() => handleAddSticker(asset)}
                       title={`Add ${asset.name}`}
-                      className="group flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-2xs hover:border-brand-primary hover:bg-brand-primary/5 active:scale-95 transition-all cursor-pointer"
+                      className="group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white p-2 shadow-2xs hover:border-brand-primary hover:bg-blue-50/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                     >
                       <div className="relative size-10">
                         <Image
@@ -724,7 +841,7 @@ export function BoothStudio() {
                           className="object-contain transition-transform group-hover:scale-110"
                         />
                       </div>
-                      <span className="font-sans text-[9px] font-bold text-slate-700 truncate max-w-full">
+                      <span className="font-sans text-[9px] font-bold text-slate-700 truncate max-w-full text-center">
                         {asset.name}
                       </span>
                     </button>
@@ -732,14 +849,14 @@ export function BoothStudio() {
                 </div>
 
                 <p className="text-[11px] text-slate-400 font-medium">
-                  add, move, rotate, resize, delete stickers
+                  Tap any sticker above to place on strip. Drag directly on the strip to position.
                 </p>
               </div>
 
-              {/* 3. Session Caption */}
-              <div className="space-y-2 pt-3 border-t border-slate-100">
+              {/* 3. Caption & Timestamp */}
+              <div className="space-y-2.5 pt-4 border-t border-slate-100">
                 <label className="font-display text-xs font-bold text-slate-900 uppercase tracking-wider block">
-                  Caption
+                  Strip Caption
                 </label>
                 <input
                   type="text"
@@ -747,12 +864,12 @@ export function BoothStudio() {
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
                   placeholder="e.g. Acoustic Session • Chordisol Studio"
-                  className="w-full rounded-xl border-2 border-slate-900/10 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 outline-none focus:border-brand-primary focus:bg-white transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 outline-none focus:border-brand-primary focus:bg-white transition-colors"
                 />
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] font-medium text-slate-500">
-                    Display Date &amp; Timestamp
+                  <span className="text-xs font-medium text-slate-600">
+                    Include Date &amp; Timestamp
                   </span>
                   <button
                     type="button"
@@ -773,7 +890,7 @@ export function BoothStudio() {
               </div>
 
               {/* Footer Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
@@ -787,7 +904,7 @@ export function BoothStudio() {
                   onClick={() => setCurrentStep(4)}
                   className="flex h-12 items-center justify-center gap-2 rounded-full bg-brand-primary px-8 font-display text-sm font-bold text-white shadow-[0_4px_0_#0f5298] hover:bg-[#1a82f0] active:translate-y-0.5 active:shadow-[0_1px_0_#0f5298] transition-all cursor-pointer"
                 >
-                  <span>Finish &amp; Download →</span>
+                  <span>Finish &amp; Export →</span>
                 </button>
               </div>
             </aside>
@@ -795,21 +912,12 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 4: SHARE AND DOWNLOAD (Matching Sketch 4)
-            Centered Photocard Strip with Share & Download Buttons Below
+            STEP 4: SHARE AND DOWNLOAD (Ultra HD PNG & Mobile QR Code)
            ========================================================================= */}
         {currentStep === 4 && (
-          <section className="flex flex-col items-center gap-6 rounded-2xl border-2 border-slate-900/10 bg-white p-6 sm:p-10 shadow-[0_8px_30px_rgba(15,23,42,0.08)]">
-            {/* Centered Photocard Strip (Matching Sketch 4) */}
-            <div className="relative my-1 flex justify-center py-4 px-6 rounded-3xl bg-slate-50/80 border border-slate-200/80 shadow-inner">
-              {/* Subtle Celebration Sparks matching sketch */}
-              <div className="pointer-events-none absolute -top-3 -left-3 text-lg select-none">
-                ✨
-              </div>
-              <div className="pointer-events-none absolute -top-3 -right-3 text-lg select-none">
-                ✨
-              </div>
-
+          <section className="flex flex-col items-center gap-8 rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-[0_8px_30px_rgba(15,23,42,0.06)]">
+            {/* Centered Photocard Strip */}
+            <div className="relative my-2 flex justify-center py-5 px-6 sm:px-8 rounded-3xl bg-slate-50 border border-slate-200/80 shadow-inner">
               <PhotoboothStrip
                 photos={photos}
                 layoutVariation={layoutVariation}
@@ -822,7 +930,7 @@ export function BoothStudio() {
               />
             </div>
 
-            {/* Share and Download Buttons (Matching Sketch 4) */}
+            {/* Share and Download Buttons */}
             <div className="w-full max-w-md flex flex-col sm:flex-row items-center gap-3">
               <button
                 type="button"
@@ -861,7 +969,7 @@ export function BoothStudio() {
                 onClick={() => setCurrentStep(3)}
                 className="hover:text-brand-primary hover:underline cursor-pointer"
               >
-                ← Edit Stickers &amp; Filter
+                ← Edit Stickers &amp; Tone
               </button>
 
               <span className="text-slate-300">•</span>

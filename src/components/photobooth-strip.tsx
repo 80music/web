@@ -68,15 +68,25 @@ export function PhotoboothStrip({
     initialWidth: number;
   } | null>(null);
 
-  const handleStickerTap = useCallback(
-    (e: React.MouseEvent | React.TouchEvent, id: string) => {
+  const handleStickerPointerDown = useCallback(
+    (e: React.PointerEvent, sticker: StickerItem) => {
       e.stopPropagation();
-      if (!onSelectSticker || !onUpdateSticker) return;
-      const maxZ = stickers.reduce((max, s) => Math.max(max, s.zIndex), 1);
-      onUpdateSticker(id, { zIndex: maxZ + 1 });
-      onSelectSticker(id);
+      if (onSelectSticker && onUpdateSticker) {
+        const maxZ = stickers.reduce((max, s) => Math.max(max, s.zIndex), 1);
+        onUpdateSticker(sticker.id, { zIndex: maxZ + 1 });
+        onSelectSticker(sticker.id);
+      }
+      setActiveDrag({
+        id: sticker.id,
+        mode: "move",
+        startPointerX: e.clientX,
+        startPointerY: e.clientY,
+        initialX: sticker.xPercent,
+        initialY: sticker.yPercent,
+        initialWidth: sticker.widthPercent,
+      });
     },
-    [stickers, onUpdateSticker, onSelectSticker]
+    [stickers, onSelectSticker, onUpdateSticker]
   );
 
   useEffect(() => {
@@ -90,9 +100,12 @@ export function PhotoboothStrip({
       if (mode === "move") {
         const deltaXPercent = ((e.clientX - startPointerX) / rect.width) * 100;
         const deltaYPercent = ((e.clientY - startPointerY) / rect.height) * 100;
-        const newX = Math.max(4, Math.min(96, initialX + deltaXPercent));
-        const newY = Math.max(4, Math.min(96, initialY + deltaYPercent));
-        onUpdateSticker(id, { xPercent: newX, yPercent: newY });
+        const newX = Math.max(2, Math.min(98, initialX + deltaXPercent));
+        const newY = Math.max(2, Math.min(98, initialY + deltaYPercent));
+        onUpdateSticker(id, {
+          xPercent: Math.round(newX * 10) / 10,
+          yPercent: Math.round(newY * 10) / 10,
+        });
       } else if (mode === "rotate") {
         const stickerX = rect.left + (initialX / 100) * rect.width;
         const stickerY = rect.top + (initialY / 100) * rect.height;
@@ -102,8 +115,8 @@ export function PhotoboothStrip({
       } else if (mode === "scale") {
         const deltaPixels = e.clientX - startPointerX;
         const deltaPercent = (deltaPixels / rect.width) * 100;
-        const newWidth = Math.max(12, Math.min(52, initialWidth + deltaPercent));
-        onUpdateSticker(id, { widthPercent: newWidth });
+        const newWidth = Math.max(10, Math.min(60, initialWidth + deltaPercent));
+        onUpdateSticker(id, { widthPercent: Math.round(newWidth * 10) / 10 });
       }
     };
 
@@ -309,114 +322,100 @@ export function PhotoboothStrip({
             return (
               <div
                 key={sticker.id}
-                onMouseDown={(e) => handleStickerTap(e, sticker.id)}
-                onTouchStart={(e) => handleStickerTap(e, sticker.id)}
+                onPointerDown={(e) => handleStickerPointerDown(e, sticker)}
                 style={{
                   left: `${sticker.xPercent}%`,
                   top: `${sticker.yPercent}%`,
                   width: `${sticker.widthPercent}%`,
                   transform: `translate(-50%, -50%) rotate(${sticker.rotationDeg}deg)`,
                   zIndex: sticker.zIndex,
+                  touchAction: "none",
                 }}
-                className={`pointer-events-auto absolute cursor-grab select-none active:cursor-grabbing transition-[filter,transform] duration-75 ${
+                className={`pointer-events-auto absolute cursor-grab select-none active:cursor-grabbing touch-none transition-[shadow,transform] duration-75 ${
                   isSelected
-                    ? "ring-2 ring-brand-primary/80 ring-offset-2 ring-offset-white rounded-lg shadow-lg"
+                    ? "ring-2 ring-brand-primary ring-offset-2 ring-offset-white rounded-xl shadow-xl"
                     : "hover:scale-105"
                 }`}
               >
-                <div className="relative aspect-square w-full">
+                <div className="relative aspect-square w-full pointer-events-none select-none">
                   <Image
                     src={sticker.src}
                     alt={sticker.name}
                     fill
                     sizes="(max-width: 640px) 120px, 160px"
-                    className="pointer-events-none object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.18)]"
+                    className="pointer-events-none object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.2)]"
                     draggable={false}
                   />
                 </div>
 
-                {/* Move Handle */}
+                {/* Corner Controls (Visible when sticker is selected) */}
                 {isSelected && (
-                  <button
-                    type="button"
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      setActiveDrag({
-                        id: sticker.id,
-                        mode: "move",
-                        startPointerX: e.clientX,
-                        startPointerY: e.clientY,
-                        initialX: sticker.xPercent,
-                        initialY: sticker.yPercent,
-                        initialWidth: sticker.widthPercent,
-                      });
-                    }}
-                    title="Drag to Move"
-                    className="absolute -top-3 -left-3 size-6 rounded-full bg-brand-primary text-white shadow-md flex items-center justify-center cursor-move text-[11px] font-bold"
-                  >
-                    ✥
-                  </button>
-                )}
+                  <>
+                    {/* Top-Left: Rotate Handle */}
+                    <button
+                      type="button"
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        setActiveDrag({
+                          id: sticker.id,
+                          mode: "rotate",
+                          startPointerX: e.clientX,
+                          startPointerY: e.clientY,
+                          initialX: sticker.xPercent,
+                          initialY: sticker.yPercent,
+                          initialWidth: sticker.widthPercent,
+                        });
+                      }}
+                      title="Drag to Rotate"
+                      className="absolute -top-3.5 -left-3.5 size-7 rounded-full bg-slate-900 text-white shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing text-xs font-bold border border-white/40 hover:scale-110 active:scale-95 transition-transform"
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.2} className="size-3.5">
+                        <path d="M2.5 8a5.5 5.5 0 0 1 9.4-3.9M13.5 8a5.5 5.5 0 0 1-9.4 3.9" strokeLinecap="round" />
+                        <path d="M12 2v3h-3M4 14v-3h3" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
 
-                {/* Rotate Handle */}
-                {isSelected && (
-                  <button
-                    type="button"
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      setActiveDrag({
-                        id: sticker.id,
-                        mode: "rotate",
-                        startPointerX: e.clientX,
-                        startPointerY: e.clientY,
-                        initialX: sticker.xPercent,
-                        initialY: sticker.yPercent,
-                        initialWidth: sticker.widthPercent,
-                      });
-                    }}
-                    title="Drag to Rotate"
-                    className="absolute -top-3 -right-3 size-6 rounded-full bg-slate-900 text-white shadow-md flex items-center justify-center cursor-grab text-[11px] font-bold"
-                  >
-                    ↻
-                  </button>
-                )}
+                    {/* Top-Right: Delete Button */}
+                    {onDeleteSticker && (
+                      <button
+                        type="button"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteSticker(sticker.id);
+                        }}
+                        title="Delete Sticker"
+                        className="absolute -top-3.5 -right-3.5 size-7 rounded-full bg-rose-600 text-white shadow-lg flex items-center justify-center cursor-pointer text-xs font-bold border border-white/40 hover:bg-rose-700 hover:scale-110 active:scale-95 transition-transform"
+                      >
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} className="size-3.5">
+                          <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    )}
 
-                {/* Scale Handle */}
-                {isSelected && (
-                  <button
-                    type="button"
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      setActiveDrag({
-                        id: sticker.id,
-                        mode: "scale",
-                        startPointerX: e.clientX,
-                        startPointerY: e.clientY,
-                        initialX: sticker.xPercent,
-                        initialY: sticker.yPercent,
-                        initialWidth: sticker.widthPercent,
-                      });
-                    }}
-                    title="Drag to Resize"
-                    className="absolute -bottom-3 -right-3 size-6 rounded-full bg-amber-500 text-white shadow-md flex items-center justify-center cursor-nwse-resize text-[11px] font-bold"
-                  >
-                    ⤡
-                  </button>
-                )}
-
-                {/* Delete Handle */}
-                {isSelected && onDeleteSticker && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteSticker(sticker.id);
-                    }}
-                    title="Delete Sticker"
-                    className="absolute -bottom-3 -left-3 size-6 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center cursor-pointer text-[11px] font-bold"
-                  >
-                    ✕
-                  </button>
+                    {/* Bottom-Right: Scale / Resize Handle */}
+                    <button
+                      type="button"
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        setActiveDrag({
+                          id: sticker.id,
+                          mode: "scale",
+                          startPointerX: e.clientX,
+                          startPointerY: e.clientY,
+                          initialX: sticker.xPercent,
+                          initialY: sticker.yPercent,
+                          initialWidth: sticker.widthPercent,
+                        });
+                      }}
+                      title="Drag to Resize"
+                      className="absolute -bottom-3.5 -right-3.5 size-7 rounded-full bg-brand-primary text-white shadow-lg flex items-center justify-center cursor-nwse-resize active:scale-95 text-xs font-bold border border-white/40 hover:bg-[#1a82f0] hover:scale-110 transition-transform"
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.2} className="size-3.5">
+                        <path d="M10 2h4v4M6 14H2v-4M14 2L9 7M2 14l5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  </>
                 )}
               </div>
             );
