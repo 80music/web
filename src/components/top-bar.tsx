@@ -495,7 +495,8 @@ export function TopBar() {
               <Link
                 href="/#download"
                 aria-label="App Store rating: 4.7 stars out of 5"
-                className="hidden h-10 shrink-0 cursor-pointer items-center gap-2 rounded-[10px] bg-surface-secondary px-2.5 text-fg-display transition-colors duration-150 hover:bg-divider/75 active:bg-divider md:inline-flex"
+                // HIDDEN FOR NOW, SHOW AFTER ACTUAL RELEASE md:inline-flex
+                className="hidden md:hidden h-10 shrink-0 cursor-pointer items-center gap-2 rounded-[10px] bg-surface-secondary px-2.5 text-fg-display transition-colors duration-150 hover:bg-divider/75 active:bg-divider"
               >
                 <div
                   aria-hidden="true"
