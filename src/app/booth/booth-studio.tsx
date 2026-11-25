@@ -5,10 +5,12 @@ import Image from "next/image";
 import React, { useCallback, useMemo, useState } from "react";
 import { CameraViewfinder } from "@/components/camera-viewfinder";
 import { PhotoboothStrip } from "@/components/photobooth-strip";
+import { BoothPrinterStage } from "@/components/booth-printer-stage";
 import { BoothQrModal } from "@/components/booth-qr-modal";
 import {
   STICKER_PALETTE,
   getPhotoCountForVariation,
+  isTopLogoVariation,
   type LayoutVariationId,
   type PhotoFilterId,
   type StickerAsset,
@@ -22,13 +24,20 @@ type WizardStep = 1 | 2 | 3 | 4;
 interface StripOption {
   id: LayoutVariationId;
   title: string;
-  subtitle: string;
+  countLabel: string;
+  tiltClass: string;
 }
 
-const STRIP_OPTIONS: readonly StripOption[] = [
-  { id: "variation-1", title: "Classic Strip", subtitle: "3 pics" },
-  { id: "variation-2", title: "Editorial Duo", subtitle: "2 pics" },
-  { id: "variation-3", title: "Full Portrait", subtitle: "1 pic" },
+const BOTTOM_LOGO_OPTIONS: readonly StripOption[] = [
+  { id: "variation-1", title: "3 Pics", countLabel: "Logo bottom", tiltClass: "-rotate-[1.2deg]" },
+  { id: "variation-2", title: "2 Pics", countLabel: "Logo bottom", tiltClass: "rotate-[0.6deg]" },
+  { id: "variation-3", title: "1 Pic", countLabel: "Logo bottom", tiltClass: "rotate-[1.2deg]" },
+];
+
+const TOP_LOGO_OPTIONS: readonly StripOption[] = [
+  { id: "variation-4", title: "3 Pics", countLabel: "Logo top", tiltClass: "rotate-[1.1deg]" },
+  { id: "variation-5", title: "2 Pics", countLabel: "Logo top", tiltClass: "-rotate-[0.7deg]" },
+  { id: "variation-6", title: "1 Pic", countLabel: "Logo top", tiltClass: "-rotate-[1.2deg]" },
 ];
 
 const PREVIEW_SAMPLES = [
@@ -56,37 +65,50 @@ function ChevronLeftIcon({ className = "size-4" }: { className?: string }) {
 
 /**
  * Physical miniature 9:16 Instagram Story photo strip preview for Step 1.
- * No caption, no date, no barcode — clean Chordisol brand footer only.
+ * Supports both Bottom Logo (variation-1..3) and Top Logo (variation-4..6).
  */
 function PhysicalStripPreview({
   variation,
   isSelected,
+  tiltClass,
 }: {
   variation: LayoutVariationId;
   isSelected: boolean;
+  tiltClass: string;
 }) {
-  const isDuo = variation === "variation-2";
-  const isSingle = variation === "variation-3";
-  const frames = isSingle
-    ? PREVIEW_SAMPLES.slice(0, 1)
-    : isDuo
-    ? PREVIEW_SAMPLES.slice(0, 2)
-    : PREVIEW_SAMPLES;
+  const photoCount = getPhotoCountForVariation(variation);
+  const isTopLogo = isTopLogoVariation(variation);
+  const frames = PREVIEW_SAMPLES.slice(0, photoCount);
+
+  const brandBand = (
+    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
+      <div className="relative size-3 shrink-0 overflow-hidden rounded-[3px]">
+        <Image src="/images/chordisol-logo.png" alt="" fill className="object-cover" />
+      </div>
+      <span className="font-display text-[9px] font-bold text-fg-display tracking-tight">
+        Chordisol
+      </span>
+    </div>
+  );
 
   return (
     <div
-      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[178px] sm:w-[192px] bg-white pt-[6%] px-[6%] pb-0 transition-all duration-200 ${
+      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[144px] sm:w-[162px] bg-white px-[6%] ${
+        isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
+      } transition-all duration-200 ${
         isSelected
-          ? "ring-2 ring-brand-primary ring-offset-4 ring-offset-white -translate-y-1.5 shadow-[0_24px_48px_-14px_rgba(20,54,95,0.22),0_4px_12px_rgba(20,54,95,0.08)]"
-          : "shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16),0_2px_8px_rgba(20,54,95,0.06)] group-hover:-translate-y-1 group-hover:shadow-[0_20px_40px_-14px_rgba(20,54,95,0.2)]"
+          ? "rotate-0 -translate-y-1.5 ring-2 ring-brand-primary ring-offset-4 ring-offset-surface-secondary shadow-[0_24px_44px_-14px_rgba(20,54,95,0.24),0_4px_12px_rgba(20,54,95,0.08)]"
+          : `${tiltClass} group-hover:rotate-0 group-hover:-translate-y-1 shadow-[0_14px_28px_-12px_rgba(20,54,95,0.16),0_2px_6px_rgba(20,54,95,0.06)] group-hover:shadow-[0_20px_38px_-14px_rgba(20,54,95,0.2)]`
       }`}
     >
+      {isTopLogo && brandBand}
+
       {/* Photo Cuts */}
       <div
         className={`flex-1 min-h-0 grid gap-1.5 ${
-          isSingle
+          photoCount === 1
             ? "grid-rows-1"
-            : isDuo
+            : photoCount === 2
             ? "grid-rows-2"
             : "grid-rows-3"
         }`}
@@ -94,14 +116,14 @@ function PhysicalStripPreview({
         {frames.map((frame, i) => (
           <div
             key={i}
-            className={`relative size-full overflow-hidden rounded-[2px] ${frame.bg}`}
+            className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
           >
-            <div className="absolute inset-2">
+            <div className="absolute inset-1.5">
               <Image
                 src={frame.src}
                 alt={frame.alt}
                 fill
-                sizes="160px"
+                sizes="140px"
                 className="object-contain"
               />
             </div>
@@ -109,15 +131,7 @@ function PhysicalStripPreview({
         ))}
       </div>
 
-      {/* Minimal Brand Footer (8.5% height) */}
-      <div className="h-[8.5%] shrink-0 flex items-center justify-center gap-1">
-        <div className="relative size-3 shrink-0 overflow-hidden rounded-[3px]">
-          <Image src="/images/chordisol-logo.png" alt="" fill className="object-cover" />
-        </div>
-        <span className="font-display text-[9px] font-bold text-fg-display tracking-tight">
-          Chordisol
-        </span>
-      </div>
+      {!isTopLogo && brandBand}
     </div>
   );
 }
@@ -150,8 +164,7 @@ function buildStickerItem(asset: StickerAsset, id: string, zIndex: number): Stic
 
 /**
  * Perimeter-aware shuffle for 9:16 Instagram Story strips:
- * Places 6 curated stickers (2 mascots, 2 keys, 2 circular badges/confetti)
- * strictly along the corners, outer margins, and bottom corners — never in the middle of photos.
+ * Places 6 curated stickers strictly along corners & outer margins — never covering faces or the Chordisol logo.
  */
 function buildShuffledStickers(variation: LayoutVariationId): StickerItem[] {
   const mascots = STICKER_PALETTE.filter((s) => s.category === "mascots").sort(
@@ -173,35 +186,40 @@ function buildShuffledStickers(variation: LayoutVariationId): StickerItem[] {
     mascots[1],
   ].filter(Boolean);
 
-  const isGrid = variation === "variation-3";
-  const isDuo = variation === "variation-2";
+  const isTopLogo = isTopLogoVariation(variation);
+  const photoCount = getPhotoCountForVariation(variation);
 
-  const anchors = isGrid
-    ? [
-        { x: 11, y: 8, rot: -12, scale: 0.86 },
-        { x: 89, y: 9, rot: 11, scale: 0.86 },
-        { x: 9, y: 47, rot: -10, scale: 0.84 },
-        { x: 91, y: 48, rot: 12, scale: 0.84 },
-        { x: 12, y: 89, rot: -9, scale: 0.88 },
-        { x: 88, y: 90, rot: 9, scale: 0.88 },
-      ]
-    : isDuo
-    ? [
-        { x: 11, y: 8, rot: -12, scale: 0.88 },
-        { x: 89, y: 10, rot: 11, scale: 0.88 },
-        { x: 10, y: 47, rot: -9, scale: 0.86 },
-        { x: 90, y: 48, rot: 12, scale: 0.86 },
-        { x: 12, y: 88, rot: -8, scale: 0.9 },
-        { x: 88, y: 90, rot: 10, scale: 0.9 },
-      ]
-    : [
-        { x: 11, y: 7, rot: -12, scale: 0.88 },
-        { x: 89, y: 11, rot: 11, scale: 0.88 },
-        { x: 9, y: 34, rot: -9, scale: 0.84 },
-        { x: 91, y: 61, rot: 12, scale: 0.84 },
-        { x: 11, y: 87, rot: -10, scale: 0.88 },
-        { x: 88, y: 91, rot: 9, scale: 0.9 },
-      ];
+  // Keep stickers clear of both photo centers AND the top/bottom logo band
+  const topY = isTopLogo ? 14 : 8;
+  const bottomY = isTopLogo ? 91 : 86;
+
+  const anchors =
+    photoCount === 1
+      ? [
+          { x: 11, y: topY, rot: -12, scale: 0.88 },
+          { x: 89, y: topY + 2, rot: 11, scale: 0.88 },
+          { x: 10, y: 48, rot: -9, scale: 0.84 },
+          { x: 90, y: 50, rot: 12, scale: 0.84 },
+          { x: 12, y: bottomY, rot: -8, scale: 0.9 },
+          { x: 88, y: bottomY + 1, rot: 10, scale: 0.9 },
+        ]
+      : photoCount === 2
+      ? [
+          { x: 11, y: topY, rot: -12, scale: 0.88 },
+          { x: 89, y: topY + 2, rot: 11, scale: 0.88 },
+          { x: 10, y: 49, rot: -9, scale: 0.86 },
+          { x: 90, y: 51, rot: 12, scale: 0.86 },
+          { x: 12, y: bottomY, rot: -8, scale: 0.9 },
+          { x: 88, y: bottomY + 1, rot: 10, scale: 0.9 },
+        ]
+      : [
+          { x: 11, y: topY, rot: -12, scale: 0.88 },
+          { x: 89, y: topY + 3, rot: 11, scale: 0.88 },
+          { x: 9, y: 36, rot: -9, scale: 0.84 },
+          { x: 91, y: 63, rot: 12, scale: 0.84 },
+          { x: 11, y: bottomY, rot: -10, scale: 0.88 },
+          { x: 88, y: bottomY + 2, rot: 9, scale: 0.9 },
+        ];
 
   const shuffledAnchors = [...anchors].sort(() => 0.5 - Math.random());
 
@@ -231,6 +249,7 @@ export function BoothStudio() {
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [layoutVariation, setLayoutVariation] = useState<LayoutVariationId>("variation-1");
   const slotCount = getPhotoCountForVariation(layoutVariation);
+  const isTopLogo = isTopLogoVariation(layoutVariation);
 
   const [photos, setPhotos] = useState<(string | null)[]>([null, null, null]);
   const [retakeSlotIndex, setRetakeSlotIndex] = useState<number | null>(null);
@@ -386,11 +405,9 @@ export function BoothStudio() {
   const completedCount = photos.slice(0, slotCount).filter(Boolean).length;
   const isAllPhotosTaken = completedCount === slotCount;
   const selectedSticker = stickers.find((s) => s.id === selectedStickerId);
-  const isSingleLayout = layoutVariation === "variation-3";
-  const isDuoLayout = layoutVariation === "variation-2";
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-bg text-fg-regular px-4 py-8 sm:px-6 sm:py-12">
+    <div className="min-h-[calc(100vh-64px)] bg-bg text-fg-regular px-4 py-7 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-5xl">
         {/* Quiet navigation row for Steps 2, 3, 4 */}
         {currentStep > 1 && (
@@ -415,51 +432,115 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 1: PICK YOUR STRIP (3 distinct 9:16 Instagram Story layouts)
+            STEP 1: 6-VARIANT STUDIO PRINT TABLE (Logo Bottom & Logo Top × 3/2/1 Pics)
            ========================================================================= */}
         {currentStep === 1 && (
-          <section className="flex flex-col items-center">
-            <div className="text-center mb-10 sm:mb-12">
-              <h1 className="font-display text-2xl sm:text-[30px] font-bold tracking-tight text-fg-display">
-                Choose your strip
-              </h1>
-              <p className="mt-1.5 text-xs font-medium text-text-muted">
-                Instagram Story format (1080 × 1920)
-              </p>
-            </div>
+          <section className="flex flex-col gap-6">
+            {/* Editorial Top Row: Title + Quick Open Camera CTA */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div>
+                <h1 className="font-display text-2xl sm:text-[30px] font-bold tracking-tight text-fg-display">
+                  Choose your strip
+                </h1>
+                <p className="mt-1 text-xs font-medium text-text-muted">
+                  Instagram Story format (1080 × 1920)
+                </p>
+              </div>
 
-            <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 items-start justify-items-center">
-              {STRIP_OPTIONS.map((option) => {
-                const isSelected = layoutVariation === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => handleSelectVariation(option.id)}
-                    className="group flex flex-col items-center focus-visible:outline-none cursor-pointer"
-                  >
-                    <PhysicalStripPreview variation={option.id} isSelected={isSelected} />
-
-                    <div className="mt-5 flex flex-col items-center">
-                      <span
-                        className={`font-display text-sm font-semibold transition-colors ${
-                          isSelected ? "text-brand-primary" : "text-fg-display"
-                        }`}
-                      >
-                        {option.title}
-                      </span>
-                      <span className="text-xs text-text-muted mt-0.5">{option.subtitle}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-12 flex flex-col items-center">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-brand-primary px-7 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
+              >
+                Open Camera
+              </button>
+            </div>
+
+            {/* Tactile Studio Print Table Mat */}
+            <div className="rounded-3xl bg-surface-secondary px-5 py-8 sm:px-10 sm:py-10 flex flex-col gap-10">
+              {/* Row 1: Logo on Bottom */}
+              <div>
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="font-display text-sm font-semibold text-fg-display">
+                    Logo on bottom
+                  </h2>
+                  <span className="text-xs text-text-muted">Classic framing</span>
+                </div>
+
+                <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-8 sm:gap-10 justify-items-center">
+                  {BOTTOM_LOGO_OPTIONS.map((option) => {
+                    const isSelected = layoutVariation === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => handleSelectVariation(option.id)}
+                        className="group flex flex-col items-center focus-visible:outline-none cursor-pointer"
+                      >
+                        <PhysicalStripPreview
+                          variation={option.id}
+                          isSelected={isSelected}
+                          tiltClass={option.tiltClass}
+                        />
+                        <span
+                          className={`mt-4 font-display text-sm font-semibold transition-colors ${
+                            isSelected ? "text-brand-primary" : "text-fg-display"
+                          }`}
+                        >
+                          {option.title}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="h-px w-full bg-border-subtle" aria-hidden="true" />
+
+              {/* Row 2: Logo on Top */}
+              <div>
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="font-display text-sm font-semibold text-fg-display">
+                    Logo on top
+                  </h2>
+                  <span className="text-xs text-text-muted">Editorial header</span>
+                </div>
+
+                <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-8 sm:gap-10 justify-items-center">
+                  {TOP_LOGO_OPTIONS.map((option) => {
+                    const isSelected = layoutVariation === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => handleSelectVariation(option.id)}
+                        className="group flex flex-col items-center focus-visible:outline-none cursor-pointer"
+                      >
+                        <PhysicalStripPreview
+                          variation={option.id}
+                          isSelected={isSelected}
+                          tiltClass={option.tiltClass}
+                        />
+                        <span
+                          className={`mt-4 font-display text-sm font-semibold transition-colors ${
+                            isSelected ? "text-brand-primary" : "text-fg-display"
+                          }`}
+                        >
+                          {option.title}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="flex justify-center pt-1">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="inline-flex h-12 min-w-[220px] items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
               >
                 Open Camera
               </button>
@@ -490,12 +571,24 @@ export function BoothStudio() {
             {/* Right: Live Filling 9:16 White Print on Soft Studio Mat */}
             <aside className="lg:col-span-4 flex flex-col items-center gap-5">
               <div className="w-full rounded-2xl bg-surface-secondary py-6 px-5 flex flex-col items-center">
-                <div className="w-[186px] aspect-[9/16] bg-white pt-[6%] px-[6%] pb-0 shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16)] flex flex-col">
+                <div
+                  className={`w-[186px] aspect-[9/16] bg-white px-[6%] ${
+                    isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
+                  } shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16)] flex flex-col`}
+                >
+                  {isTopLogo && (
+                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
+                      <span className="font-display text-[9px] font-bold text-fg-display">
+                        Chordisol
+                      </span>
+                    </div>
+                  )}
+
                   <div
                     className={`flex-1 min-h-0 grid gap-1.5 ${
-                      isSingleLayout
+                      slotCount === 1
                         ? "grid-rows-1"
-                        : isDuoLayout
+                        : slotCount === 2
                         ? "grid-rows-2"
                         : "grid-rows-3"
                     }`}
@@ -546,11 +639,13 @@ export function BoothStudio() {
                     })}
                   </div>
 
-                  <div className="h-[8.5%] shrink-0 flex items-center justify-center gap-1">
-                    <span className="font-display text-[9px] font-bold text-fg-display">
-                      Chordisol
-                    </span>
-                  </div>
+                  {!isTopLogo && (
+                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
+                      <span className="font-display text-[9px] font-bold text-fg-display">
+                        Chordisol
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <p className="mt-4 text-center text-xs text-text-muted">
@@ -852,68 +947,29 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 4: PHOTOSTRIP PRINTING OUT OF THE BOOTH DISPENSER SLOT
+            STEP 4: 3D PHOTOBOOTH PRINTER & REALISTIC STEPPED PRINT-OUT
            ========================================================================= */}
         {currentStep === 4 && (
           <section className="flex flex-col items-center">
-            {/* Booth Dispenser Stage */}
-            <div className="w-full max-w-md rounded-2xl bg-surface-secondary pt-7 pb-10 px-6 flex flex-col items-center">
-              {/* Physical Photobooth Dispenser Lip & Recessed Paper Slot */}
-              <div className="relative z-20 flex flex-col items-center w-[312px] sm:w-[336px]">
-                <div className="w-full h-7 rounded-full bg-fg-display shadow-[0_6px_16px_rgba(20,54,95,0.24),inset_0_1px_0_rgba(255,255,255,0.18)] flex items-center justify-center px-4">
-                  {/* Recessed Dark Printer Mouth */}
-                  <div className="w-full h-2.5 rounded-full bg-[#081322] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]" />
-                </div>
-              </div>
-
-              {/* Masked Paper Chute Directly Beneath the Slot */}
-              <div className="relative -mt-3 pt-3 pb-6 px-6 overflow-hidden flex justify-center w-full">
-                {/* Cast shadow from the booth lip onto the emerging print */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 z-10 h-5 w-[280px] sm:w-[298px] bg-gradient-to-b from-[#081322]/25 to-transparent"
-                />
-
-                <motion.div
-                  key={printRunKey}
-                  initial={shouldReduceMotion ? { opacity: 0 } : { y: "-104%" }}
-                  animate={
-                    shouldReduceMotion
-                      ? { opacity: 1 }
-                      : { y: ["-104%", "-66%", "-28%", "0%"] }
-                  }
-                  transition={
-                    shouldReduceMotion
-                      ? { duration: 0.25 }
-                      : {
-                          duration: 1.55,
-                          times: [0, 0.34, 0.68, 1],
-                          ease: [0.22, 1, 0.36, 1],
-                        }
-                  }
-                >
-                  <PhotoboothStrip
-                    photos={photos}
-                    layoutVariation={layoutVariation}
-                    filter={filter}
-                    stickers={stickers}
-                    stickersVisible={true}
-                  />
-                </motion.div>
-              </div>
-            </div>
+            <BoothPrinterStage
+              photos={photos}
+              layoutVariation={layoutVariation}
+              filter={filter}
+              stickers={stickers}
+              runKey={printRunKey}
+            />
 
             {/* Download & Mobile QR Actions */}
             <motion.div
               key={`actions-${printRunKey}`}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: shouldReduceMotion ? 0 : 1.15,
+                delay: shouldReduceMotion ? 0 : 2.15,
                 duration: 0.35,
                 ease: [0.23, 1, 0.32, 1],
               }}
-              className="mt-8 w-full max-w-md flex flex-col items-center"
+              className="mt-8 w-full max-w-[460px] flex flex-col items-center"
             >
               <div className="w-full flex flex-col sm:flex-row items-center gap-3">
                 <button
@@ -972,9 +1028,7 @@ export function BoothStudio() {
                 >
                   Replay print
                 </button>
-                <span className="text-divider" aria-hidden="true">
-                  ·
-                </span>
+                <span className="h-3 w-px bg-divider" aria-hidden="true" />
                 <button
                   type="button"
                   onClick={handleStartOver}

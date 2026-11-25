@@ -4,6 +4,8 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   PHOTO_FILTERS,
+  getPhotoCountForVariation,
+  isTopLogoVariation,
   type FrameColorId,
   type PhotoFilterId,
   type LayoutVariationId,
@@ -127,9 +129,26 @@ export function PhotoboothStrip({
     };
   }, [activeDrag, onUpdateSticker]);
 
-  const isDuo = layoutVariation === "variation-2";
-  const isSingle = layoutVariation === "variation-3";
-  const slotIndices = isSingle ? [0] : isDuo ? [0, 1] : [0, 1, 2];
+  const photoCount = getPhotoCountForVariation(layoutVariation);
+  const isTopLogo = isTopLogoVariation(layoutVariation);
+  const slotIndices = Array.from({ length: photoCount }, (_, idx) => idx);
+
+  const brandBand = (
+    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
+      <div className="relative size-4.5 shrink-0 overflow-hidden rounded-[4px]">
+        <Image
+          src="/images/chordisol-logo.png"
+          alt="Chordisol"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+      <span className="font-display text-[13px] font-bold tracking-tight text-fg-display">
+        Chordisol
+      </span>
+    </div>
+  );
 
   return (
     <div
@@ -139,14 +158,18 @@ export function PhotoboothStrip({
         e.stopPropagation();
         onSelectSticker?.(null);
       }}
-      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[262px] sm:w-[280px] bg-white pt-[6%] px-[6%] pb-0 shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
+      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[262px] sm:w-[280px] bg-white px-[6%] ${
+        isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
+      } shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
     >
+      {isTopLogo && brandBand}
+
       {/* Photo Cuts Grid (Exact 1:1 parity with 1080x1920 canvasExport) */}
       <div
         className={`flex-1 min-h-0 grid gap-2 ${
-          isSingle
+          photoCount === 1
             ? "grid-rows-1"
-            : isDuo
+            : photoCount === 2
             ? "grid-rows-2"
             : "grid-rows-3"
         }`}
@@ -157,7 +180,7 @@ export function PhotoboothStrip({
           return (
             <div
               key={index}
-              className="group relative size-full overflow-hidden rounded-[2px] bg-surface-secondary"
+              className="group relative size-full overflow-hidden rounded-[2px] bg-surface-secondary ring-1 ring-inset ring-black/5"
             >
               {photoUrl ? (
                 <>
@@ -204,21 +227,7 @@ export function PhotoboothStrip({
         })}
       </div>
 
-      {/* Minimal Brand Footer (8.5% height — no caption, no date, no barcode) */}
-      <div className="h-[8.5%] shrink-0 flex items-center justify-center gap-1.5">
-        <div className="relative size-4 shrink-0 overflow-hidden rounded-[3.5px]">
-          <Image
-            src="/images/chordisol-logo.png"
-            alt="Chordisol"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-        <span className="font-display text-xs font-bold tracking-tight text-fg-display">
-          Chordisol
-        </span>
-      </div>
+      {!isTopLogo && brandBand}
 
       {/* Interactive Sticker Layer (overflow-visible so edge handles never clip) */}
       {stickersVisible && stickers.length > 0 && (

@@ -50,7 +50,7 @@ Chordisol is a native iOS app that turns an iPhone into an attentive practice pa
 ## 3. The Mascot Universe
 The app's heart is its mascot family (extracted directly from the creator's Figma):
 - The **Radio Note** (`mascot-radio.png`): Attentive, listening with an antenna and radio to acoustic instruments.
-- The **Puzzle Notes** (`mascot-hill.png`, `mascot-compare.png`, `mascot-duo.png`): Friendly characters holding chord blocks (`C`, `F`, `G`, `Am`) on green hills.
+- The **Puzzle Notes** (`mascot-hill.png`, `mascot-compare.png`, `mascot-duo-1.png`): Friendly characters holding chord blocks (`C`, `F`, `G`, `Am`) on green hills.
 - The **Sleeping Note** (`mascot-sleeping.png`): Cozy rest states and practice breaks.
 
 ## 4. Components & Elevation

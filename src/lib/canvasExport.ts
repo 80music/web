@@ -1,4 +1,9 @@
-import { PHOTO_FILTERS, type StripConfig } from "@/lib/booth-types";
+import {
+  PHOTO_FILTERS,
+  getPhotoCountForVariation,
+  isTopLogoVariation,
+  type StripConfig,
+} from "@/lib/booth-types";
 
 // Exact Instagram Story 9:16 resolution: 1080 x 1920
 export const EXPORT_ULTRA_HD_WIDTH = 1080;
@@ -122,8 +127,8 @@ export async function renderStripCanvas(
   await ensureCanvasFonts();
 
   const variation = config.layoutVariation || "variation-1";
-  const isDuo = variation === "variation-2";
-  const isSingle = variation === "variation-3";
+  const photoCount = getPhotoCountForVariation(variation);
+  const isTopLogo = isTopLogoVariation(variation);
 
   const width = targetWidth;
   const height = Math.round((targetWidth * 16) / 9);
@@ -149,10 +154,11 @@ export async function renderStripCanvas(
 
   // Shared 9:16 layout metrics (exact 1:1 parity with PhotoboothStrip DOM)
   const padX = Math.round(width * 0.06);
-  const padTop = Math.round(width * 0.06);
-  const footerH = Math.round(height * 0.085);
+  const padEdge = Math.round(width * 0.06);
+  const brandBandH = Math.round(height * 0.1);
   const photoAreaW = width - padX * 2;
-  const photoAreaH = height - padTop - footerH;
+  const photoAreaH = height - padEdge - brandBandH;
+  const photoStartY = isTopLogo ? brandBandH : padEdge;
   const gap = Math.round(width * 0.028);
   const photoRadius = Math.round(width * 0.01);
 
@@ -188,23 +194,13 @@ export async function renderStripCanvas(
   };
 
   // 2. Draw Photo Cuts (3 pics, 2 pics, or 1 pic)
-  if (isSingle) {
-    await drawPhotoSlot(0, padX, padTop, photoAreaW, photoAreaH);
-  } else if (isDuo) {
-    const cellW = photoAreaW;
-    const cellH = Math.floor((photoAreaH - gap) / 2);
-    for (let i = 0; i < 2; i++) {
-      await drawPhotoSlot(i, padX, padTop + i * (cellH + gap), cellW, cellH);
-    }
-  } else {
-    const cellW = photoAreaW;
-    const cellH = Math.floor((photoAreaH - gap * 2) / 3);
-    for (let i = 0; i < 3; i++) {
-      await drawPhotoSlot(i, padX, padTop + i * (cellH + gap), cellW, cellH);
-    }
+  const cellW = photoAreaW;
+  const cellH = Math.floor((photoAreaH - gap * (photoCount - 1)) / photoCount);
+  for (let i = 0; i < photoCount; i++) {
+    await drawPhotoSlot(i, padX, photoStartY + i * (cellH + gap), cellW, cellH);
   }
 
-  // 3. Minimal Centered Brand Footer (No caption, no date, no barcode)
+  // 3. Minimal Centered Brand Mark (Top or Bottom depending on variation)
   let logoImg: HTMLImageElement | null = null;
   try {
     logoImg = await preloadImage("/images/chordisol-logo.png");
@@ -212,10 +208,10 @@ export async function renderStripCanvas(
     logoImg = null;
   }
 
-  const footerCenterY = height - footerH / 2;
-  const logoSize = Math.round(width * 0.056);
-  const brandGap = Math.round(width * 0.02);
-  const brandFontSize = Math.round(width * 0.042);
+  const brandCenterY = isTopLogo ? brandBandH / 2 : height - brandBandH / 2;
+  const logoSize = Math.round(width * 0.06);
+  const brandGap = Math.round(width * 0.022);
+  const brandFontSize = Math.round(width * 0.045);
 
   ctx.font = `700 ${brandFontSize}px ${fontDisplay}`;
   const brandText = "Chordisol";
@@ -228,13 +224,13 @@ export async function renderStripCanvas(
     roundRectPath(
       ctx,
       brandStartX,
-      footerCenterY - logoSize / 2,
+      brandCenterY - logoSize / 2,
       logoSize,
       logoSize,
       Math.round(logoSize * 0.22)
     );
     ctx.clip();
-    ctx.drawImage(logoImg, brandStartX, footerCenterY - logoSize / 2, logoSize, logoSize);
+    ctx.drawImage(logoImg, brandStartX, brandCenterY - logoSize / 2, logoSize, logoSize);
     ctx.restore();
   }
 
@@ -244,7 +240,7 @@ export async function renderStripCanvas(
   ctx.fillText(
     brandText,
     brandStartX + (logoImg ? logoSize + brandGap : 0),
-    footerCenterY
+    brandCenterY
   );
 
   // 4. Draw Placed Stickers (Normalized math: xPercent, yPercent, widthPercent, rotationDeg)

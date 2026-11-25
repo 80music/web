@@ -73,6 +73,9 @@ export type LayoutVariationId =
   | "variation-1"
   | "variation-2"
   | "variation-3"
+  | "variation-4"
+  | "variation-5"
+  | "variation-6"
   | "classic-top";
 
 export interface LayoutVariation {
@@ -81,36 +84,72 @@ export interface LayoutVariation {
   tagline: string;
   description: string;
   photoCount: number;
+  logoPosition: "bottom" | "top";
 }
 
 export const LAYOUT_VARIATIONS: LayoutVariation[] = [
   {
     id: "variation-1",
-    name: "Classic Strip",
-    tagline: "3 pics",
-    description: "3 stacked cuts in 9:16 Story format",
+    name: "3 Pics",
+    tagline: "Logo bottom",
+    description: "3 stacked cuts with Chordisol mark on bottom",
     photoCount: 3,
+    logoPosition: "bottom",
   },
   {
     id: "variation-2",
-    name: "Editorial Duo",
-    tagline: "2 pics",
-    description: "2 large cuts in 9:16 Story format",
+    name: "2 Pics",
+    tagline: "Logo bottom",
+    description: "2 large cuts with Chordisol mark on bottom",
     photoCount: 2,
+    logoPosition: "bottom",
   },
   {
     id: "variation-3",
-    name: "Full Portrait",
-    tagline: "1 pic",
-    description: "1 full-frame portrait in 9:16 Story format",
+    name: "1 Pic",
+    tagline: "Logo bottom",
+    description: "1 full portrait with Chordisol mark on bottom",
     photoCount: 1,
+    logoPosition: "bottom",
+  },
+  {
+    id: "variation-4",
+    name: "3 Pics",
+    tagline: "Logo top",
+    description: "3 stacked cuts with Chordisol mark on top",
+    photoCount: 3,
+    logoPosition: "top",
+  },
+  {
+    id: "variation-5",
+    name: "2 Pics",
+    tagline: "Logo top",
+    description: "2 large cuts with Chordisol mark on top",
+    photoCount: 2,
+    logoPosition: "top",
+  },
+  {
+    id: "variation-6",
+    name: "1 Pic",
+    tagline: "Logo top",
+    description: "1 full portrait with Chordisol mark on top",
+    photoCount: 1,
+    logoPosition: "top",
   },
 ];
 
 export function getPhotoCountForVariation(variation: LayoutVariationId): number {
-  if (variation === "variation-2") return 2;
-  if (variation === "variation-3") return 1;
+  if (variation === "variation-2" || variation === "variation-5") return 2;
+  if (variation === "variation-3" || variation === "variation-6") return 1;
   return 3;
+}
+
+export function isTopLogoVariation(variation: LayoutVariationId): boolean {
+  return (
+    variation === "variation-4" ||
+    variation === "variation-5" ||
+    variation === "variation-6"
+  );
 }
 
 export interface StripConfig {
@@ -243,9 +282,9 @@ export const STICKER_PALETTE: StickerAsset[] = [
     defaultWidthPercent: 22,
   },
   {
-    id: "mascot-duo",
+    id: "mascot-duo-1",
     name: "Chord Duo",
-    src: "/images/mascots/mascot-duo.png",
+    src: "/images/mascots/mascot-duo-1.png",
     category: "mascots",
     defaultWidthPercent: 24,
   },
@@ -512,8 +551,8 @@ export const STICKER_PRESETS: StickerPresetTemplate[] = [
         zIndex: 2,
       },
       {
-        assetId: "mascot-duo",
-        src: "/images/mascots/mascot-duo.png",
+        assetId: "mascot-duo-1",
+        src: "/images/mascots/mascot-duo-1.png",
         name: "Chord Duo",
         xPercent: 20,
         yPercent: 58,
