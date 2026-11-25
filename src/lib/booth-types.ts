@@ -40,20 +40,13 @@ export interface FramePreset {
   previewBg: string;
 }
 
-export type PhotoFilterId =
-  | "original"
-  | "bw"
-  | "warm"
-  | "soft-glow"
-  | "cinematic"
-  | "vintage";
+export type PhotoFilterId = "normal" | "bnw" | "grainy" | "original";
 
 export interface PhotoFilterPreset {
   id: PhotoFilterId;
   name: string;
   css: string;
   canvasFilter: string;
-  badge: string;
 }
 
 export interface StickerItem {
@@ -77,49 +70,47 @@ export interface StickerAsset {
 }
 
 export type LayoutVariationId =
-  | "classic-top"
-  | "centered-minimal"
-  | "bottom-signature"
-  | "retro-studio";
+  | "variation-1"
+  | "variation-2"
+  | "variation-3"
+  | "classic-top";
 
 export interface LayoutVariation {
   id: LayoutVariationId;
   name: string;
   tagline: string;
   description: string;
-  badge: string;
+  photoCount: number;
 }
 
 export const LAYOUT_VARIATIONS: LayoutVariation[] = [
   {
-    id: "classic-top",
-    name: "Classic 4-Cut",
-    tagline: "Top Left Logo",
-    description: "Iconic photobooth header with top-left brand mark and 4-CUT edition badge.",
-    badge: "Classic",
+    id: "variation-1",
+    name: "Variation 1",
+    tagline: "3-Shot Classic",
+    description: "3 photos with caption at the bottom",
+    photoCount: 3,
   },
   {
-    id: "centered-minimal",
-    name: "Centered Studio",
-    tagline: "Centered Logo",
-    description: "Centered emblem mark above photos with clean minimal typography.",
-    badge: "Minimal",
+    id: "variation-2",
+    name: "Variation 2",
+    tagline: "2-Shot Duo",
+    description: "2 large format photos with caption at the bottom",
+    photoCount: 2,
   },
   {
-    id: "bottom-signature",
-    name: "Bottom Signature",
-    tagline: "Bottom Logo",
-    description: "Photos start at the top; brand mark and caption sit together at the bottom.",
-    badge: "Modern",
-  },
-  {
-    id: "retro-studio",
-    name: "Retro Vinyl",
-    tagline: "Vintage Header",
-    description: "1970s analog studio title banner with star accents and session barcode.",
-    badge: "Retro",
+    id: "variation-3",
+    name: "Variation 3",
+    tagline: "Top Header",
+    description: "Caption on top with 3 photos below",
+    photoCount: 3,
   },
 ];
+
+export function getPhotoCountForVariation(variation: LayoutVariationId): number {
+  if (variation === "variation-2") return 2;
+  return 3;
+}
 
 export interface StripConfig {
   photos: (string | null)[]; // 4 photos
@@ -208,46 +199,22 @@ export const FRAME_PRESETS: FramePreset[] = [
 
 export const PHOTO_FILTERS: PhotoFilterPreset[] = [
   {
-    id: "original",
-    name: "Original",
+    id: "normal",
+    name: "Normal",
     css: "none",
     canvasFilter: "none",
-    badge: "Clean",
   },
   {
-    id: "bw",
+    id: "bnw",
     name: "B&W",
-    css: "grayscale(100%) contrast(120%) brightness(102%)",
-    canvasFilter: "grayscale(100%) contrast(120%) brightness(102%)",
-    badge: "Mono",
+    css: "grayscale(100%) contrast(115%) brightness(102%)",
+    canvasFilter: "grayscale(100%) contrast(115%) brightness(102%)",
   },
   {
-    id: "warm",
-    name: "Warm Tone",
-    css: "sepia(28%) saturate(125%) contrast(105%) brightness(102%)",
-    canvasFilter: "sepia(28%) saturate(125%) contrast(105%) brightness(102%)",
-    badge: "Amber",
-  },
-  {
-    id: "soft-glow",
-    name: "Soft Glow",
-    css: "brightness(108%) contrast(98%) saturate(118%)",
-    canvasFilter: "brightness(108%) contrast(98%) saturate(118%)",
-    badge: "Dreamy",
-  },
-  {
-    id: "cinematic",
-    name: "Cinematic",
-    css: "contrast(122%) saturate(112%) brightness(98%)",
-    canvasFilter: "contrast(122%) saturate(112%) brightness(98%)",
-    badge: "Film",
-  },
-  {
-    id: "vintage",
-    name: "Vintage",
-    css: "sepia(45%) contrast(96%) brightness(96%) saturate(88%)",
-    canvasFilter: "sepia(45%) contrast(96%) brightness(96%) saturate(88%)",
-    badge: "Retro",
+    id: "grainy",
+    name: "Grainy",
+    css: "contrast(112%) brightness(104%) saturate(88%) sepia(20%)",
+    canvasFilter: "contrast(112%) brightness(104%) saturate(88%) sepia(20%)",
   },
 ];
 

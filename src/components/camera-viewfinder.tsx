@@ -12,6 +12,7 @@ interface CameraViewfinderProps {
   onRetakeDone?: () => void;
   onCancelRetake?: () => void;
   hideInlineSlots?: boolean;
+  slotCount?: number;
 }
 
 const POSE_HINTS = [
@@ -30,6 +31,7 @@ export function CameraViewfinder({
   onRetakeDone,
   onCancelRetake,
   hideInlineSlots = false,
+  slotCount = 3,
 }: CameraViewfinderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -47,9 +49,9 @@ export function CameraViewfinder({
   const [activeSlotInternal, setActiveSlotInternal] = useState<number | null>(null);
   const [countdownDuration, setCountdownDuration] = useState<3 | 5>(3);
 
-  // Compute strictly ordered target slot (1 -> 2 -> 3 -> 4)
-  const firstEmptySlot = photos.findIndex((p) => p === null);
-  const currentSequentialSlot = firstEmptySlot === -1 ? 3 : firstEmptySlot;
+  // Compute strictly ordered target slot (1 -> 2 -> 3)
+  const firstEmptySlot = photos.slice(0, slotCount).findIndex((p) => p === null);
+  const currentSequentialSlot = firstEmptySlot === -1 ? slotCount - 1 : firstEmptySlot;
 
   const targetSlot =
     mode === "retake" && retakeSlot !== null
@@ -225,14 +227,14 @@ export function CameraViewfinder({
     [countdownDuration, grabCurrentFrame, onPhotoCaptured]
   );
 
-  // Strictly Sequential 4-Shot Auto Sequence
+  // Strictly Sequential Auto Sequence
   const startFullSequence = useCallback(async () => {
     if (isAutoSequenceRunning || isCountingDown) return;
     setIsAutoSequenceRunning(true);
 
-    for (let slot = 0; slot < 4; slot++) {
+    for (let slot = 0; slot < slotCount; slot++) {
       await captureSlot(slot);
-      if (slot < 3) {
+      if (slot < slotCount - 1) {
         await new Promise((r) => setTimeout(r, 1600));
       }
     }
@@ -242,7 +244,7 @@ export function CameraViewfinder({
     if (onSequenceComplete) {
       onSequenceComplete();
     }
-  }, [captureSlot, isAutoSequenceRunning, isCountingDown, onSequenceComplete]);
+  }, [captureSlot, isAutoSequenceRunning, isCountingDown, onSequenceComplete, slotCount]);
 
   // Snap Next Single Shot in Sequence
   const handleSnapNextSequential = async () => {
@@ -251,7 +253,7 @@ export function CameraViewfinder({
     await captureSlot(slotToTake);
     setActiveSlotInternal(null);
 
-    if (slotToTake === 3 && onSequenceComplete) {
+    if (slotToTake === slotCount - 1 && onSequenceComplete) {
       setTimeout(() => {
         onSequenceComplete();
       }, 400);
@@ -316,7 +318,7 @@ export function CameraViewfinder({
           <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-brand-primary border border-blue-200">
             {mode === "retake"
               ? `Retaking Shot ${(retakeSlot ?? 0) + 1}`
-              : `Shot ${Math.min(4, completedCount + 1)} of 4`}
+              : `Shot ${Math.min(slotCount, completedCount + 1)} of ${slotCount}`}
           </span>
         </div>
 
@@ -545,14 +547,14 @@ export function CameraViewfinder({
               {/* Single shot trigger */}
               <button
                 type="button"
-                disabled={isCountingDown || isAutoSequenceRunning || !hasPermission || completedCount >= 4}
+                disabled={isCountingDown || isAutoSequenceRunning || !hasPermission || completedCount >= slotCount}
                 onClick={handleSnapNextSequential}
                 className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full border-2 border-slate-900/10 bg-slate-100 px-4 font-display text-xs font-bold text-slate-800 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
               >
                 <span>Take Shot {currentSequentialSlot + 1}</span>
               </button>
 
-              {/* Full 4-shot sequence trigger */}
+              {/* Full auto sequence trigger */}
               <button
                 type="button"
                 disabled={isCountingDown || isAutoSequenceRunning || !hasPermission}
@@ -563,9 +565,9 @@ export function CameraViewfinder({
                 <span>
                   {isAutoSequenceRunning
                     ? "Capturing Sequence..."
-                    : completedCount === 4
-                    ? "↺ Retake All 4 Shots"
-                    : "⚡ Start 4-Shot Sequence"}
+                    : completedCount >= slotCount
+                    ? `↺ Retake All ${slotCount} Shots`
+                    : `⚡ Start ${slotCount}-Shot Sequence`}
                 </span>
               </button>
             </div>

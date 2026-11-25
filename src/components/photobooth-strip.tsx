@@ -3,7 +3,6 @@
 import Image from "next/image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  FRAME_PRESETS,
   PHOTO_FILTERS,
   type FrameColorId,
   type PhotoFilterId,
@@ -20,9 +19,9 @@ const POSE_SUGGESTIONS = [
 
 interface PhotoboothStripProps {
   photos: (string | null)[];
-  frameColor: FrameColorId;
+  frameColor?: FrameColorId;
   layoutVariation?: LayoutVariationId;
-  filter: PhotoFilterId;
+  filter?: PhotoFilterId;
   stickers?: StickerItem[];
   stickersVisible?: boolean;
   caption?: string;
@@ -41,9 +40,8 @@ interface PhotoboothStripProps {
 
 export function PhotoboothStrip({
   photos,
-  frameColor,
-  layoutVariation = "classic-top",
-  filter,
+  layoutVariation = "variation-1",
+  filter = "normal",
   stickers = [],
   stickersVisible = true,
   caption = "Acoustic Session • Chordisol Studio",
@@ -57,7 +55,6 @@ export function PhotoboothStrip({
   className = "",
 }: PhotoboothStripProps) {
   const stripRef = useRef<HTMLDivElement>(null);
-  const frame = FRAME_PRESETS.find((f) => f.id === frameColor) || FRAME_PRESETS[0];
   const activeFilter = PHOTO_FILTERS.find((f) => f.id === filter) || PHOTO_FILTERS[0];
 
   // Dragging state for stickers
@@ -125,81 +122,48 @@ export function PhotoboothStrip({
     };
   }, [activeDrag, onUpdateSticker]);
 
+  // Determine slot indices based on variation (matching Sketch 1)
+  const slotIndices =
+    layoutVariation === "variation-2"
+      ? [0, 1] // 2 photos for Variation 2
+      : [0, 1, 2]; // 3 photos for Variation 1 & 3
+
   return (
     <div
       ref={stripRef}
       id="photobooth-strip-dom"
       onClick={() => onSelectSticker?.(null)}
-      style={{
-        backgroundColor: frame.bg,
-        borderColor: frame.border,
-      }}
-      className={`relative mx-auto flex select-none flex-col w-[280px] sm:w-[300px] rounded-2xl border-2 p-3 sm:p-3.5 shadow-[0_20px_50px_-10px_rgba(15,23,42,0.18),0_4px_16px_-4px_rgba(15,23,42,0.08)] transition-colors duration-200 justify-between ${className}`}
+      className={`relative mx-auto flex select-none flex-col w-[280px] sm:w-[300px] rounded-2xl border-2 border-slate-900/10 bg-white p-3 sm:p-3.5 shadow-[0_20px_50px_-10px_rgba(15,23,42,0.18),0_4px_16px_-4px_rgba(15,23,42,0.08)] transition-colors duration-200 justify-between ${className}`}
     >
       {/* 1. Header Row based on layoutVariation */}
-      {layoutVariation === "centered-minimal" ? (
-        <div className="flex flex-col items-center justify-center text-center py-1">
-          <div className="relative size-7 shrink-0 overflow-hidden rounded-md shadow-xs mb-1">
-            <Image
-              src="/images/chordisol-logo.png"
-              alt="Chordisol"
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-          <h2
-            style={{ color: frame.textColor }}
-            className="font-display text-sm leading-none font-black tracking-tight"
-          >
-            CHORDISOL
-          </h2>
-          <p
-            style={{ color: frame.subtextColor }}
-            className="font-sans text-[9px] leading-tight font-bold tracking-widest uppercase mt-0.5 opacity-80"
-          >
-            Acoustic Studio
-          </p>
-        </div>
-      ) : layoutVariation === "bottom-signature" ? (
-        <div className="flex items-center justify-between py-1">
-          <span
-            style={{
-              backgroundColor: frame.photoBorder,
-              color: frame.textColor,
-            }}
-            className="rounded-full px-2.5 py-0.5 font-mono text-[9px] font-bold tracking-tight opacity-90"
-          >
-            CHORDISOL ACOUSTIC • NO. 04
-          </span>
-          <span
-            style={{ color: frame.subtextColor }}
-            className="font-mono text-[9px] font-bold opacity-80"
-          >
-            4-CUT
-          </span>
-        </div>
-      ) : layoutVariation === "retro-studio" ? (
-        <div className="flex flex-col items-center justify-center text-center border-b border-dashed border-current/20 pb-1.5 pt-0.5">
-          <div className="flex items-center gap-1.5">
-            <span style={{ color: frame.subtextColor }} className="text-xs">★</span>
-            <h2
-              style={{ color: frame.textColor }}
-              className="font-display text-sm leading-none font-black tracking-widest uppercase"
-            >
+      {layoutVariation === "variation-3" ? (
+        /* Variation 3: Caption at the TOP (matching Sketch 1) */
+        <div className="flex flex-col items-center justify-center text-center py-1 border-b border-slate-100 pb-2">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="relative size-6 shrink-0 overflow-hidden rounded-md shadow-2xs">
+              <Image
+                src="/images/chordisol-logo.png"
+                alt="Chordisol"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <span className="font-display text-xs font-black tracking-tight text-slate-900">
               CHORDISOL
-            </h2>
-            <span style={{ color: frame.subtextColor }} className="text-xs">★</span>
+            </span>
           </div>
-          <p
-            style={{ color: frame.subtextColor }}
-            className="font-sans text-[8.5px] leading-tight font-bold tracking-widest uppercase mt-0.5 opacity-75"
-          >
-            Session Archive • 35mm
+          <p className="font-display text-xs sm:text-[13px] font-bold tracking-tight text-slate-900 truncate px-1">
+            {caption || "Acoustic Session • Chordisol Studio"}
           </p>
+          {showDate && dateText && (
+            <p className="mt-0.5 font-sans text-[9px] font-semibold tracking-wide text-slate-500">
+              {dateText}
+            </p>
+          )}
         </div>
       ) : (
-        /* classic-top */
+        /* Variation 1 & Variation 2: Clean top brand header (matching Sketch 1) */
         <div className="flex items-center justify-between py-1">
           <div className="flex items-center gap-2 min-w-0">
             <div className="relative size-7 shrink-0 overflow-hidden rounded-md shadow-xs">
@@ -212,42 +176,33 @@ export function PhotoboothStrip({
               />
             </div>
             <div className="min-w-0">
-              <h2
-                style={{ color: frame.textColor }}
-                className="font-display text-sm leading-none font-black tracking-tight truncate"
-              >
+              <h2 className="font-display text-sm leading-none font-black tracking-tight text-slate-900 truncate">
                 CHORDISOL
               </h2>
-              <p
-                style={{ color: frame.subtextColor }}
-                className="font-sans text-[9px] leading-tight font-bold tracking-wider uppercase truncate mt-0.5 opacity-80"
-              >
-                Acoustic Photobooth
+              <p className="font-sans text-[9px] leading-tight font-bold tracking-wider uppercase text-slate-500 truncate mt-0.5">
+                Acoustic Studio
               </p>
             </div>
           </div>
 
-          <span
-            style={{
-              backgroundColor: frame.photoBorder,
-              color: frame.textColor,
-            }}
-            className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold tracking-tight opacity-90 shrink-0"
-          >
-            4-CUT
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-[9px] font-bold tracking-tight text-slate-700 border border-slate-200 shrink-0">
+            {layoutVariation === "variation-2" ? "2-SHOT" : "3-SHOT"}
           </span>
         </div>
       )}
 
-      {/* 2. Four Photo Slots (4:3 aspect ratio each) */}
+      {/* 2. Photo Slots (Matching Sketch 1 & 2) */}
       <div className="flex flex-col gap-2 my-2 flex-1 justify-center">
-        {[0, 1, 2, 3].map((index) => {
+        {slotIndices.map((index) => {
           const photoUrl = photos[index];
+          const isTwoSlot = layoutVariation === "variation-2";
+
           return (
             <div
               key={index}
-              style={{ borderColor: frame.photoBorder }}
-              className="group relative aspect-4/3 w-full overflow-hidden rounded-xl border border-black/10 bg-black/[0.03]"
+              className={`group relative w-full overflow-hidden rounded-xl border border-slate-900/10 bg-slate-100/60 ${
+                isTwoSlot ? "aspect-[4/3.2]" : "aspect-4/3"
+              }`}
             >
               {photoUrl ? (
                 <>
@@ -255,7 +210,7 @@ export function PhotoboothStrip({
                   <img
                     src={photoUrl}
                     alt={`Photobooth shot ${index + 1}`}
-                    style={{ filter: activeFilter.css }}
+                    style={{ filter: activeFilter?.css || "none" }}
                     className="size-full object-cover"
                   />
 
@@ -283,16 +238,13 @@ export function PhotoboothStrip({
                   )}
                 </>
               ) : (
-                <div
-                  style={{ color: frame.subtextColor }}
-                  className="flex size-full flex-col items-center justify-center gap-1 p-2 bg-black/[0.02]"
-                >
-                  <div className="flex size-7 items-center justify-center rounded-full border border-dashed border-current/60 bg-white/50 shadow-2xs">
-                    <span className="font-display text-xs font-black text-current">
+                <div className="flex size-full flex-col items-center justify-center gap-1 p-2 text-slate-400 bg-slate-50">
+                  <div className="flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white shadow-2xs">
+                    <span className="font-display text-xs font-black text-slate-700">
                       {index + 1}
                     </span>
                   </div>
-                  <span className="font-sans text-[10px] font-bold tracking-tight opacity-75 text-center">
+                  <span className="font-sans text-[10px] font-bold tracking-tight text-slate-500 text-center">
                     {POSE_SUGGESTIONS[index]}
                   </span>
                 </div>
@@ -303,59 +255,31 @@ export function PhotoboothStrip({
       </div>
 
       {/* 3. Footer Section based on layoutVariation */}
-      {layoutVariation === "bottom-signature" ? (
-        <div className="flex items-center justify-between pt-1 border-t border-current/10">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="relative size-6 shrink-0 overflow-hidden rounded-md shadow-2xs">
-              <Image
-                src="/images/chordisol-logo.png"
-                alt="Chordisol"
-                fill
-                className="object-cover"
-                priority
+      {layoutVariation === "variation-3" ? (
+        /* Variation 3: Minimal barcode footer on bottom (caption is at the top) */
+        <div className="text-center pt-1 border-t border-slate-100">
+          <div
+            aria-hidden="true"
+            className="mx-auto flex h-2 w-28 items-center justify-center gap-0.5 opacity-40 text-slate-700"
+          >
+            {[4, 2, 5, 2, 6, 3, 2, 5, 3, 4, 2, 6, 3, 5, 2].map((w, i) => (
+              <span
+                key={i}
+                style={{ width: `${w}px` }}
+                className="h-full bg-current rounded-[0.5px]"
               />
-            </div>
-            <div className="min-w-0">
-              <p style={{ color: frame.textColor }} className="font-display text-xs font-bold leading-tight truncate">
-                CHORDISOL
-              </p>
-              <p style={{ color: frame.subtextColor }} className="font-sans text-[9px] font-semibold truncate opacity-80">
-                {caption || "Acoustic Session"}
-              </p>
-            </div>
-          </div>
-
-          <div className="text-right shrink-0">
-            {showDate && dateText && (
-              <p style={{ color: frame.subtextColor }} className="font-sans text-[8.5px] font-medium opacity-80">
-                {dateText}
-              </p>
-            )}
-            <span
-              style={{
-                backgroundColor: frame.photoBorder,
-                color: frame.textColor,
-              }}
-              className="inline-block mt-0.5 rounded-full px-1.5 py-0.2 font-mono text-[8px] font-bold"
-            >
-              4-CUT
-            </span>
+            ))}
           </div>
         </div>
       ) : (
-        <div className="text-center pt-1">
-          <p
-            style={{ color: frame.textColor }}
-            className="font-display text-xs sm:text-[13px] font-bold tracking-tight truncate px-1"
-          >
+        /* Variation 1 & 2: Caption at the BOTTOM (matching Sketch 1) */
+        <div className="text-center pt-1 border-t border-slate-100">
+          <p className="font-display text-xs sm:text-[13px] font-bold tracking-tight text-slate-900 truncate px-1">
             {caption || "Acoustic Session • Chordisol Studio"}
           </p>
 
           {showDate && dateText && (
-            <p
-              style={{ color: frame.subtextColor }}
-              className="mt-0.5 font-sans text-[9.5px] font-semibold tracking-wide opacity-80"
-            >
+            <p className="mt-0.5 font-sans text-[9.5px] font-semibold tracking-wide text-slate-500">
               {dateText}
             </p>
           )}
@@ -363,8 +287,7 @@ export function PhotoboothStrip({
           {/* Retro Barcode Strip */}
           <div
             aria-hidden="true"
-            style={{ color: frame.subtextColor }}
-            className="mx-auto mt-2 flex h-2 w-32 items-center justify-center gap-0.5 opacity-60"
+            className="mx-auto mt-2 flex h-2 w-32 items-center justify-center gap-0.5 opacity-40 text-slate-700"
           >
             {[4, 2, 5, 2, 6, 3, 2, 5, 3, 4, 2, 6, 3, 5, 2].map((w, i) => (
               <span
@@ -378,7 +301,7 @@ export function PhotoboothStrip({
       )}
 
       {/* 4. Interactive Sticker Layer */}
-      {stickersVisible && (
+      {stickersVisible && stickers.length > 0 && (
         <div className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-2xl">
           {stickers.map((sticker) => {
             const isSelected = selectedStickerId === sticker.id;
@@ -386,7 +309,8 @@ export function PhotoboothStrip({
             return (
               <div
                 key={sticker.id}
-                onClick={(e) => handleStickerTap(e, sticker.id)}
+                onMouseDown={(e) => handleStickerTap(e, sticker.id)}
+                onTouchStart={(e) => handleStickerTap(e, sticker.id)}
                 style={{
                   left: `${sticker.xPercent}%`,
                   top: `${sticker.yPercent}%`,
@@ -394,94 +318,105 @@ export function PhotoboothStrip({
                   transform: `translate(-50%, -50%) rotate(${sticker.rotationDeg}deg)`,
                   zIndex: sticker.zIndex,
                 }}
-                className={`pointer-events-auto absolute cursor-move select-none transition-shadow ${
+                className={`pointer-events-auto absolute cursor-grab select-none active:cursor-grabbing transition-[filter,transform] duration-75 ${
                   isSelected
-                    ? "ring-2 ring-brand-primary ring-offset-2 ring-offset-transparent rounded-lg"
-                    : ""
+                    ? "ring-2 ring-brand-primary/80 ring-offset-2 ring-offset-white rounded-lg shadow-lg"
+                    : "hover:scale-105"
                 }`}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  onSelectSticker?.(sticker.id);
-                  setActiveDrag({
-                    id: sticker.id,
-                    mode: "move",
-                    startPointerX: e.clientX,
-                    startPointerY: e.clientY,
-                    initialX: sticker.xPercent,
-                    initialY: sticker.yPercent,
-                    initialWidth: sticker.widthPercent,
-                  });
-                }}
               >
-                {/* Sticker Image */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={sticker.src}
-                  alt={sticker.name}
-                  draggable={false}
-                  className="size-full object-contain pointer-events-none drop-shadow-[0_4px_10px_rgba(15,23,42,0.25)]"
-                />
+                <div className="relative aspect-square w-full">
+                  <Image
+                    src={sticker.src}
+                    alt={sticker.name}
+                    fill
+                    sizes="(max-width: 640px) 120px, 160px"
+                    className="pointer-events-none object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.18)]"
+                    draggable={false}
+                  />
+                </div>
 
-                {/* Transform Handles when selected */}
+                {/* Move Handle */}
                 {isSelected && (
-                  <>
-                    {/* Delete handle (top-left) */}
-                    {onDeleteSticker && (
-                      <button
-                        type="button"
-                        aria-label="Delete sticker"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteSticker(sticker.id);
-                        }}
-                        className="absolute -top-2.5 -left-2.5 size-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md hover:bg-rose-600 active:scale-95 z-50 cursor-pointer"
-                      >
-                        ✕
-                      </button>
-                    )}
+                  <button
+                    type="button"
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      setActiveDrag({
+                        id: sticker.id,
+                        mode: "move",
+                        startPointerX: e.clientX,
+                        startPointerY: e.clientY,
+                        initialX: sticker.xPercent,
+                        initialY: sticker.yPercent,
+                        initialWidth: sticker.widthPercent,
+                      });
+                    }}
+                    title="Drag to Move"
+                    className="absolute -top-3 -left-3 size-6 rounded-full bg-brand-primary text-white shadow-md flex items-center justify-center cursor-move text-[11px] font-bold"
+                  >
+                    ✥
+                  </button>
+                )}
 
-                    {/* Rotate handle (top-right) */}
-                    <button
-                      type="button"
-                      aria-label="Rotate sticker"
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        setActiveDrag({
-                          id: sticker.id,
-                          mode: "rotate",
-                          startPointerX: e.clientX,
-                          startPointerY: e.clientY,
-                          initialX: sticker.xPercent,
-                          initialY: sticker.yPercent,
-                          initialWidth: sticker.widthPercent,
-                        });
-                      }}
-                      className="absolute -top-2.5 -right-2.5 size-5 rounded-full bg-brand-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md hover:bg-[#1674d6] active:scale-95 z-50 cursor-grab"
-                    >
-                      ↻
-                    </button>
+                {/* Rotate Handle */}
+                {isSelected && (
+                  <button
+                    type="button"
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      setActiveDrag({
+                        id: sticker.id,
+                        mode: "rotate",
+                        startPointerX: e.clientX,
+                        startPointerY: e.clientY,
+                        initialX: sticker.xPercent,
+                        initialY: sticker.yPercent,
+                        initialWidth: sticker.widthPercent,
+                      });
+                    }}
+                    title="Drag to Rotate"
+                    className="absolute -top-3 -right-3 size-6 rounded-full bg-slate-900 text-white shadow-md flex items-center justify-center cursor-grab text-[11px] font-bold"
+                  >
+                    ↻
+                  </button>
+                )}
 
-                    {/* Scale handle (bottom-right) */}
-                    <button
-                      type="button"
-                      aria-label="Resize sticker"
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        setActiveDrag({
-                          id: sticker.id,
-                          mode: "scale",
-                          startPointerX: e.clientX,
-                          startPointerY: e.clientY,
-                          initialX: sticker.xPercent,
-                          initialY: sticker.yPercent,
-                          initialWidth: sticker.widthPercent,
-                        });
-                      }}
-                      className="absolute -bottom-2.5 -right-2.5 size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-bold shadow-md hover:bg-emerald-600 active:scale-95 z-50 cursor-se-resize"
-                    >
-                      ⤡
-                    </button>
-                  </>
+                {/* Scale Handle */}
+                {isSelected && (
+                  <button
+                    type="button"
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      setActiveDrag({
+                        id: sticker.id,
+                        mode: "scale",
+                        startPointerX: e.clientX,
+                        startPointerY: e.clientY,
+                        initialX: sticker.xPercent,
+                        initialY: sticker.yPercent,
+                        initialWidth: sticker.widthPercent,
+                      });
+                    }}
+                    title="Drag to Resize"
+                    className="absolute -bottom-3 -right-3 size-6 rounded-full bg-amber-500 text-white shadow-md flex items-center justify-center cursor-nwse-resize text-[11px] font-bold"
+                  >
+                    ⤡
+                  </button>
+                )}
+
+                {/* Delete Handle */}
+                {isSelected && onDeleteSticker && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteSticker(sticker.id);
+                    }}
+                    title="Delete Sticker"
+                    className="absolute -bottom-3 -left-3 size-6 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center cursor-pointer text-[11px] font-bold"
+                  >
+                    ✕
+                  </button>
                 )}
               </div>
             );
