@@ -591,7 +591,7 @@ export function TopBar() {
                 duration: shouldReduceMotion ? 0.1 : 0.38,
                 ease: EASE_OUT,
               }}
-              className={`absolute top-0 right-3 z-50 hidden w-73 select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:left-6 md:w-76 ${
+              className={`absolute top-0 right-3 z-50 hidden w-73 select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-76 ${
                 isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
               }`}
             >
