@@ -292,7 +292,7 @@ function TicketCardContent({
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClose}
-          className="mt-4 flex h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[#080d19] px-4 font-bold text-white shadow-sm transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-5 sm:h-[50px]"
+          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#080d19] px-4 font-bold text-white shadow-sm transition-all duration-150 hover:bg-slate-900 active:scale-[0.98] sm:mt-5 sm:h-12.5"
         >
           <AppStoreIcon className="size-5 shrink-0 text-[#5eb0fa]" />
           <span className="font-display text-[15px] font-bold tracking-tight text-[#5eb0fa] sm:text-[15.5px]">
@@ -308,7 +308,7 @@ function TicketCardContent({
 
       {/* Refined gentle Scalloped bottom edge matching paper perforations */}
       <svg
-        className="block -mt-px h-[9px] w-full fill-current text-[#1576e6]"
+        className="block -mt-px h-2.25 w-full fill-current text-[#1576e6]"
         viewBox="0 0 304 9"
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -569,7 +569,7 @@ export function TopBar() {
             {/* Spacer placeholder on desktop to reserve layout space in nav flex row */}
             {!isBoothPage && (
               <div
-                className="hidden sm:block sm:h-10 sm:w-[262px] sm:shrink-0 md:w-[274px]"
+                className="hidden sm:block sm:h-10 sm:w-65.5 sm:shrink-0 md:w-68.5"
                 aria-hidden="true"
               />
             )}
@@ -591,7 +591,7 @@ export function TopBar() {
                 duration: shouldReduceMotion ? 0.1 : 0.38,
                 ease: EASE_OUT,
               }}
-              className={`absolute top-0 right-3 z-50 hidden w-[292px] select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:right-6 md:w-[304px] ${
+              className={`absolute top-0 right-3 z-50 hidden w-73 select-none drop-shadow-[0_4px_14px_rgba(15,23,42,0.08)] sm:block sm:left-6 md:w-76 ${
                 isTicketHidden ? "pointer-events-none" : "pointer-events-auto"
               }`}
             >

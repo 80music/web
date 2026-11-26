@@ -93,45 +93,49 @@ function PhysicalStripPreview({
 
   return (
     <div
-      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[152px] sm:w-[168px] bg-white px-[6%] ${
-        isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-      } transition-all duration-200 ${
+      className={`relative mx-auto select-none aspect-[9/16] w-[152px] sm:w-[168px] bg-white transition-all duration-200 ${
         isSelected
           ? "rotate-0 -translate-y-1.5 ring-2 ring-brand-primary ring-offset-4 ring-offset-surface-secondary shadow-[0_24px_44px_-14px_rgba(20,54,95,0.24),0_4px_12px_rgba(20,54,95,0.08)]"
           : `${tiltClass} group-hover:rotate-0 group-hover:-translate-y-1 shadow-[0_14px_28px_-12px_rgba(20,54,95,0.16),0_2px_6px_rgba(20,54,95,0.06)] group-hover:shadow-[0_20px_38px_-14px_rgba(20,54,95,0.2)]`
       }`}
     >
-      {isTopLogo && brandBand}
-
-      {/* Photo Cuts */}
       <div
-        className={`flex-1 min-h-0 grid gap-1.5 ${
-          photoCount === 1
-            ? "grid-rows-1"
-            : photoCount === 2
-            ? "grid-rows-2"
-            : "grid-rows-3"
+        className={`absolute inset-0 flex flex-col px-[6%] ${
+          isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
         }`}
       >
-        {frames.map((frame, i) => (
-          <div
-            key={i}
-            className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
-          >
-            <div className="absolute inset-[22%]">
-              <Image
-                src={frame.src}
-                alt={frame.alt}
-                fill
-                sizes="100px"
-                className="object-contain"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+        {isTopLogo && brandBand}
 
-      {!isTopLogo && brandBand}
+        {/* Photo Cuts */}
+        <div
+          className={`flex-1 min-h-0 grid gap-1.5 ${
+            photoCount === 1
+              ? "grid-rows-1"
+              : photoCount === 2
+              ? "grid-rows-2"
+              : "grid-rows-3"
+          }`}
+        >
+          {frames.map((frame, i) => (
+            <div
+              key={i}
+              className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
+            >
+              <div className="absolute inset-[22%]">
+                <Image
+                  src={frame.src}
+                  alt={frame.alt}
+                  fill
+                  sizes="100px"
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {!isTopLogo && brandBand}
+      </div>
     </div>
   );
 }
@@ -533,97 +537,99 @@ export function BoothStudio() {
             {/* Right: Full-Height Live 9:16 White Print on Soft Studio Mat */}
             <aside className="lg:col-span-4 flex flex-col gap-4">
               <div className="w-full flex-1 rounded-2xl bg-surface-secondary py-6 px-5 flex flex-col items-center justify-center">
-                <div
-                  className={`w-[224px] sm:w-[238px] aspect-[9/16] bg-white px-[6%] ${
-                    isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-                  } shadow-[0_16px_36px_-12px_rgba(20,54,95,0.18)] flex flex-col`}
-                >
-                  {isTopLogo && (
-                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
-                      <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
-                        <Image
-                          src="/images/chordisol-logo.png"
-                          alt=""
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <span className="font-display text-[11px] font-bold text-fg-display">
-                        Chordisol
-                      </span>
-                    </div>
-                  )}
-
+                <div className="relative w-[224px] sm:w-[238px] aspect-[9/16] bg-white shadow-[0_16px_36px_-12px_rgba(20,54,95,0.18)]">
                   <div
-                    className={`flex-1 min-h-0 grid gap-2 ${
-                      slotCount === 1
-                        ? "grid-rows-1"
-                        : slotCount === 2
-                        ? "grid-rows-2"
-                        : "grid-rows-3"
+                    className={`absolute inset-0 flex flex-col px-[6%] ${
+                      isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
                     }`}
                   >
-                    {new Array(slotCount).fill(0).map((_, slotIdx) => {
-                      const photo = photos[slotIdx];
-                      const isRetakingThis = retakeSlotIndex === slotIdx;
+                    {isTopLogo && (
+                      <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
+                        <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+                          <Image
+                            src="/images/chordisol-logo.png"
+                            alt=""
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <span className="font-display text-[11px] font-bold text-fg-display">
+                          Chordisol
+                        </span>
+                      </div>
+                    )}
 
-                      return (
-                        <div
-                          key={slotIdx}
-                          onClick={() => {
-                            if (photo) {
-                              setRetakeSlotIndex(slotIdx);
-                            }
-                          }}
-                          className={`group relative size-full overflow-hidden rounded-[2px] transition-all ${
-                            isRetakingThis
-                              ? "ring-2 ring-brand-primary ring-offset-1"
-                              : photo
-                              ? "cursor-pointer"
-                              : "bg-surface-secondary"
-                          }`}
-                        >
-                          {photo ? (
-                            <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={photo}
-                                alt={`Shot ${slotIdx + 1}`}
-                                className="size-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-fg-display/0 group-hover:bg-fg-display/40 transition-colors flex items-center justify-center">
-                                <span className="opacity-0 group-hover:opacity-100 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-fg-display shadow-xs transition-opacity">
-                                  Retake
+                    <div
+                      className={`flex-1 min-h-0 grid gap-2 ${
+                        slotCount === 1
+                          ? "grid-rows-1"
+                          : slotCount === 2
+                          ? "grid-rows-2"
+                          : "grid-rows-3"
+                      }`}
+                    >
+                      {new Array(slotCount).fill(0).map((_, slotIdx) => {
+                        const photo = photos[slotIdx];
+                        const isRetakingThis = retakeSlotIndex === slotIdx;
+
+                        return (
+                          <div
+                            key={slotIdx}
+                            onClick={() => {
+                              if (photo) {
+                                setRetakeSlotIndex(slotIdx);
+                              }
+                            }}
+                            className={`group relative size-full overflow-hidden rounded-[2px] transition-all ${
+                              isRetakingThis
+                                ? "ring-2 ring-brand-primary ring-offset-1"
+                                : photo
+                                ? "cursor-pointer"
+                                : "bg-surface-secondary"
+                            }`}
+                          >
+                            {photo ? (
+                              <>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={photo}
+                                  alt={`Shot ${slotIdx + 1}`}
+                                  className="size-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-fg-display/0 group-hover:bg-fg-display/40 transition-colors flex items-center justify-center">
+                                  <span className="opacity-0 group-hover:opacity-100 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-fg-display shadow-xs transition-opacity">
+                                    Retake
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex size-full items-center justify-center">
+                                <span className="font-mono text-xs font-medium text-text-muted/60">
+                                  0{slotIdx + 1}
                                 </span>
                               </div>
-                            </>
-                          ) : (
-                            <div className="flex size-full items-center justify-center">
-                              <span className="font-mono text-xs font-medium text-text-muted/60">
-                                0{slotIdx + 1}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {!isTopLogo && (
-                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
-                      <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
-                        <Image
-                          src="/images/chordisol-logo.png"
-                          alt=""
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <span className="font-display text-[11px] font-bold text-fg-display">
-                        Chordisol
-                      </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
+
+                    {!isTopLogo && (
+                      <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
+                        <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+                          <Image
+                            src="/images/chordisol-logo.png"
+                            alt=""
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <span className="font-display text-[11px] font-bold text-fg-display">
+                          Chordisol
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {completedCount > 0 && (

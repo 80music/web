@@ -19,20 +19,20 @@ export async function generateMetadata({
 
   return {
     title: `Photobooth Strip • ${id}`,
-    description: "4-cut acoustic memory strip from Chordisol Photobooth.",
+    description: "Chordisol Photobooth Story Strip.",
     robots: {
       index: false,
       follow: false,
     },
     openGraph: {
       title: `Chordisol Photobooth Strip • ${id}`,
-      description: "4-cut acoustic memory strip from Chordisol Photobooth.",
+      description: "Chordisol Photobooth Story Strip.",
       images: imgUrl ? [{ url: imgUrl }] : [],
     },
     twitter: {
       card: "summary_large_image",
       title: `Chordisol Photobooth Strip • ${id}`,
-      description: "4-cut acoustic memory strip from Chordisol Photobooth.",
+      description: "Chordisol Photobooth Story Strip.",
       images: imgUrl ? [imgUrl] : [],
     },
   };
@@ -52,8 +52,8 @@ export default function StripPage(props: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white font-sans text-sm">
-          Loading photobooth strip...
+        <div className="min-h-[calc(100vh-64px)] bg-bg flex items-center justify-center text-text-muted font-sans text-sm">
+          Loading strip...
         </div>
       }
     >

@@ -176,7 +176,7 @@ function CurriculumAutoCarousel() {
       </div>
 
       {/* 3-Item Card Stack: bottom (active), top (stacked peek), buffer (invisible prepare) */}
-      <div className="relative mt-auto pt-2.5 h-[74px] sm:h-[78px]">
+      <div className="relative mt-auto pt-2.5 h-18.5 sm:h-19.5">
         <AnimatePresence initial={false}>
           {visibleCards.map(({ goal, slot }) => {
             return (
@@ -186,7 +186,7 @@ function CurriculumAutoCarousel() {
                 initial={slot === "buffer" ? "buffer" : false}
                 animate={slot}
                 exit="exit"
-                className="pointer-events-none absolute inset-x-0 top-2.5 flex h-[62px] sm:h-[66px] items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_4px_rgba(20,54,95,0.04)]"
+                className="pointer-events-none absolute inset-x-0 top-2.5 flex h-15.5 sm:h-16.5 items-center gap-3 rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 border border-[#14365f]/10 shadow-[0_2px_4px_rgba(20,54,95,0.04)]"
               >
                 <SingleVinylDisc
                   outer={goal.outer}

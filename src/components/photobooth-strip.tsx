@@ -158,76 +158,81 @@ export function PhotoboothStrip({
         e.stopPropagation();
         onSelectSticker?.(null);
       }}
-      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[262px] sm:w-[280px] bg-white px-[6%] ${
-        isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-      } shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
+      className={`relative mx-auto select-none aspect-[9/16] w-[262px] sm:w-[280px] bg-white shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
     >
-      {isTopLogo && brandBand}
-
-      {/* Photo Cuts Grid (Exact 1:1 parity with 1080x1920 canvasExport) */}
+      {/* Absolute inset-0 locks 100% definite height so h-[10%] and photo slots match 1080x1920 export 1:1 */}
       <div
-        className={`flex-1 min-h-0 grid gap-2 ${
-          photoCount === 1
-            ? "grid-rows-1"
-            : photoCount === 2
-            ? "grid-rows-2"
-            : "grid-rows-3"
+        className={`absolute inset-0 flex flex-col px-[6%] ${
+          isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
         }`}
       >
-        {slotIndices.map((index) => {
-          const photoUrl = photos[index];
+        {isTopLogo && brandBand}
 
-          return (
-            <div
-              key={index}
-              className="group relative size-full overflow-hidden rounded-[2px] bg-surface-secondary ring-1 ring-inset ring-black/5"
-            >
-              {photoUrl ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photoUrl}
-                    alt={`Photobooth shot ${index + 1}`}
-                    style={{ filter: activeFilter?.css || "none" }}
-                    className="size-full object-cover"
-                  />
+        {/* Photo Cuts Grid (Exact 1:1 parity with 1080x1920 canvasExport) */}
+        <div
+          className={`flex-1 min-h-0 grid gap-2 ${
+            photoCount === 1
+              ? "grid-rows-1"
+              : photoCount === 2
+              ? "grid-rows-2"
+              : "grid-rows-3"
+          }`}
+        >
+          {slotIndices.map((index) => {
+            const photoUrl = photos[index];
 
-                  {onRetakeSlot && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRetakeSlot(index);
-                      }}
-                      className="absolute right-2 top-2 z-20 hidden items-center gap-1 rounded-full bg-fg-display/90 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm transition-transform duration-150 hover:bg-fg-display active:scale-95 group-hover:flex cursor-pointer"
-                    >
-                      <svg
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        className="size-2.5"
-                        aria-hidden="true"
+            return (
+              <div
+                key={index}
+                className="group relative size-full overflow-hidden rounded-[2px] bg-surface-secondary ring-1 ring-inset ring-black/5"
+              >
+                {photoUrl ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photoUrl}
+                      alt={`Photobooth shot ${index + 1}`}
+                      style={{ filter: activeFilter?.css || "none" }}
+                      className="size-full object-cover"
+                    />
+
+                    {onRetakeSlot && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRetakeSlot(index);
+                        }}
+                        className="absolute right-2 top-2 z-20 hidden items-center gap-1 rounded-full bg-fg-display/90 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm transition-transform duration-150 hover:bg-fg-display active:scale-95 group-hover:flex cursor-pointer"
                       >
-                        <path d="M2.5 8a5.5 5.5 0 1 1 1.2 3.4M2.5 12V8h4" />
-                      </svg>
-                      <span>Retake</span>
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div className="flex size-full items-center justify-center bg-surface-secondary">
-                  <span className="font-mono text-xs font-medium text-text-muted/60">
-                    0{index + 1}
-                  </span>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          className="size-2.5"
+                          aria-hidden="true"
+                        >
+                          <path d="M2.5 8a5.5 5.5 0 1 1 1.2 3.4M2.5 12V8h4" />
+                        </svg>
+                        <span>Retake</span>
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-surface-secondary">
+                    <span className="font-mono text-xs font-medium text-text-muted/60">
+                      0{index + 1}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-      {!isTopLogo && brandBand}
+        {!isTopLogo && brandBand}
+      </div>
 
       {/* Interactive Sticker Layer (overflow-visible so edge handles never clip) */}
       {stickersVisible && stickers.length > 0 && (
