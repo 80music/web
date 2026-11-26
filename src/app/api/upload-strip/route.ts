@@ -34,32 +34,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let publicUrl = "";
-
-    // 1. Try Vercel Blob if token is configured
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      try {
-        const blob = await put(`strips/strip-${stripId}.${ext}`, buffer, {
-          access: "public",
-          contentType,
-        });
-        publicUrl = blob.url;
-      } catch (blobError) {
-        console.warn("Vercel blob upload failed, falling back to local storage:", blobError);
-      }
-    }
-
-    // 2. Fallback to in-memory/route storage if Blob is not available or failed
-    if (!publicUrl) {
-      storeStripImage(stripId, buffer, contentType);
-      const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
-      const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
-      publicUrl = `${proto}://${host}/api/strip-image/${stripId}`;
-    }
-
-    // 3. Google Drive Webhook Auto-Sync (awaited so serverless runtimes don't drop it)
+    // 1. Google Drive Webhook Auto-Sync (awaited so we capture fileId for serverless-safe mobile QR serving)
     const gdriveWebhook = process.env.GOOGLE_DRIVE_WEBHOOK_URL?.trim();
     let driveSynced = false;
+    let driveFileId = "";
     if (gdriveWebhook) {
       try {
         const webhookRes = await fetch(gdriveWebhook, {
@@ -73,10 +51,44 @@ export async function POST(request: NextRequest) {
             folderId: process.env.TARGET_FOLDER_ID?.trim() || "",
           }),
         });
-        driveSynced = webhookRes.ok;
+        if (webhookRes.ok) {
+          driveSynced = true;
+          try {
+            const driveJson = await webhookRes.json();
+            if (typeof driveJson?.fileId === "string" && driveJson.fileId.length > 0) {
+              driveFileId = driveJson.fileId;
+            }
+          } catch {
+            // Non-JSON response is still considered synced
+          }
+        }
       } catch (webhookErr) {
         console.warn("Google Drive sync error:", webhookErr);
       }
+    }
+
+    let publicUrl = "";
+
+    // 2. Try Vercel Blob if token is configured
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const blob = await put(`strips/strip-${stripId}.${ext}`, buffer, {
+          access: "public",
+          contentType,
+        });
+        publicUrl = blob.url;
+      } catch (blobError) {
+        console.warn("Vercel blob upload failed, falling back to Drive/local proxy:", blobError);
+      }
+    }
+
+    // 3. Always warm local memory + serve via same-origin proxy (with ?driveId= for cross-instance Vercel persistence)
+    if (!publicUrl) {
+      storeStripImage(stripId, buffer, contentType);
+      const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
+      const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+      const driveQuery = driveFileId ? `?driveId=${encodeURIComponent(driveFileId)}` : "";
+      publicUrl = `${proto}://${host}/api/strip-image/${stripId}${driveQuery}`;
     }
 
     return NextResponse.json({
@@ -84,6 +96,7 @@ export async function POST(request: NextRequest) {
       url: publicUrl,
       stripId,
       driveSynced,
+      driveFileId: driveFileId || undefined,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Internal Server Error";

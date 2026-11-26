@@ -18,8 +18,11 @@ export function StripMobileClient({ stripId, imgUrl }: StripMobileClientProps) {
 
     try {
       const response = await fetch(imgUrl);
+      if (!response.ok) {
+        throw new Error(`Image fetch failed with status ${response.status}`);
+      }
       const blob = await response.blob();
-      const mimeType = blob.type || "image/jpeg";
+      const mimeType = blob.type.startsWith("image/") ? blob.type : "image/jpeg";
       const ext = mimeType === "image/png" ? "png" : "jpg";
       const file = new File([blob], `chordisol-story-${stripId}.${ext}`, {
         type: mimeType,
