@@ -1,7 +1,8 @@
 "use client";
 
+import { motion, useReducedMotion, type PanInfo } from "motion/react";
 import Image from "next/image";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   getPhotoCountForVariation,
   isTopLogoVariation,
@@ -20,6 +21,13 @@ const PREVIEW_SAMPLES = [
   { src: "/images/mascots/mascot-hill.png", alt: "Studio sample 3", bg: "bg-[#ebf2fa]" },
 ] as const;
 
+const SPRING_SLIDE = {
+  type: "spring" as const,
+  stiffness: 260,
+  damping: 32,
+  mass: 0.9,
+};
+
 interface BoothStripSliderProps {
   options: readonly StripSliderOption[];
   selectedId: LayoutVariationId;
@@ -31,96 +39,86 @@ export function BoothStripSlider({
   selectedId,
   onSelect,
 }: BoothStripSliderProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const programmaticUntilRef = useRef<number>(0);
+  const shouldReduceMotion = useReducedMotion();
+  const wheelCooldownRef = useRef<number>(0);
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const selectedIndex = Math.max(
     0,
     options.findIndex((o) => o.id === selectedId)
   );
 
-  const scrollToIndex = (index: number, behavior: ScrollBehavior = "smooth") => {
-    const track = trackRef.current;
-    const item = itemRefs.current[index];
-    if (!track || !item) return;
+  const itemWidth = isDesktop ? 196 : 168;
+  const itemGap = isDesktop ? 36 : 24;
+  const stepSize = itemWidth + itemGap;
 
-    programmaticUntilRef.current = Date.now() + 450;
-    const targetLeft =
-      item.offsetLeft - (track.clientWidth - item.clientWidth) / 2;
-    track.scrollTo({ left: targetLeft, behavior });
-  };
-
-  // Center the initial selected strip on mount without jarring jump
-  useEffect(() => {
-    scrollToIndex(selectedIndex, "instant");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSelectIndex = (index: number) => {
-    const bounded = Math.max(0, Math.min(options.length - 1, index));
-    onSelect(options[bounded].id);
-    scrollToIndex(bounded, "smooth");
-  };
-
-  const handleScroll = () => {
-    if (Date.now() < programmaticUntilRef.current) return;
-
-    if (scrollTimerRef.current) {
-      clearTimeout(scrollTimerRef.current);
+  const selectIndex = (nextIdx: number) => {
+    const bounded = Math.max(0, Math.min(options.length - 1, nextIdx));
+    if (bounded !== selectedIndex) {
+      onSelect(options[bounded].id);
     }
+  };
 
-    scrollTimerRef.current = setTimeout(() => {
-      const track = trackRef.current;
-      if (!track) return;
+  const handleDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    const swipeThreshold = 42;
+    const velocityThreshold = 260;
 
-      const trackCenter = track.scrollLeft + track.clientWidth / 2;
-      let closestIdx = 0;
-      let minDistance = Number.POSITIVE_INFINITY;
+    if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
+      selectIndex(selectedIndex + 1);
+    } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
+      selectIndex(selectedIndex - 1);
+    }
+  };
 
-      itemRefs.current.forEach((el, idx) => {
-        if (!el) return;
-        const elCenter = el.offsetLeft + el.clientWidth / 2;
-        const dist = Math.abs(trackCenter - elCenter);
-        if (dist < minDistance) {
-          minDistance = dist;
-          closestIdx = idx;
-        }
-      });
-
-      const closestOption = options[closestIdx];
-      if (closestOption && closestOption.id !== selectedId) {
-        onSelect(closestOption.id);
-      }
-    }, 90);
+  const handleWheel = (e: React.WheelEvent) => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Math.abs(e.deltaX) < 12) return;
+    const now = Date.now();
+    if (now < wheelCooldownRef.current) return;
+    wheelCooldownRef.current = now + 280;
+    selectIndex(selectedIndex + (e.deltaX > 0 ? 1 : -1));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight") {
       e.preventDefault();
-      handleSelectIndex(selectedIndex + 1);
+      selectIndex(selectedIndex + 1);
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
-      handleSelectIndex(selectedIndex - 1);
+      selectIndex(selectedIndex - 1);
     }
   };
+
+  const transition = shouldReduceMotion
+    ? { duration: 0.16, ease: "easeOut" as const }
+    : SPRING_SLIDE;
 
   return (
     <div
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      onWheel={handleWheel}
       aria-label="Photobooth strip layouts"
-      className="relative rounded-3xl bg-surface-secondary py-7 sm:py-9 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+      className="relative overflow-hidden rounded-3xl bg-[#f9fafc] border border-[#edf1f7] py-7 sm:py-9 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/60 select-none"
     >
-      {/* Subtle Edge Fades */}
+      {/* Soft Edge Fades matching lighter container */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 rounded-l-3xl bg-gradient-to-r from-surface-secondary to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 rounded-r-3xl bg-gradient-to-l from-surface-secondary to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 sm:w-20 bg-gradient-to-l from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
       />
 
       {/* Previous Button */}
@@ -128,8 +126,8 @@ export function BoothStripSlider({
         type="button"
         aria-label="Previous strip"
         disabled={selectedIndex === 0}
-        onClick={() => handleSelectIndex(selectedIndex - 1)}
-        className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.16)] border border-border-subtle transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+        onClick={() => selectIndex(selectedIndex - 1)}
+        className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.12)] border border-border-subtle/80 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-25 disabled:pointer-events-none cursor-pointer"
       >
         <svg
           viewBox="0 0 16 16"
@@ -150,8 +148,8 @@ export function BoothStripSlider({
         type="button"
         aria-label="Next strip"
         disabled={selectedIndex === options.length - 1}
-        onClick={() => handleSelectIndex(selectedIndex + 1)}
-        className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.16)] border border-border-subtle transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+        onClick={() => selectIndex(selectedIndex + 1)}
+        className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.12)] border border-border-subtle/80 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-25 disabled:pointer-events-none cursor-pointer"
       >
         <svg
           viewBox="0 0 16 16"
@@ -167,104 +165,133 @@ export function BoothStripSlider({
         </svg>
       </button>
 
-      {/* Smooth Native Scroll-Snap Carousel Track */}
-      <div
-        ref={trackRef}
-        onScroll={handleScroll}
-        className="flex items-center gap-6 sm:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth py-4 px-[calc(50%-86px)] sm:px-[calc(50%-98px)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {options.map((option, idx) => {
-          const isSelected = option.id === selectedId;
-          const photoCount = getPhotoCountForVariation(option.id);
-          const isTopLogo = isTopLogoVariation(option.id);
-          const frames = PREVIEW_SAMPLES.slice(0, photoCount);
+      {/* Unified Spring-Physics Carousel Stage */}
+      <div className="relative flex justify-center py-4 cursor-grab active:cursor-grabbing">
+        <motion.div
+          drag="x"
+          dragElastic={0.14}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={handleDragEnd}
+          animate={{
+            x: ((options.length - 1) / 2 - selectedIndex) * stepSize,
+          }}
+          transition={transition}
+          style={{ gap: `${itemGap}px` }}
+          className="flex items-center touch-pan-y"
+        >
+          {options.map((option, idx) => {
+            const isSelected = option.id === selectedId;
+            const distance = Math.abs(idx - selectedIndex);
+            const photoCount = getPhotoCountForVariation(option.id);
+            const isTopLogo = isTopLogoVariation(option.id);
+            const frames = PREVIEW_SAMPLES.slice(0, photoCount);
 
-          const brandBand = (
-            <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
-              <div className="relative size-3 shrink-0 overflow-hidden rounded-[3px]">
-                <Image
-                  src="/images/chordisol-logo.png"
-                  alt=""
-                  fill
-                  className="object-cover"
-                />
+            const brandBand = (
+              <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
+                <div className="relative size-3 shrink-0 overflow-hidden rounded-[3px]">
+                  <Image
+                    src="/images/chordisol-logo.png"
+                    alt=""
+                    fill
+                    className="object-cover"
+                    draggable={false}
+                  />
+                </div>
+                <span className="font-display text-[9.5px] font-bold text-fg-display tracking-tight">
+                  Chordisol
+                </span>
               </div>
-              <span className="font-display text-[9.5px] font-bold text-fg-display tracking-tight">
-                Chordisol
-              </span>
-            </div>
-          );
+            );
 
-          return (
-            <button
-              key={option.id}
-              ref={(el) => {
-                itemRefs.current[idx] = el;
-              }}
-              type="button"
-              onClick={() => handleSelectIndex(idx)}
-              className="group snap-center shrink-0 flex flex-col items-center focus-visible:outline-none cursor-pointer"
-            >
-              {/* 9:16 Physical Print Preview */}
-              <div
-                className={`relative select-none aspect-[9/16] w-[172px] sm:w-[196px] bg-white transition-[transform,opacity,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-                  isSelected
-                    ? "scale-100 opacity-100 ring-2 ring-brand-primary ring-offset-4 ring-offset-surface-secondary shadow-[0_24px_48px_-14px_rgba(20,54,95,0.24),0_4px_12px_rgba(20,54,95,0.08)]"
-                    : "scale-[0.9] opacity-65 hover:opacity-95 shadow-[0_12px_26px_-12px_rgba(20,54,95,0.14)]"
-                }`}
+            return (
+              <motion.button
+                key={option.id}
+                type="button"
+                onClick={() => selectIndex(idx)}
+                style={{ width: `${itemWidth}px` }}
+                animate={{
+                  scale: isSelected ? 1 : distance === 1 ? 0.91 : 0.85,
+                  opacity: isSelected ? 1 : distance === 1 ? 0.68 : 0.42,
+                  y: isSelected ? -4 : 2,
+                }}
+                whileHover={isSelected ? undefined : { opacity: 0.92, scale: 0.94 }}
+                transition={transition}
+                className="relative shrink-0 flex flex-col items-center focus-visible:outline-none cursor-pointer"
               >
+                {/* 9:16 Physical Print Card */}
                 <div
-                  className={`absolute inset-0 flex flex-col px-[6%] ${
-                    isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
+                  className={`relative w-full aspect-[9/16] bg-white transition-shadow duration-300 ${
+                    isSelected
+                      ? "shadow-[0_24px_48px_-14px_rgba(20,54,95,0.2),0_4px_12px_rgba(20,54,95,0.06)]"
+                      : "shadow-[0_12px_26px_-12px_rgba(20,54,95,0.12)]"
                   }`}
                 >
-                  {isTopLogo && brandBand}
+                  {/* Smooth Soft Blue Selection Frame */}
+                  <motion.div
+                    aria-hidden="true"
+                    initial={false}
+                    animate={{
+                      opacity: isSelected ? 1 : 0,
+                      scale: isSelected ? 1 : 0.97,
+                    }}
+                    transition={transition}
+                    className="pointer-events-none absolute -inset-[5px] rounded-[7px] border-[1.75px] border-brand-primary/80 shadow-[0_0_0_4px_rgba(35,145,255,0.1)]"
+                  />
 
                   <div
-                    className={`flex-1 min-h-0 grid gap-1.5 ${
-                      photoCount === 1
-                        ? "grid-rows-1"
-                        : photoCount === 2
-                        ? "grid-rows-2"
-                        : "grid-rows-3"
+                    className={`absolute inset-0 flex flex-col px-[6%] ${
+                      isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
                     }`}
                   >
-                    {frames.map((frame, i) => (
-                      <div
-                        key={i}
-                        className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
-                      >
-                        <div className="absolute inset-[22%]">
-                          <Image
-                            src={frame.src}
-                            alt={frame.alt}
-                            fill
-                            sizes="110px"
-                            className="object-contain"
-                          />
+                    {isTopLogo && brandBand}
+
+                    <div
+                      className={`flex-1 min-h-0 grid gap-1.5 ${
+                        photoCount === 1
+                          ? "grid-rows-1"
+                          : photoCount === 2
+                          ? "grid-rows-2"
+                          : "grid-rows-3"
+                      }`}
+                    >
+                      {frames.map((frame, i) => (
+                        <div
+                          key={i}
+                          className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
+                        >
+                          <div className="absolute inset-[22%]">
+                            <Image
+                              src={frame.src}
+                              alt={frame.alt}
+                              fill
+                              sizes="110px"
+                              className="object-contain pointer-events-none"
+                              draggable={false}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+
+                    {!isTopLogo && brandBand}
                   </div>
-
-                  {!isTopLogo && brandBand}
                 </div>
-              </div>
 
-              {/* Clean Label Below Strip */}
-              <span
-                className={`mt-4 font-display text-sm font-semibold transition-colors duration-200 ${
-                  isSelected ? "text-brand-primary" : "text-fg-display/70"
-                }`}
-              >
-                {option.title}
-              </span>
-            </button>
-          );
-        })}
+                {/* Clean Label Below Strip */}
+                <span
+                  className={`mt-4 font-display text-sm font-semibold transition-colors duration-200 ${
+                    isSelected ? "text-brand-primary" : "text-fg-display/65"
+                  }`}
+                >
+                  {option.title}
+                </span>
+              </motion.button>
+            );
+          })}
+        </motion.div>
       </div>
 
-      {/* Minimal Pill Pagination Dots */}
+      {/* Smooth Pill Pagination Dots */}
       <div className="mt-3 flex items-center justify-center gap-1.5" aria-hidden="true">
         {options.map((option, idx) => {
           const isSelected = option.id === selectedId;
@@ -273,7 +300,7 @@ export function BoothStripSlider({
               key={option.id}
               type="button"
               tabIndex={-1}
-              onClick={() => handleSelectIndex(idx)}
+              onClick={() => selectIndex(idx)}
               className={`h-1.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer ${
                 isSelected ? "w-5 bg-brand-primary" : "w-1.5 bg-divider hover:bg-text-muted/50"
               }`}
