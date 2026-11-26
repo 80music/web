@@ -104,19 +104,19 @@ export function BoothPrinterStage({
         }
         className="relative z-20 w-[336px] sm:w-[376px] select-none"
       >
-        {/* 1. Top 3D Sloped Ceramic Deck */}
+        {/* 1. Top 3D Sloped Matte Graphite Deck */}
         <div
           style={{
             clipPath: "polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%)",
           }}
-          className="h-7 w-full bg-gradient-to-b from-[#fbfdff] via-[#eef4fb] to-[#d6e2f0] border-t border-white shadow-[inset_0_1px_0_#ffffff]"
+          className="h-7 w-full bg-gradient-to-b from-[#3d414a] via-[#2e323a] to-[#23262d] border-t border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]"
         >
           {/* Paper cartridge seam */}
-          <div className="mx-auto mt-2.5 h-1 w-32 rounded-full bg-[#c4d3e6]/70" />
+          <div className="mx-auto mt-2.5 h-1 w-32 rounded-full bg-[#17191e]/85 shadow-[0_1px_0_rgba(255,255,255,0.08)]" />
         </div>
 
-        {/* 2. Sculpted Front Navy Chassis Faceplate */}
-        <div className="relative rounded-b-[18px] rounded-t-[4px] bg-gradient-to-b from-[#1c4473] via-[#14365f] to-[#0e2644] px-4 pt-3.5 pb-3 shadow-[0_18px_32px_-10px_rgba(14,34,62,0.42),0_3px_0_#09192e,inset_0_1px_0_rgba(255,255,255,0.22)]">
+        {/* 2. Sculpted Front Matte Charcoal Chassis Faceplate */}
+        <div className="relative rounded-b-[18px] rounded-t-[4px] bg-gradient-to-b from-[#282b32] via-[#1f2228] to-[#17191e] px-4 pt-3.5 pb-3 shadow-[0_18px_32px_-10px_rgba(15,17,22,0.45),0_3px_0_#111317,inset_0_1px_0_rgba(255,255,255,0.12)]">
           {/* Top Hardware Control Row */}
           <div className="flex items-center justify-between gap-3 mb-3">
             {/* Left: Embossed Brand Nameplate */}
@@ -124,13 +124,13 @@ export function BoothPrinterStage({
               <span className="font-display text-[11px] font-bold tracking-tight text-white/95 leading-none">
                 Chordisol
               </span>
-              <span className="font-mono text-[8px] text-[#8eb6e6] mt-0.5 leading-none">
+              <span className="font-mono text-[8px] text-[#8e95a3] mt-0.5 leading-none">
                 STUDIO PRINT
               </span>
             </div>
 
             {/* Center: Recessed Mini OLED Display */}
-            <div className="flex-1 max-w-[152px] rounded-[7px] bg-[#071222] border border-white/10 px-2.5 py-1.5 shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)]">
+            <div className="flex-1 max-w-[152px] rounded-[7px] bg-[#101216] border border-white/10 px-2.5 py-1.5 shadow-[inset_0_2px_5px_rgba(0,0,0,0.85)]">
               <div className="flex items-center justify-between gap-1.5 mb-1">
                 <span className="font-mono text-[8.5px] font-semibold tracking-wider text-[#7ec3ff] leading-none">
                   {statusLabel}
@@ -166,7 +166,7 @@ export function BoothPrinterStage({
                 {[0, 1, 2, 3].map((slot) => (
                   <span
                     key={slot}
-                    className="h-3.5 w-[2px] rounded-full bg-[#081526] shadow-[0_1px_0_rgba(255,255,255,0.12)]"
+                    className="h-3.5 w-[2px] rounded-full bg-[#0e1014] shadow-[0_1px_0_rgba(255,255,255,0.1)]"
                   />
                 ))}
               </div>
@@ -174,12 +174,12 @@ export function BoothPrinterStage({
           </div>
 
           {/* 3. Lower Recessed Metallic Paper Mouth & Roller */}
-          <div className="relative rounded-full bg-[#060f1d] p-[3px] shadow-[inset_0_3px_6px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.14)]">
-            <div className="relative h-3 w-full overflow-hidden rounded-full bg-[#030812]">
+          <div className="relative rounded-full bg-[#111318] p-[3px] shadow-[inset_0_3px_6px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.1)]">
+            <div className="relative h-3 w-full overflow-hidden rounded-full bg-[#0b0d10]">
               {/* Brushed steel internal feed roller sheen */}
               <div
                 aria-hidden="true"
-                className="absolute inset-x-4 top-[3px] h-[2px] rounded-full bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                className="absolute inset-x-4 top-[3px] h-[2px] rounded-full bg-gradient-to-r from-transparent via-white/22 to-transparent"
               />
 
               {/* Cutter blade shimmer across slot during cutting phase */}
@@ -207,7 +207,7 @@ export function BoothPrinterStage({
         {/* Deep ambient shadow cast from overhanging printer lip onto emerging paper */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 z-10 h-6 w-[288px] sm:w-[306px] bg-gradient-to-b from-[#060f1d]/35 via-[#060f1d]/10 to-transparent"
+          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 z-10 h-6 w-[288px] sm:w-[306px] bg-gradient-to-b from-[#111317]/32 via-[#111317]/10 to-transparent"
         />
 
         <motion.div

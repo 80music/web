@@ -288,6 +288,13 @@ export const STICKER_PALETTE: StickerAsset[] = [
     category: "mascots",
     defaultWidthPercent: 24,
   },
+  {
+    id: "mascot-duo-2",
+    name: "Chord Toss",
+    src: "/images/mascots/mascot-duo-2.png",
+    category: "mascots",
+    defaultWidthPercent: 24,
+  },
 
   // Chords / Keys
   {
