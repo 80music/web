@@ -7,7 +7,8 @@ export const maxDuration = 30;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { image, stripId } = body;
+    const image = body.image || body.dataUrl;
+    const { stripId } = body;
 
     if (!image || !stripId) {
       return NextResponse.json(
@@ -51,26 +52,33 @@ export async function POST(request: NextRequest) {
       publicUrl = `${proto}://${host}/api/strip-image/${stripId}`;
     }
 
-    // 3. Asynchronous Google Drive Webhook Auto-Sync
-    const gdriveWebhook = process.env.GOOGLE_DRIVE_WEBHOOK_URL;
+    // 3. Google Drive Webhook Auto-Sync (awaited so serverless runtimes don't drop it)
+    const gdriveWebhook = process.env.GOOGLE_DRIVE_WEBHOOK_URL?.trim();
+    let driveSynced = false;
     if (gdriveWebhook) {
-      fetch(gdriveWebhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: base64Clean,
-          filename: `strip-${stripId}.jpg`,
-          folderId: process.env.TARGET_FOLDER_ID || "",
-        }),
-      }).catch((webhookErr) => {
-        console.warn("Google Drive background sync error:", webhookErr);
-      });
+      try {
+        const webhookRes = await fetch(gdriveWebhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          redirect: "follow",
+          body: JSON.stringify({
+            image: base64Clean,
+            filename: `chordisol-strip-${stripId}.jpg`,
+            mimeType: "image/jpeg",
+            folderId: process.env.TARGET_FOLDER_ID?.trim() || "",
+          }),
+        });
+        driveSynced = webhookRes.ok;
+      } catch (webhookErr) {
+        console.warn("Google Drive sync error:", webhookErr);
+      }
     }
 
     return NextResponse.json({
       success: true,
       url: publicUrl,
       stripId,
+      driveSynced,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Internal Server Error";

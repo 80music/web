@@ -367,17 +367,17 @@ export function BoothStudio() {
     }
   };
 
-  const handleOpenMobileQr = async () => {
-    try {
-      setIsUploading(true);
-      const dataUrl = await exportCompressedStripForUpload(currentStripConfig);
+  const [uploadedPublicUrl, setUploadedPublicUrl] = useState<string | null>(null);
 
+  const uploadStripToCloud = async (): Promise<string | null> => {
+    try {
+      const dataUrl = await exportCompressedStripForUpload(currentStripConfig);
       const res = await fetch("/api/upload-strip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           stripId,
-          dataUrl,
+          image: dataUrl,
         }),
       });
 
@@ -386,14 +386,38 @@ export function BoothStudio() {
       }
 
       const data = await res.json();
+      setUploadedPublicUrl(data.url);
+      return data.url as string;
+    } catch (err) {
+      console.error("Strip upload error:", err);
+      return null;
+    }
+  };
+
+  const handlePrintStrip = () => {
+    setSelectedStickerId(null);
+    setUploadedPublicUrl(null);
+    setPrintRunKey((k) => k + 1);
+    setCurrentStep(4);
+    // Automatically save to Drive / cloud in the background while printing
+    void uploadStripToCloud();
+  };
+
+  const handleOpenMobileQr = async () => {
+    try {
+      setIsUploading(true);
+      const publicUrl = uploadedPublicUrl || (await uploadStripToCloud());
+
+      if (!publicUrl) {
+        alert("Failed to create mobile share link. Please try downloading directly.");
+        return;
+      }
+
       setQrModalData({
         isOpen: true,
-        publicUrl: data.url,
+        publicUrl,
         stripId,
       });
-    } catch (err) {
-      console.error("QR Cloud Upload error:", err);
-      alert("Failed to create mobile share link. Please try downloading directly.");
     } finally {
       setIsUploading(false);
     }
@@ -928,11 +952,7 @@ export function BoothStudio() {
               <div className="pt-4 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedStickerId(null);
-                    setPrintRunKey((k) => k + 1);
-                    setCurrentStep(4);
-                  }}
+                  onClick={handlePrintStrip}
                   className="inline-flex h-12 w-full sm:w-auto min-w-[180px] items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
                 >
                   Print Strip
