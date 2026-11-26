@@ -257,3 +257,18 @@
 body:has(dialog[open]) {
   overflow: hidden;
 }
+
+@keyframes booth-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.96;
+  }
+  100% {
+    opacity: 0;
+  }
+}

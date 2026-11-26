@@ -215,7 +215,7 @@ export function CameraViewfinder({
             setTimeout(() => {
               setIsFlashing(false);
               resolve();
-            }, 260);
+            }, 380);
           }
         }, 1000);
       });
@@ -376,9 +376,18 @@ export function CameraViewfinder({
           <div className="absolute bottom-0 right-0 size-4 border-b-2 border-r-2 border-white/45 rounded-br-[2px]" />
         </div>
 
-        {/* Shutter Flash */}
+        {/* macOS Photo Booth Full-Screen Strobe Flash + Viewfinder Flash */}
         {isFlashing && (
-          <div className="pointer-events-none absolute inset-0 z-50 bg-white transition-opacity duration-200" />
+          <>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-0 z-[100] bg-white animate-[booth-flash_360ms_ease-out_forwards]"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-50 bg-white animate-[booth-flash_360ms_ease-out_forwards]"
+            />
+          </>
         )}
 
         {/* Crisp Centered Countdown */}

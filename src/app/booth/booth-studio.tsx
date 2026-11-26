@@ -118,12 +118,12 @@ function PhysicalStripPreview({
             key={i}
             className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
           >
-            <div className="absolute inset-1.5">
+            <div className="absolute inset-[22%]">
               <Image
                 src={frame.src}
                 alt={frame.alt}
                 fill
-                sizes="140px"
+                sizes="100px"
                 className="object-contain"
               />
             </div>
@@ -164,7 +164,7 @@ function buildStickerItem(asset: StickerAsset, id: string, zIndex: number): Stic
 
 /**
  * Perimeter-aware shuffle for 9:16 Instagram Story strips:
- * Places 6 curated stickers strictly along corners & outer margins — never covering faces or the Chordisol logo.
+ * Places 6 curated stickers (3 mascots + 3 chord keys) strictly along corners & outer margins.
  */
 function buildShuffledStickers(variation: LayoutVariationId): StickerItem[] {
   const mascots = STICKER_PALETTE.filter((s) => s.category === "mascots").sort(
@@ -173,17 +173,14 @@ function buildShuffledStickers(variation: LayoutVariationId): StickerItem[] {
   const chords = STICKER_PALETTE.filter((s) => s.category === "chords").sort(
     () => 0.5 - Math.random()
   );
-  const badges = STICKER_PALETTE.filter((s) => s.category === "badges").sort(
-    () => 0.5 - Math.random()
-  );
 
   const chosen: StickerAsset[] = [
     mascots[0],
-    badges[0],
     chords[0],
-    chords[1],
-    badges[1],
     mascots[1],
+    chords[1],
+    chords[2],
+    mascots[2],
   ].filter(Boolean);
 
   const isTopLogo = isTopLogoVariation(variation);
@@ -436,36 +433,23 @@ export function BoothStudio() {
            ========================================================================= */}
         {currentStep === 1 && (
           <section className="flex flex-col gap-6">
-            {/* Editorial Top Row: Title + Quick Open Camera CTA */}
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div>
-                <h1 className="font-display text-2xl sm:text-[30px] font-bold tracking-tight text-fg-display">
-                  Choose your strip
-                </h1>
-                <p className="mt-1 text-xs font-medium text-text-muted">
-                  Instagram Story format (1080 × 1920)
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setCurrentStep(2)}
-                className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-brand-primary px-7 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
-              >
-                Open Camera
-              </button>
+            {/* Clean Centered Header */}
+            <div className="text-center">
+              <h1 className="font-display text-2xl sm:text-[30px] font-bold tracking-tight text-fg-display">
+                Choose your strip
+              </h1>
+              <p className="mt-1 text-xs font-medium text-text-muted">
+                Instagram Story format (1080 × 1920)
+              </p>
             </div>
 
             {/* Tactile Studio Print Table Mat */}
-            <div className="rounded-3xl bg-surface-secondary px-5 py-8 sm:px-10 sm:py-10 flex flex-col gap-10">
+            <div className="rounded-3xl bg-surface-secondary px-5 py-7 sm:px-10 sm:py-9 flex flex-col gap-8">
               {/* Row 1: Logo on Bottom */}
               <div>
-                <div className="mb-5 flex items-center justify-between">
-                  <h2 className="font-display text-sm font-semibold text-fg-display">
-                    Logo on bottom
-                  </h2>
-                  <span className="text-xs text-text-muted">Classic framing</span>
-                </div>
+                <h2 className="mb-5 font-display text-xs font-semibold text-text-muted">
+                  Logo on bottom
+                </h2>
 
                 <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-8 sm:gap-10 justify-items-center">
                   {BOTTOM_LOGO_OPTIONS.map((option) => {
@@ -499,12 +483,9 @@ export function BoothStudio() {
 
               {/* Row 2: Logo on Top */}
               <div>
-                <div className="mb-5 flex items-center justify-between">
-                  <h2 className="font-display text-sm font-semibold text-fg-display">
-                    Logo on top
-                  </h2>
-                  <span className="text-xs text-text-muted">Editorial header</span>
-                </div>
+                <h2 className="mb-5 font-display text-xs font-semibold text-text-muted">
+                  Logo on top
+                </h2>
 
                 <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-8 sm:gap-10 justify-items-center">
                   {TOP_LOGO_OPTIONS.map((option) => {
@@ -535,7 +516,7 @@ export function BoothStudio() {
               </div>
             </div>
 
-            {/* Bottom CTA */}
+            {/* Single Bottom CTA */}
             <div className="flex justify-center pt-1">
               <button
                 type="button"
@@ -549,10 +530,10 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 2: CAMERA VIEWFINDER + LIVE FILLING 9:16 STORY STRIP
+            STEP 2: CAMERA VIEWFINDER + FULL-HEIGHT LIVE 9:16 STORY STRIP
            ========================================================================= */}
         {currentStep === 2 && (
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
             {/* Left: Camera Viewfinder */}
             <div className="lg:col-span-8">
               <CameraViewfinder
@@ -568,24 +549,32 @@ export function BoothStudio() {
               />
             </div>
 
-            {/* Right: Live Filling 9:16 White Print on Soft Studio Mat */}
-            <aside className="lg:col-span-4 flex flex-col items-center gap-5">
-              <div className="w-full rounded-2xl bg-surface-secondary py-6 px-5 flex flex-col items-center">
+            {/* Right: Full-Height Live 9:16 White Print on Soft Studio Mat */}
+            <aside className="lg:col-span-4 flex flex-col gap-4">
+              <div className="w-full flex-1 rounded-2xl bg-surface-secondary py-6 px-5 flex flex-col items-center justify-center">
                 <div
-                  className={`w-[186px] aspect-[9/16] bg-white px-[6%] ${
+                  className={`w-[224px] sm:w-[238px] aspect-[9/16] bg-white px-[6%] ${
                     isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-                  } shadow-[0_14px_32px_-12px_rgba(20,54,95,0.16)] flex flex-col`}
+                  } shadow-[0_16px_36px_-12px_rgba(20,54,95,0.18)] flex flex-col`}
                 >
                   {isTopLogo && (
-                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
-                      <span className="font-display text-[9px] font-bold text-fg-display">
+                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
+                      <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+                        <Image
+                          src="/images/chordisol-logo.png"
+                          alt=""
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <span className="font-display text-[11px] font-bold text-fg-display">
                         Chordisol
                       </span>
                     </div>
                   )}
 
                   <div
-                    className={`flex-1 min-h-0 grid gap-1.5 ${
+                    className={`flex-1 min-h-0 grid gap-2 ${
                       slotCount === 1
                         ? "grid-rows-1"
                         : slotCount === 2
@@ -629,7 +618,7 @@ export function BoothStudio() {
                             </>
                           ) : (
                             <div className="flex size-full items-center justify-center">
-                              <span className="font-mono text-[11px] font-medium text-text-muted/60">
+                              <span className="font-mono text-xs font-medium text-text-muted/60">
                                 0{slotIdx + 1}
                               </span>
                             </div>
@@ -640,19 +629,27 @@ export function BoothStudio() {
                   </div>
 
                   {!isTopLogo && (
-                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
-                      <span className="font-display text-[9px] font-bold text-fg-display">
+                    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
+                      <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
+                        <Image
+                          src="/images/chordisol-logo.png"
+                          alt=""
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <span className="font-display text-[11px] font-bold text-fg-display">
                         Chordisol
                       </span>
                     </div>
                   )}
                 </div>
 
-                <p className="mt-4 text-center text-xs text-text-muted">
-                  {completedCount > 0
-                    ? "Click any captured photo to retake it"
-                    : "Photos fill in order automatically"}
-                </p>
+                {completedCount > 0 && (
+                  <p className="mt-3 text-center text-xs text-text-muted">
+                    Click any photo to retake
+                  </p>
+                )}
               </div>
 
               <button
@@ -662,7 +659,7 @@ export function BoothStudio() {
                   setRetakeSlotIndex(null);
                   setCurrentStep(3);
                 }}
-                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-brand-primary font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="inline-flex h-12 w-full shrink-0 items-center justify-center rounded-full bg-brand-primary font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isAllPhotosTaken
                   ? "Decorate Strip"
@@ -877,7 +874,6 @@ export function BoothStudio() {
                     { id: "all", label: "All" },
                     { id: "mascots", label: "Mascots" },
                     { id: "chords", label: "Keys" },
-                    { id: "badges", label: "Badges" },
                   ].map((tab) => {
                     const isTabActive = selectedStickerCategory === tab.id;
                     return (

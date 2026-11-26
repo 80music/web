@@ -81,7 +81,7 @@ export function BoothPrinterStage({
       : "READY";
 
   return (
-    <div className="w-full max-w-[460px] rounded-2xl bg-surface-secondary pt-7 pb-10 px-4 sm:px-6 flex flex-col items-center">
+    <div className="w-full max-w-[460px] rounded-2xl bg-surface-secondary pt-7 pb-3 px-4 sm:px-6 flex flex-col items-center">
       {/* =========================================================================
           3D PHYSICAL CHORDISOL PHOTO BOOTH PRINTER HEAD
          ========================================================================= */}
@@ -202,7 +202,9 @@ export function BoothPrinterStage({
          ========================================================================= */}
       <div
         style={{ perspective: "900px" }}
-        className="relative -mt-2.5 pt-2.5 pb-7 px-6 overflow-hidden flex justify-center w-full"
+        className={`relative -mt-2.5 pt-2.5 pb-16 px-10 flex justify-center w-full ${
+          phase === "ready" ? "overflow-visible" : "overflow-hidden"
+        }`}
       >
         {/* Deep ambient shadow cast from overhanging printer lip onto emerging paper */}
         <div
