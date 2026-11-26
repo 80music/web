@@ -6,6 +6,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { CameraViewfinder } from "@/components/camera-viewfinder";
 import { PhotoboothStrip } from "@/components/photobooth-strip";
 import { BoothPrinterStage } from "@/components/booth-printer-stage";
+import { BoothStripSlider, type StripSliderOption } from "@/components/booth-strip-slider";
 import { BoothQrModal } from "@/components/booth-qr-modal";
 import {
   STICKER_PALETTE,
@@ -21,30 +22,14 @@ import { downloadUltraHdStrip, exportCompressedStripForUpload } from "@/lib/canv
 
 type WizardStep = 1 | 2 | 3 | 4;
 
-interface StripOption {
-  id: LayoutVariationId;
-  title: string;
-  countLabel: string;
-  tiltClass: string;
-}
-
-const BOTTOM_LOGO_OPTIONS: readonly StripOption[] = [
-  { id: "variation-1", title: "3 Pics", countLabel: "Logo bottom", tiltClass: "-rotate-[1.2deg]" },
-  { id: "variation-2", title: "2 Pics", countLabel: "Logo bottom", tiltClass: "rotate-[0.6deg]" },
-  { id: "variation-3", title: "1 Pic", countLabel: "Logo bottom", tiltClass: "rotate-[1.2deg]" },
+const STRIP_SLIDER_OPTIONS: readonly StripSliderOption[] = [
+  { id: "variation-1", title: "3 Pics", countLabel: "Logo bottom" },
+  { id: "variation-2", title: "2 Pics", countLabel: "Logo bottom" },
+  { id: "variation-3", title: "1 Pic", countLabel: "Logo bottom" },
+  { id: "variation-4", title: "3 Pics", countLabel: "Logo top" },
+  { id: "variation-5", title: "2 Pics", countLabel: "Logo top" },
+  { id: "variation-6", title: "1 Pic", countLabel: "Logo top" },
 ];
-
-const TOP_LOGO_OPTIONS: readonly StripOption[] = [
-  { id: "variation-4", title: "3 Pics", countLabel: "Logo top", tiltClass: "rotate-[1.1deg]" },
-  { id: "variation-5", title: "2 Pics", countLabel: "Logo top", tiltClass: "-rotate-[0.7deg]" },
-  { id: "variation-6", title: "1 Pic", countLabel: "Logo top", tiltClass: "-rotate-[1.2deg]" },
-];
-
-const PREVIEW_SAMPLES = [
-  { src: "/images/mascots/mascot-radio.png", alt: "Studio sample 1", bg: "bg-[#eef4fb]" },
-  { src: "/images/mascots/mascot-duo-1.png", alt: "Studio sample 2", bg: "bg-[#f3f6fa]" },
-  { src: "/images/mascots/mascot-hill.png", alt: "Studio sample 3", bg: "bg-[#ebf2fa]" },
-] as const;
 
 function ChevronLeftIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -60,83 +45,6 @@ function ChevronLeftIcon({ className = "size-4" }: { className?: string }) {
     >
       <path d="M10 3.5L5.5 8 10 12.5" />
     </svg>
-  );
-}
-
-/**
- * Physical miniature 9:16 Instagram Story photo strip preview for Step 1.
- * Supports both Bottom Logo (variation-1..3) and Top Logo (variation-4..6).
- */
-function PhysicalStripPreview({
-  variation,
-  isSelected,
-  tiltClass,
-}: {
-  variation: LayoutVariationId;
-  isSelected: boolean;
-  tiltClass: string;
-}) {
-  const photoCount = getPhotoCountForVariation(variation);
-  const isTopLogo = isTopLogoVariation(variation);
-  const frames = PREVIEW_SAMPLES.slice(0, photoCount);
-
-  const brandBand = (
-    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
-      <div className="relative size-3 shrink-0 overflow-hidden rounded-[3px]">
-        <Image src="/images/chordisol-logo.png" alt="" fill className="object-cover" />
-      </div>
-      <span className="font-display text-[9px] font-bold text-fg-display tracking-tight">
-        Chordisol
-      </span>
-    </div>
-  );
-
-  return (
-    <div
-      className={`relative mx-auto select-none aspect-[9/16] w-[152px] sm:w-[168px] bg-white transition-all duration-200 ${
-        isSelected
-          ? "rotate-0 -translate-y-1.5 ring-2 ring-brand-primary ring-offset-4 ring-offset-surface-secondary shadow-[0_24px_44px_-14px_rgba(20,54,95,0.24),0_4px_12px_rgba(20,54,95,0.08)]"
-          : `${tiltClass} group-hover:rotate-0 group-hover:-translate-y-1 shadow-[0_14px_28px_-12px_rgba(20,54,95,0.16),0_2px_6px_rgba(20,54,95,0.06)] group-hover:shadow-[0_20px_38px_-14px_rgba(20,54,95,0.2)]`
-      }`}
-    >
-      <div
-        className={`absolute inset-0 flex flex-col px-[6%] ${
-          isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-        }`}
-      >
-        {isTopLogo && brandBand}
-
-        {/* Photo Cuts */}
-        <div
-          className={`flex-1 min-h-0 grid gap-1.5 ${
-            photoCount === 1
-              ? "grid-rows-1"
-              : photoCount === 2
-              ? "grid-rows-2"
-              : "grid-rows-3"
-          }`}
-        >
-          {frames.map((frame, i) => (
-            <div
-              key={i}
-              className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
-            >
-              <div className="absolute inset-[22%]">
-                <Image
-                  src={frame.src}
-                  alt={frame.alt}
-                  fill
-                  sizes="100px"
-                  className="object-contain"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {!isTopLogo && brandBand}
-      </div>
-    </div>
   );
 }
 
@@ -457,7 +365,7 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 1: 6-STRIP PRINT GRID
+            STEP 1: SMOOTH 6-STRIP HORIZONTAL SLIDER
            ========================================================================= */}
         {currentStep === 1 && (
           <section className="mx-auto w-full max-w-4xl flex flex-col gap-6">
@@ -471,35 +379,11 @@ export function BoothStudio() {
               </p>
             </div>
 
-            {/* Studio Print Mat — Pure Photostrips */}
-            <div className="rounded-3xl bg-surface-secondary px-6 py-8 sm:px-10 sm:py-9">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-9 justify-items-center">
-                {[...BOTTOM_LOGO_OPTIONS, ...TOP_LOGO_OPTIONS].map((option) => {
-                  const isSelected = layoutVariation === option.id;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => handleSelectVariation(option.id)}
-                      className="group flex flex-col items-center focus-visible:outline-none cursor-pointer"
-                    >
-                      <PhysicalStripPreview
-                        variation={option.id}
-                        isSelected={isSelected}
-                        tiltClass={option.tiltClass}
-                      />
-                      <span
-                        className={`mt-3.5 font-display text-sm font-semibold transition-colors ${
-                          isSelected ? "text-brand-primary" : "text-fg-display"
-                        }`}
-                      >
-                        {option.title}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <BoothStripSlider
+              options={STRIP_SLIDER_OPTIONS}
+              selectedId={layoutVariation}
+              onSelect={handleSelectVariation}
+            />
 
             {/* Single Bottom CTA */}
             <div className="flex justify-center pt-1">
