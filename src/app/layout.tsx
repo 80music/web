@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import localFont from "next/font/local";
 import { MotionProvider } from "@/components/motion-provider";
+import { SplashScreen } from "@/components/splash-screen";
 import { TopBar } from "@/components/top-bar";
 import "./globals.css";
 
@@ -163,6 +164,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col bg-bg text-fg-regular font-sans">
         <MotionProvider>
+          <SplashScreen />
           <Suspense fallback={<header className="sticky top-0 z-40 w-full h-14 border-b border-border-subtle/75 bg-surface-elevated/95" />}>
             <TopBar />
           </Suspense>

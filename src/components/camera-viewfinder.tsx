@@ -3,6 +3,21 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { playCountdownPip, playShutterSound } from "@/lib/audio-beeps";
 
+const VIEWFINDER_ASPECT = 4 / 3;
+
+function getSlotAspectRatio(slotCount: number): number {
+  const width = 1080;
+  const height = 1920;
+  const padX = Math.round(width * 0.06);
+  const padEdge = Math.round(width * 0.06);
+  const brandBandH = Math.round(height * 0.1);
+  const gap = Math.round(width * 0.028);
+  const photoAreaW = width - padX * 2;
+  const photoAreaH = height - padEdge - brandBandH;
+  const cellH = Math.floor((photoAreaH - gap * (slotCount - 1)) / slotCount);
+  return photoAreaW / cellH;
+}
+
 interface CameraViewfinderProps {
   photos: (string | null)[];
   onPhotoCaptured: (slotIndex: number, dataUrl: string) => void;
@@ -40,6 +55,15 @@ export function CameraViewfinder({
   const [isAutoSequenceRunning, setIsAutoSequenceRunning] = useState(false);
   const [activeSlotInternal, setActiveSlotInternal] = useState<number | null>(null);
   const [countdownDuration, setCountdownDuration] = useState<3 | 5>(3);
+
+  const slotAspect = getSlotAspectRatio(slotCount);
+  const isPillarboxed = slotAspect < VIEWFINDER_ASPECT;
+  const sideInsetPct = isPillarboxed
+    ? ((1 - slotAspect / VIEWFINDER_ASPECT) / 2) * 100
+    : 0;
+  const verticalInsetPct = !isPillarboxed
+    ? ((1 - VIEWFINDER_ASPECT / slotAspect) / 2) * 100
+    : 0;
 
   // Compute strictly ordered target slot (0 -> 1 -> ... -> slotCount - 1)
   const firstEmptySlot = photos.slice(0, slotCount).findIndex((p) => p === null);
@@ -160,27 +184,52 @@ export function CameraViewfinder({
     };
   }, [hasPermission, selectedDeviceId]);
 
-  // Grab High-Res Frame
+  // Grab High-Res Frame cropped 1:1 to the active viewfinder window
   const grabCurrentFrame = useCallback((): string | null => {
     const video = videoRef.current;
     if (!video || video.readyState < 2) return null;
 
-    const canvas = document.createElement("canvas");
     const vw = video.videoWidth || 1920;
     const vh = video.videoHeight || 1440;
-    canvas.width = vw;
-    canvas.height = vh;
+    const videoAspect = vw / vh;
+
+    // 1. Match the visible object-cover 4:3 viewfinder region
+    let visibleW = vw;
+    let visibleH = vh;
+    if (videoAspect > VIEWFINDER_ASPECT) {
+      visibleW = vh * VIEWFINDER_ASPECT;
+    } else {
+      visibleH = vw / VIEWFINDER_ASPECT;
+    }
+
+    // 2. Crop the active strip slot window centered inside the visible 4:3 region
+    let cropW = visibleW;
+    let cropH = visibleH;
+    if (slotAspect < VIEWFINDER_ASPECT) {
+      cropW = visibleH * slotAspect;
+    } else {
+      cropH = visibleW / slotAspect;
+    }
+
+    const sx = (vw - cropW) / 2;
+    const sy = (vh - cropH) / 2;
+    const outW = Math.round(cropW);
+    const outH = Math.round(cropH);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = outW;
+    canvas.height = outH;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
     // Mirror horizontally to match mirrored viewfinder
-    ctx.translate(vw, 0);
+    ctx.translate(outW, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, vw, vh);
+    ctx.drawImage(video, sx, sy, cropW, cropH, 0, 0, outW, outH);
 
     return canvas.toDataURL("image/jpeg", 0.95);
-  }, []);
+  }, [slotAspect]);
 
   // Single Slot Capture with Countdown
   const captureSlot = useCallback(
@@ -368,12 +417,50 @@ export function CameraViewfinder({
           className="size-full object-cover"
         />
 
-        {/* Subtle Corner Crop Guides */}
-        <div className="pointer-events-none absolute inset-4">
-          <div className="absolute top-0 left-0 size-4 border-t-2 border-l-2 border-white/45 rounded-tl-[2px]" />
-          <div className="absolute top-0 right-0 size-4 border-t-2 border-r-2 border-white/45 rounded-tr-[2px]" />
-          <div className="absolute bottom-0 left-0 size-4 border-b-2 border-l-2 border-white/45 rounded-bl-[2px]" />
-          <div className="absolute bottom-0 right-0 size-4 border-b-2 border-r-2 border-white/45 rounded-br-[2px]" />
+        {/* Frosted Dark Mask over Non-Active Crop Areas */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
+        >
+          {isPillarboxed ? (
+            <>
+              <div
+                style={{ width: `${sideInsetPct}%` }}
+                className="absolute inset-y-0 left-0 bg-black/55 backdrop-blur-md transition-[width] duration-300 ease-out"
+              />
+              <div
+                style={{ width: `${sideInsetPct}%` }}
+                className="absolute inset-y-0 right-0 bg-black/55 backdrop-blur-md transition-[width] duration-300 ease-out"
+              />
+            </>
+          ) : (
+            <>
+              <div
+                style={{ height: `${verticalInsetPct}%` }}
+                className="absolute inset-x-0 top-0 bg-black/55 backdrop-blur-md transition-[height] duration-300 ease-out"
+              />
+              <div
+                style={{ height: `${verticalInsetPct}%` }}
+                className="absolute inset-x-0 bottom-0 bg-black/55 backdrop-blur-md transition-[height] duration-300 ease-out"
+              />
+            </>
+          )}
+
+          {/* Crisp Active Crop Window + Inward Corner Brackets */}
+          <div
+            style={{
+              left: `${sideInsetPct}%`,
+              right: `${sideInsetPct}%`,
+              top: `${verticalInsetPct}%`,
+              bottom: `${verticalInsetPct}%`,
+            }}
+            className="absolute border border-white/35 transition-all duration-300 ease-out"
+          >
+            <div className="absolute top-3 left-3 size-4 border-t-2 border-l-2 border-white/85 rounded-tl-[2px]" />
+            <div className="absolute top-3 right-3 size-4 border-t-2 border-r-2 border-white/85 rounded-tr-[2px]" />
+            <div className="absolute bottom-3 left-3 size-4 border-b-2 border-l-2 border-white/85 rounded-bl-[2px]" />
+            <div className="absolute bottom-3 right-3 size-4 border-b-2 border-r-2 border-white/85 rounded-br-[2px]" />
+          </div>
         </div>
 
         {/* macOS Photo Booth Full-Screen Strobe Flash + Viewfinder Flash */}

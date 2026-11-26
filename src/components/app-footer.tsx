@@ -37,11 +37,11 @@ export function AppFooter() {
                 iOS 17+
               </span>
               <span className="inline-flex items-center gap-1 rounded-md bg-surface-secondary/70 px-2 py-0.5">
-                Swift Core Audio
+                Core Audio &amp; CoreML
               </span>
               <span className="inline-flex items-center gap-1 rounded-md bg-surface-secondary/70 px-2 py-0.5 text-[#1674d6]">
                 <span className="size-1.5 rounded-full bg-[#2391ff]" />
-                Account &amp; Progress Sync
+                On-Device Audio
               </span>
             </div>
           </div>
@@ -64,7 +64,7 @@ export function AppFooter() {
                   </a>
                 </li>
                 <li>
-                  <a href="#about" className="transition-colors hover:text-[#1674d6]">
+                  <a href="#bento-song-puzzles" className="transition-colors hover:text-[#1674d6]">
                     Song Puzzles
                   </a>
                 </li>

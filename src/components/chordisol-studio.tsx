@@ -30,14 +30,34 @@ interface CurriculumGoal {
 
 const CURRICULUM_GOALS: CurriculumGoal[] = [
   {
+    id: "music-fundamental",
+    title: "Music Fundamental",
+    badge: "Foundations",
+    description: "Learn notes, solfege, degrees, and octaves.",
+    exampleSong: "Twinkle Twinkle Little Star",
+    outer: "#0d9488",
+    ring: "#5eead4",
+    accent: "#0d9488",
+  },
+  {
     id: "trust-your-ear",
     title: "Trust Your Ear",
     badge: "Color & Mood",
-    description: "Feel if a chord fits before analyzing.",
+    description: "Hear when a chord fits before analyzing.",
     exampleSong: "Twinkle Twinkle Little Star",
     outer: "#1674d6",
     ring: "#73baff",
     accent: "#1674d6",
+  },
+  {
+    id: "this-or-that",
+    title: "This or That?",
+    badge: "Comparison",
+    description: "Compare different chord sequences by ear.",
+    exampleSong: "Stand By Me",
+    outer: "#e11d48",
+    ring: "#ff9bc5",
+    accent: "#e11d48",
   },
   {
     id: "fill-the-gap",
@@ -50,16 +70,6 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     accent: "#7c3aed",
   },
   {
-    id: "this-or-that",
-    title: "This or That?",
-    badge: "Comparison",
-    description: "Compare two chord voicings by ear.",
-    exampleSong: "Stand By Me",
-    outer: "#e11d48",
-    ring: "#ff9bc5",
-    accent: "#e11d48",
-  },
-  {
     id: "stack-stack",
     title: "Stack Stack",
     badge: "Note Building",
@@ -68,16 +78,6 @@ const CURRICULUM_GOALS: CurriculumGoal[] = [
     outer: "#ea580c",
     ring: "#ffd0a3",
     accent: "#ea580c",
-  },
-  {
-    id: "swap-notes",
-    title: "Swap Notes",
-    badge: "Voice Leading",
-    description: "Master inversions & voice leading.",
-    exampleSong: "Let It Be",
-    outer: "#0d9488",
-    ring: "#5eead4",
-    accent: "#0d9488",
   },
 ];
 
@@ -171,7 +171,7 @@ function CurriculumAutoCarousel() {
           </h2>
         </div>
         <p className="mt-1 text-xs font-medium text-fg-display/70 leading-relaxed">
-          5 interactive goals to train your ear across real song progressions.
+          Guided goals that adapt to your ear across real songs.
         </p>
       </div>
 

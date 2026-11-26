@@ -28,7 +28,7 @@ const PRIMARY_NAV_LINKS: readonly NavLinkItem[] = [
   { label: "Chord Recognition", href: "/#recognition" },
   { label: "Curriculum", href: "/#curriculum" },
   { label: "iOS App", href: "/#download" },
-  { label: "Song Puzzles", href: "/#about" },
+  { label: "Song Puzzles", href: "/#bento-song-puzzles" },
 ];
 
 const SIDEBAR_FOOTER_LINKS = [
@@ -278,7 +278,7 @@ function TicketCardContent({
               Full Song Curriculum
             </h3>
             <p className="mt-1 text-[11px] font-medium leading-tight text-slate-900/80 sm:text-[11.5px]">
-              5 interactive goals &amp; song puzzles
+              Adaptive ear training &amp; song puzzles
             </p>
           </div>
           <span className="font-display text-[16px] font-extrabold tracking-tight text-slate-950 sm:text-[17px]">

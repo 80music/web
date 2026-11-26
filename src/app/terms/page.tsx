@@ -5,14 +5,14 @@ import { AppFooter } from "@/components/app-footer";
 export const metadata: Metadata = {
   title: "Terms of Service — Chordisol",
   description:
-    "Terms and conditions governing your access to and use of Chordisol's mobile application and music-learning services.",
+    "Terms and conditions governing your access to and use of the Chordisol iOS & iPadOS application and website.",
   alternates: {
     canonical: "/terms",
   },
   openGraph: {
     title: "Terms of Service — Chordisol",
     description:
-      "Terms and conditions governing your access to and use of Chordisol's mobile application and music-learning services.",
+      "Terms and conditions governing your access to and use of the Chordisol iOS & iPadOS application and website.",
     url: "https://chordisol.com/terms",
     siteName: "Chordisol",
     locale: "en_US",
@@ -23,29 +23,19 @@ export const metadata: Metadata = {
 const TOC_ITEMS = [
   { id: "services", label: "1. Our Services" },
   { id: "ip", label: "2. Intellectual Property Rights" },
-  { id: "userreps", label: "3. User Representations" },
-  { id: "userreg", label: "4. User Registration" },
-  { id: "prohibited", label: "5. Prohibited Activities" },
-  { id: "ugc", label: "6. User Generated Contributions" },
-  { id: "license", label: "7. Contribution License" },
-  { id: "reviews", label: "8. Guidelines for Reviews" },
-  { id: "mobile", label: "9. Mobile Application License" },
-  { id: "advertisers", label: "10. Advertisers" },
-  { id: "sitemanage", label: "11. Services Management" },
-  { id: "ppyes", label: "12. Privacy Policy" },
-  { id: "terms", label: "13. Term and Termination" },
-  { id: "modifications", label: "14. Modifications and Interruptions" },
-  { id: "law", label: "15. Governing Law" },
-  { id: "disputes", label: "16. Dispute Resolution" },
-  { id: "corrections", label: "17. Corrections" },
-  { id: "disclaimer", label: "18. Disclaimer" },
-  { id: "liability", label: "19. Limitations of Liability" },
-  { id: "indemnification", label: "20. Indemnification" },
-  { id: "userdata", label: "21. User Data" },
-  { id: "electronic", label: "22. Electronic Communications, Transactions, and Signatures" },
-  { id: "california", label: "23. California Users and Residents" },
-  { id: "misc", label: "24. Miscellaneous" },
-  { id: "contact", label: "25. Contact Us" },
+  { id: "accounts", label: "3. Accounts, Guest Access & Deletion" },
+  { id: "prohibited", label: "4. Acceptable Use" },
+  { id: "feedback", label: "5. Feedback & Web Photo Booth" },
+  { id: "mobile", label: "6. Apple iOS & iPadOS Application License" },
+  { id: "privacy", label: "7. Privacy Policy" },
+  { id: "termination", label: "8. Term and Termination" },
+  { id: "modifications", label: "9. Modifications and Availability" },
+  { id: "law", label: "10. Governing Law & Dispute Resolution" },
+  { id: "disclaimer", label: "11. Disclaimer" },
+  { id: "liability", label: "12. Limitations of Liability" },
+  { id: "indemnification", label: "13. Indemnification" },
+  { id: "misc", label: "14. Miscellaneous" },
+  { id: "contact", label: "15. Contact Us" },
 ] as const;
 
 export default function TermsOfServicePage() {
@@ -73,10 +63,10 @@ export default function TermsOfServicePage() {
             Terms of Service
           </h1>
           <p className="mt-2 text-xs sm:text-sm font-medium text-slate-500">
-            Last Updated: November 27, 2026
+            Last Updated: November 26, 2026
           </p>
           <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600">
-            These Terms of Service constitute a legally binding agreement governing your access to and use of the Chordisol mobile application and related services.
+            These Terms of Service constitute a legally binding agreement governing your access to and use of the Chordisol iOS &amp; iPadOS application and website.
           </p>
         </header>
 
@@ -93,10 +83,8 @@ export default function TermsOfServicePage() {
           </h2>
           <div className="mt-4 space-y-4 text-[15px] sm:text-base leading-relaxed sm:leading-7 text-slate-600">
             <p>
-              We are Chordisol (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; &ldquo;our&rdquo;).
-            </p>
-            <p>
-              We operate the mobile application Chordisol (the &ldquo;App&rdquo;), as well as any other related products and services that refer or link to these legal terms (the &ldquo;Legal Terms&rdquo;) (collectively, the &ldquo;Services&rdquo;).
+              We are Chordisol (&ldquo;we,&rdquo; &ldquo;us,&rdquo; &ldquo;our&rdquo;). We operate the Chordisol mobile application for iOS and iPadOS (the &ldquo;App&rdquo;) and our website at{" "}
+              <span className="font-medium text-slate-800">chordisol.com</span> (collectively, the &ldquo;Services&rdquo;).
             </p>
             <p>
               You can contact us by email at{" "}
@@ -109,16 +97,10 @@ export default function TermsOfServicePage() {
               .
             </p>
             <p>
-              These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity (&ldquo;you&rdquo;), and Chordisol, concerning your access to and use of the Services. You agree that by accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms. <strong className="text-slate-900">IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.</strong>
+              By accessing or using the Services, you agree to be bound by these Legal Terms. If you do not agree with these Legal Terms, you must discontinue use of the Services immediately.
             </p>
             <p>
-              Supplemental terms and conditions or documents that may be posted on the Services from time to time are hereby expressly incorporated herein by reference. We reserve the right, in our sole discretion, to make changes or modifications to these Legal Terms from time to time. We will alert you about any changes by updating the &ldquo;Last updated&rdquo; date of these Legal Terms, and you waive any right to receive specific notice of each such change. It is your responsibility to periodically review these Legal Terms to stay informed of updates. You will be subject to, and will be deemed to have been made aware of and to have accepted, the changes in any revised Legal Terms by your continued use of the Services after the date such revised Legal Terms are posted.
-            </p>
-            <p>
-              All users who are minors in the jurisdiction in which they reside (generally under the age of 18) must have the permission of, and be directly supervised by, their parent or guardian to use the Services. If you are a minor, you must have your parent or guardian read and agree to these Legal Terms prior to you using the Services.
-            </p>
-            <p className="text-xs text-slate-500">
-              We recommend that you print a copy of these Legal Terms for your records.
+              Users who are minors in their jurisdiction (generally under 18) must have permission from a parent or legal guardian to use the Services.
             </p>
           </div>
         </section>
@@ -133,7 +115,7 @@ export default function TermsOfServicePage() {
               Table of Contents
             </h2>
             <span className="rounded-full bg-blue-100/80 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-              25 Sections
+              {TOC_ITEMS.length} Sections
             </span>
           </div>
           <ol className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 text-xs sm:grid-cols-2 sm:text-sm">
@@ -158,12 +140,12 @@ export default function TermsOfServicePage() {
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
               1. Our Services
             </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
+            <div className="mt-5 space-y-4">
               <p>
-                The information provided when using the Services is not intended for distribution to or use by any person or entity in any jurisdiction or country where such distribution or use would be contrary to law or regulation or which would subject us to any registration requirement within such jurisdiction or country. Accordingly, those persons who choose to access the Services from other locations do so on their own initiative and are solely responsible for compliance with local laws, if and to the extent local laws are applicable.
+                Chordisol provides free, ad-free music-learning tools including on-device acoustic chord and note recognition, interactive ear-training lessons, adaptive practice exercises, and our web companion at chordisol.com.
               </p>
               <p>
-                The Services are not tailored to comply with industry-specific regulations (Health Insurance Portability and Accountability Act (HIPAA), Federal Information Security Management Act (FISMA), etc.), so if your interactions would be subjected to such laws, you may not use the Services. You may not use the Services in a way that would violate the Gramm-Leach-Bliley Act (GLBA).
+                The Services are intended for personal, non-commercial educational use. Persons who access the Services from any jurisdiction do so on their own initiative and are responsible for compliance with applicable local laws.
               </p>
             </div>
           </section>
@@ -173,581 +155,234 @@ export default function TermsOfServicePage() {
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
               2. Intellectual Property Rights
             </h2>
-            <div className="mt-5 space-y-6 sm:space-y-8">
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Our intellectual property
-                </h3>
-                <div className="mt-3 space-y-4">
-                  <p>
-                    We are the owner or the licensee of all intellectual property rights in our Services, including all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics in the Services (collectively, the &ldquo;Content&rdquo;), as well as the trademarks, service marks, and logos contained therein (the &ldquo;Marks&rdquo;).
-                  </p>
-                  <p>
-                    Our Content and Marks are protected by copyright and trademark laws (and various other intellectual property rights and unfair competition laws) and treaties in the United States and around the world.
-                  </p>
-                  <p>
-                    The Content and Marks are provided in or through the Services &ldquo;AS IS&rdquo; for your personal, non-commercial use or internal business purpose only.
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Your use of our Services
-                </h3>
-                <div className="mt-3 space-y-4">
-                  <p>
-                    Subject to your compliance with these Legal Terms, including the{" "}
-                    <a href="#prohibited" className="font-medium text-[#1674d6] hover:underline">
-                      &ldquo;Prohibited Activities&rdquo;
-                    </a>{" "}
-                    section below, we grant you a non-exclusive, non-transferable, revocable license to:
-                  </p>
-                  <ul className="mt-3 list-disc space-y-2 pl-6">
-                    <li>access the Services; and</li>
-                    <li>
-                      download or print a copy of any portion of the Content to which you have properly gained access,
-                    </li>
-                  </ul>
-                  <p>
-                    solely for your personal, non-commercial use or internal business purpose.
-                  </p>
-                  <p>
-                    Except as set out in this section or elsewhere in our Legal Terms, no part of the Services and no Content or Marks may be copied, reproduced, aggregated, republished, uploaded, posted, publicly displayed, encoded, translated, transmitted, distributed, sold, licensed, or otherwise exploited for any commercial purpose whatsoever, without our express prior written permission.
-                  </p>
-                  <p>
-                    If you wish to make any use of the Services, Content, or Marks other than as set out in this section or elsewhere in our Legal Terms, please address your request to:{" "}
-                    <a
-                      href="mailto:support@chordisol.com"
-                      className="font-medium text-[#1674d6] hover:underline"
-                    >
-                      support@chordisol.com
-                    </a>
-                    . If we ever grant you the permission to post, reproduce, or publicly display any part of our Services or Content, you must identify us as the owners or licensors of the Services, Content, or Marks and ensure that any copyright or proprietary notice appears or is visible on posting, reproducing, or displaying our Content.
-                  </p>
-                  <p>
-                    We reserve all rights not expressly granted to you in and to the Services, Content, and Marks.
-                  </p>
-                  <p>
-                    Any breach of these Intellectual Property Rights will constitute a material breach of our Legal Terms and your right to use our Services will terminate immediately.
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Your submissions
-                </h3>
-                <div className="mt-3 space-y-4">
-                  <p>
-                    Please review this section and the{" "}
-                    <a href="#prohibited" className="font-medium text-[#1674d6] hover:underline">
-                      &ldquo;Prohibited Activities&rdquo;
-                    </a>{" "}
-                    section carefully prior to using our Services to understand the (a) rights you give us and (b) obligations you have when you post or upload any content through the Services.
-                  </p>
-                  <p>
-                    <strong className="text-slate-900">Submissions:</strong> By directly sending us any question, comment, suggestion, idea, feedback, or other information about the Services (&ldquo;Submissions&rdquo;), you agree to assign to us all intellectual property rights in such Submission. You agree that we shall own this Submission and be entitled to its unrestricted use and dissemination for any lawful purpose, commercial or otherwise, without acknowledgment or compensation to you.
-                  </p>
-                  <p>
-                    <strong className="text-slate-900">You are responsible for what you post or upload:</strong> By sending us Submissions through any part of the Services you:
-                  </p>
-                  <ul className="mt-3 list-disc space-y-2.5 pl-6">
-                    <li>
-                      confirm that you have read and agree with our{" "}
-                      <a href="#prohibited" className="font-medium text-[#1674d6] hover:underline">
-                        &ldquo;Prohibited Activities&rdquo;
-                      </a>{" "}
-                      and will not post, send, publish, upload, or transmit through the Services any Submission that is illegal, harassing, hateful, harmful, defamatory, obscene, bullying, abusive, discriminatory, threatening to any person or group, sexually explicit, false, inaccurate, deceitful, or misleading;
-                    </li>
-                    <li>
-                      to the extent permissible by applicable law, waive any and all moral rights to any such Submission;
-                    </li>
-                    <li>
-                      warrant that any such Submission are original to you or that you have the necessary rights and licenses to submit such Submissions and that you have full authority to grant us the above-mentioned rights in relation to your Submissions; and
-                    </li>
-                    <li>
-                      warrant and represent that your Submissions do not constitute confidential information.
-                    </li>
-                  </ul>
-                  <p>
-                    You are solely responsible for your Submissions and you expressly agree to reimburse us for any and all losses that we may suffer because of your breach of (a) this section, (b) any third party&apos;s intellectual property rights, or (c) applicable law.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 3. USER REPRESENTATIONS */}
-          <section id="userreps" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              3. User Representations
-            </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
+            <div className="mt-5 space-y-4">
               <p>
-                By using the Services, you represent and warrant that: (1) all registration information you submit will be true, accurate, current, and complete; (2) you will maintain the accuracy of such information and promptly update such registration information as necessary; (3) you have the legal capacity and you agree to comply with these Legal Terms; (4) you are not a minor in the jurisdiction in which you reside, or if a minor, you have received parental permission to use the Services; (5) you will not access the Services through automated or non-human means, whether through a bot, script or otherwise; (6) you will not use the Services for any illegal or unauthorized purpose; and (7) your use of the Services will not violate any applicable law or regulation.
+                We are the owner or licensee of all intellectual property rights in our Services, including source code, audio assets, lessons, graphics, illustrations, trademarks, and logos (collectively, the &ldquo;Content&rdquo; and &ldquo;Marks&rdquo;).
               </p>
               <p>
-                If you provide any information that is untrue, inaccurate, not current, or incomplete, we have the right to suspend or terminate your account and refuse any and all current or future use of the Services (or any portion thereof).
+                Subject to your compliance with these Legal Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Services solely for your personal, non-commercial use. No part of the Services may be copied, redistributed, sold, or exploited commercially without our prior written permission at{" "}
+                <a
+                  href="mailto:support@chordisol.com"
+                  className="font-medium text-[#1674d6] hover:underline"
+                >
+                  support@chordisol.com
+                </a>
+                .
               </p>
             </div>
           </section>
 
-          {/* 4. USER REGISTRATION */}
-          <section id="userreg" className="scroll-mt-24">
+          {/* 3. ACCOUNTS, GUEST ACCESS & DELETION */}
+          <section id="accounts" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              4. User Registration
+              3. Accounts, Guest Access &amp; Deletion
             </h2>
-            <p className="mt-5">
-              You may be required to register to use the Services. You agree to keep your password confidential and will be responsible for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.
-            </p>
+            <div className="mt-5 space-y-4">
+              <p>
+                You may use the Chordisol App immediately as a guest or create an account using Email &amp; Password, Sign in with Apple, or Google Sign-In to preserve your learning progress across devices.
+              </p>
+              <p>
+                If you create an account, you agree to provide accurate information and keep your login credentials secure. You may delete your account and associated server-side progress at any time directly inside the App via{" "}
+                <strong className="text-slate-900">Settings &rarr; Delete Account</strong>.
+              </p>
+            </div>
           </section>
 
-          {/* 5. PROHIBITED ACTIVITIES */}
+          {/* 4. ACCEPTABLE USE */}
           <section id="prohibited" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              5. Prohibited Activities
+              4. Acceptable Use
             </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
-              <p>
-                You may not access or use the Services for any purpose other than that for which we make the Services available. The Services may not be used in connection with any commercial endeavors except those that are specifically endorsed or approved by us.
-              </p>
-              <p className="font-semibold text-slate-800">
-                As a user of the Services, you agree not to:
-              </p>
-              <ul className="mt-4 list-disc space-y-2.5 pl-6">
+            <div className="mt-5 space-y-4">
+              <p>As a user of the Services, you agree not to:</p>
+              <ul className="list-disc space-y-2 pl-6">
                 <li>
-                  Systematically retrieve data or other content from the Services to create or compile, directly or indirectly, a collection, compilation, database, or directory without written permission from us.
+                  Reverse engineer, decompile, disassemble, or attempt to derive the source code of the App or its bundled machine-learning models, except as permitted by applicable law.
                 </li>
                 <li>
-                  Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information such as user passwords.
+                  Use automated scripts, bots, or scrapers to access, overload, or extract content from our APIs or website.
                 </li>
                 <li>
-                  Circumvent, disable, or otherwise interfere with security-related features of the Services, including features that prevent or restrict the use or copying of any Content or enforce limitations on the use of the Services and/or the Content contained therein.
+                  Attempt to bypass security controls, impersonate another user, or interfere with the operation of the Services.
                 </li>
                 <li>
-                  Disparage, tarnish, or otherwise harm, in our opinion, us and/or the Services.
-                </li>
-                <li>
-                  Use any information obtained from the Services in order to harass, abuse, or harm another person.
-                </li>
-                <li>
-                  Make improper use of our support services or submit false reports of abuse or misconduct.
-                </li>
-                <li>
-                  Use the Services in a manner inconsistent with any applicable laws or regulations.
-                </li>
-                <li>
-                  Engage in unauthorized framing of or linking to the Services.
-                </li>
-                <li>
-                  Upload or transmit (or attempt to upload or to transmit) viruses, Trojan horses, or other material, including excessive use of capital letters and spamming (continuous posting of repetitive text), that interferes with any party&apos;s uninterrupted use and enjoyment of the Services or modifies, impairs, disrupts, alters, or interferes with the use, features, functions, operation, or maintenance of the Services.
-                </li>
-                <li>
-                  Engage in any automated use of the system, such as using scripts to send comments or messages, or using any data mining, robots, or similar data gathering and extraction tools.
-                </li>
-                <li>
-                  Delete the copyright or other proprietary rights notice from any Content.
-                </li>
-                <li>
-                  Attempt to impersonate another user or person or use the username of another user.
-                </li>
-                <li>
-                  Upload or transmit (or attempt to upload or to transmit) any material that acts as a passive or active information collection or transmission mechanism, including without limitation, clear graphics interchange formats (&ldquo;gifs&rdquo;), 1&times;1 pixels, web bugs, cookies, or other similar devices (sometimes referred to as &ldquo;spyware&rdquo; or &ldquo;passive collection mechanisms&rdquo; or &ldquo;pcms&rdquo;).
-                </li>
-                <li>
-                  Interfere with, disrupt, or create an undue burden on the Services or the networks or services connected to the Services.
-                </li>
-                <li>
-                  Harass, annoy, intimidate, or threaten any of our employees or agents engaged in providing any portion of the Services to you.
-                </li>
-                <li>
-                  Attempt to bypass any measures of the Services designed to prevent or restrict access to the Services, or any portion of the Services.
-                </li>
-                <li>
-                  Copy or adapt the Services&apos; software, including but not limited to Flash, PHP, HTML, JavaScript, or other code.
-                </li>
-                <li>
-                  Except as permitted by applicable law, decipher, decompile, disassemble, or reverse engineer any of the software comprising or in any way making up a part of the Services.
-                </li>
-                <li>
-                  Except as may be the result of standard search engine or Internet browser usage, use, launch, develop, or distribute any automated system, including without limitation, any spider, robot, cheat utility, scraper, or offline reader that accesses the Services, or use or launch any unauthorized script or other software.
-                </li>
-                <li>
-                  Use a buying agent or purchasing agent to make purchases on the Services.
-                </li>
-                <li>
-                  Make any unauthorized use of the Services, including collecting usernames and/or email addresses of users by electronic or other means for the purpose of sending unsolicited email, or creating user accounts by automated means or under false pretenses.
-                </li>
-                <li>
-                  Use the Services as part of any effort to compete with us or otherwise use the Services and/or the Content for any revenue-generating endeavor or commercial enterprise.
+                  Use the Services for any unlawful purpose or unauthorized commercial endeavor.
                 </li>
               </ul>
             </div>
           </section>
 
-          {/* 6. USER GENERATED CONTRIBUTIONS */}
-          <section id="ugc" className="scroll-mt-24">
+          {/* 5. FEEDBACK & WEB PHOTO BOOTH */}
+          <section id="feedback" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              6. User Generated Contributions
+              5. Feedback &amp; Web Photo Booth
             </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
+            <div className="mt-5 space-y-4">
               <p>
-                The Services does not offer users to submit or post content. We may provide you with the opportunity to create, submit, post, display, transmit, perform, publish, distribute, or broadcast content and materials to us or on the Services, including but not limited to text, writings, video, audio, photographs, graphics, comments, suggestions, or personal information or other material (collectively, &ldquo;Contributions&rdquo;). Contributions may be viewable by other users of the Services and through third-party websites. As such, any Contributions you transmit may be treated in accordance with the Services&apos; Privacy Policy. When you create or make available any Contributions, you thereby represent and warrant that:
+                <strong className="text-slate-900">Feedback:</strong> If you send us questions, suggestions, or feedback regarding Chordisol, you agree that we may use that feedback to improve the Services without obligation or compensation to you.
               </p>
-              <ul className="mt-4 list-disc space-y-2.5 pl-6">
-                <li>
-                  The creation, distribution, transmission, public display, or performance, and the accessing, downloading, or copying of your Contributions do not and will not infringe the proprietary rights, including but not limited to the copyright, patent, trademark, trade secret, or moral rights of any third party.
-                </li>
-                <li>
-                  You are the creator and owner of or have the necessary licenses, rights, consents, releases, and permissions to use and to authorize us, the Services, and other users of the Services to use your Contributions in any manner contemplated by the Services and these Legal Terms.
-                </li>
-                <li>
-                  You have the written consent, release, and/or permission of each and every identifiable individual person in your Contributions to use the name or likeness of each and every such identifiable individual person to enable inclusion and use of your Contributions in any manner contemplated by the Services and these Legal Terms.
-                </li>
-                <li>
-                  Your Contributions are not false, inaccurate, or misleading.
-                </li>
-                <li>
-                  Your Contributions are not unsolicited or unauthorized advertising, promotional materials, pyramid schemes, chain letters, spam, mass mailings, or other forms of solicitation.
-                </li>
-                <li>
-                  Your Contributions are not obscene, lewd, lascivious, filthy, violent, harassing, libelous, slanderous, or otherwise objectionable (as determined by us).
-                </li>
-                <li>
-                  Your Contributions do not ridicule, mock, disparage, intimidate, or abuse anyone.
-                </li>
-                <li>
-                  Your Contributions are not used to harass or threaten (in the legal sense of those terms) any other person and to promote violence against a specific person or class of people.
-                </li>
-                <li>
-                  Your Contributions do not violate any applicable law, regulation, or rule.
-                </li>
-                <li>
-                  Your Contributions do not violate the privacy or publicity rights of any third party.
-                </li>
-                <li>
-                  Your Contributions do not violate any applicable law concerning child pornography, or otherwise intended to protect the health or well-being of minors.
-                </li>
-                <li>
-                  Your Contributions do not include any offensive comments that are connected to race, national origin, gender, sexual preference, or physical handicap.
-                </li>
-                <li>
-                  Your Contributions do not otherwise violate, or link to material that violates, any provision of these Legal Terms, or any applicable law or regulation.
-                </li>
-              </ul>
               <p>
-                Any use of the Services in violation of the foregoing violates these Legal Terms and may result in, among other things, termination or suspension of your rights to use the Services.
+                <strong className="text-slate-900">Web Photo Booth:</strong> The Chordisol App does not include public user-generated content feeds. If you use the optional Photo Booth on chordisol.com/booth, you retain ownership of your photos and represent that you have permission from anyone appearing in them.
               </p>
             </div>
           </section>
 
-          {/* 7. CONTRIBUTION LICENSE */}
-          <section id="license" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              7. Contribution License
-            </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
-              <p>
-                You and Services agree that we may access, store, process, and use any information and personal data that you provide following the terms of the Privacy Policy and your choices (including settings).
-              </p>
-              <p>
-                By submitting suggestions or other feedback regarding the Services, you agree that we can use and share such feedback for any purpose without compensation to you.
-              </p>
-              <p>
-                We do not assert any ownership over your Contributions. You retain full ownership of all of your Contributions and any intellectual property rights or other proprietary rights associated with your Contributions. We are not liable for any statements or representations in your Contributions provided by you in any area on the Services. You are solely responsible for your Contributions to the Services and you expressly agree to exonerate us from any and all responsibility and to refrain from any legal action against us regarding your Contributions.
-              </p>
-            </div>
-          </section>
-
-          {/* 8. GUIDELINES FOR REVIEWS */}
-          <section id="reviews" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              8. Guidelines for Reviews
-            </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
-              <p>
-                We may provide you areas on the Services to leave reviews or ratings. When posting a review, you must comply with the following criteria: (1) you should have firsthand experience with the person/entity being reviewed; (2) your reviews should not contain offensive profanity, or abusive, racist, offensive, or hateful language; (3) your reviews should not contain discriminatory references based on religion, race, gender, national origin, age, marital status, sexual orientation, or disability; (4) your reviews should not contain references to illegal activity; (5) you should not be affiliated with competitors if posting negative reviews; (6) you should not make any conclusions as to the legality of conduct; (7) you may not post any false or misleading statements; and (8) you may not organize a campaign encouraging others to post reviews, whether positive or negative.
-              </p>
-              <p>
-                We may accept, reject, or remove reviews in our sole discretion. We have absolutely no obligation to screen reviews or to delete reviews, even if anyone considers reviews objectionable or inaccurate. Reviews are not endorsed by us, and do not necessarily represent our opinions or the views of any of our affiliates or partners. We do not assume liability for any review or for any claims, liabilities, or losses resulting from any review. By posting a review, you hereby grant to us a perpetual, non-exclusive, worldwide, royalty-free, fully paid, assignable, and sublicensable right and license to reproduce, modify, translate, transmit by any means, display, perform, and/or distribute all content relating to review.
-              </p>
-            </div>
-          </section>
-
-          {/* 9. MOBILE APPLICATION LICENSE */}
+          {/* 6. APPLE iOS & iPadOS APPLICATION LICENSE */}
           <section id="mobile" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              9. Mobile Application License
+              6. Apple iOS &amp; iPadOS Application License
             </h2>
-            <div className="mt-5 space-y-6 sm:space-y-8">
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Use License
-                </h3>
-                <p className="mt-3">
-                  If you access the Services via Chordisol, then we grant you a revocable, non-exclusive, non-transferable, limited right to install and use Chordisol on wireless electronic devices owned or controlled by you, and to access and use Chordisol on such devices strictly in accordance with the terms and conditions of this mobile application license contained in these Legal Terms. You shall not: (1) except as permitted by applicable law, decompile, reverse engineer, disassemble, attempt to derive the source code of, or decrypt Chordisol; (2) make any modification, adaptation, improvement, enhancement, translation, or derivative work from Chordisol; (3) violate any applicable laws, rules, or regulations in connection with your access or use of Chordisol; (4) remove, alter, or obscure any proprietary notice (including any notice of copyright or trademark) posted by us or the licensors of Chordisol; (5) use Chordisol for any revenue-generating endeavor, commercial enterprise, or other purpose for which it is not designed or intended; (6) make Chordisol available over a network or other environment permitting access or use by multiple devices or users at the same time; (7) use Chordisol for creating a product, service, or software that is, directly or indirectly, competitive with or in any way a substitute for Chordisol; (8) use Chordisol to send automated queries to any website or to send any unsolicited commercial email; or (9) use any proprietary information or any of our interfaces or our other intellectual property in the design, development, manufacture, licensing, or distribution of any applications, accessories, or devices for use with Chordisol.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Apple and Android Devices
-                </h3>
-                <p className="mt-3">
-                  The following terms apply when you use Chordisol obtained from either the Apple Store or Google Play (each an &ldquo;App Distributor&rdquo;) to access the Services:
-                </p>
-                <ol className="mt-4 list-decimal space-y-3 pl-6">
-                  <li>
-                    The license granted to you for our App is limited to a non-transferable license to use the application on a device that utilizes the Apple iOS or Android operating systems, as applicable, and in accordance with the usage rules set forth in the applicable App Distributor&apos;s terms of service;
-                  </li>
-                  <li>
-                    We are responsible for providing any maintenance and support services with respect to Chordisol as specified in the terms and conditions of this mobile application license contained in these Legal Terms or as otherwise required under applicable law, and you acknowledge that each App Distributor has no obligation whatsoever to furnish any maintenance and support services with respect to Chordisol;
-                  </li>
-                  <li>
-                    In the event of any failure of Chordisol to conform to any applicable warranty, you may notify the applicable App Distributor, and Chordisol Distributor, in accordance with its terms and policies, may refund the purchase price, if any, paid for Chordisol, and to the maximum extent permitted by applicable law, Chordisol Distributor will have no other warranty obligation whatsoever with respect to Chordisol;
-                  </li>
-                  <li>
-                    You represent and warrant that (i) you are not located in a country that is subject to a US government embargo, or that has been designated by the US government as a &ldquo;terrorist supporting&rdquo; country and (ii) you are not listed on any US government list of prohibited or restricted parties;
-                  </li>
-                  <li>
-                    You must comply with applicable third-party terms of agreement when using Chordisol, e.g., if you have a VoIP application, then you must not be in violation of their wireless data service agreement when using Chordisol; and
-                  </li>
-                  <li>
-                    You acknowledge and agree that Chordisol Distributors are third-party beneficiaries of the terms and conditions in this mobile application license contained in these Legal Terms, and that each App Distributor will have the right (and will be deemed to have accepted the right) to enforce the terms and conditions in this mobile application license contained in these Legal Terms against you as a third-party beneficiary thereof.
-                  </li>
-                </ol>
-              </div>
+            <div className="mt-5 space-y-4">
+              <p>
+                The following terms apply when you obtain the Chordisol App from the Apple App Store:
+              </p>
+              <ol className="list-decimal space-y-3 pl-6">
+                <li>
+                  The license granted to you for the App is limited to a non-transferable license to use the App on Apple-branded iOS or iPadOS devices that you own or control, in accordance with the Usage Rules set forth in the Apple Media Services Terms and Conditions.
+                </li>
+                <li>
+                  Chordisol, and not Apple, is solely responsible for providing any maintenance and support services for the App as required under these Legal Terms or applicable law.
+                </li>
+                <li>
+                  To the maximum extent permitted by applicable law, Apple has no warranty obligation whatsoever with respect to the App.
+                </li>
+                <li>
+                  You represent and warrant that you are not located in a country subject to a U.S. government embargo or listed on any U.S. government list of prohibited or restricted parties.
+                </li>
+                <li>
+                  You acknowledge and agree that Apple and Apple&apos;s subsidiaries are third-party beneficiaries of these Legal Terms, and upon your acceptance of these Legal Terms, Apple will have the right (and will be deemed to have accepted the right) to enforce them against you as a third-party beneficiary.
+                </li>
+              </ol>
             </div>
           </section>
 
-          {/* 10. ADVERTISERS */}
-          <section id="advertisers" className="scroll-mt-24">
+          {/* 7. PRIVACY POLICY */}
+          <section id="privacy" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              10. Advertisers
+              7. Privacy Policy
             </h2>
-            <p className="mt-5">
-              We allow advertisers to display their advertisements and other information in certain areas of the Services, such as sidebar advertisements or banner advertisements. We simply provide the space to place such advertisements, and we have no other relationship with advertisers.
-            </p>
-          </section>
-
-          {/* 11. SERVICES MANAGEMENT */}
-          <section id="sitemanage" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              11. Services Management
-            </h2>
-            <p className="mt-5">
-              We reserve the right, but not the obligation, to: (1) monitor the Services for violations of these Legal Terms; (2) take appropriate legal action against anyone who, in our sole discretion, violates the law or these Legal Terms, including without limitation, reporting such user to law enforcement authorities; (3) in our sole discretion and without limitation, refuse, restrict access to, limit the availability of, or disable (to the extent technologically feasible) any of your Contributions or any portion thereof; (4) in our sole discretion and without limitation, notice, or liability, to remove from the Services or otherwise disable all files and content that are excessive in size or are in any way burdensome to our systems; and (5) otherwise manage the Services in a manner designed to protect our rights and property and to facilitate the proper functioning of the Services.
-            </p>
-          </section>
-
-          {/* 12. PRIVACY POLICY */}
-          <section id="ppyes" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              12. Privacy Policy
-            </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
+            <div className="mt-5 space-y-4">
               <p>
-                We care about data privacy and security. Please review our{" "}
+                We care about your privacy and handle all audio recognition strictly on your device. Please review our{" "}
                 <Link
                   href="/privacy"
                   className="font-semibold text-[#1674d6] underline underline-offset-4 hover:text-[#0f5bb5]"
                 >
                   Privacy Policy
                 </Link>
-                . By using the Services, you agree to be bound by our Privacy Policy, which is incorporated into these Legal Terms.
+                , which explains what account, progress, and technical information is processed and how you can delete your account. By using the Services, you agree to our Privacy Policy.
               </p>
               <p>
-                Please be advised the Services are hosted in Indonesia. If you access the Services from any other region of the world with laws or other requirements governing personal data collection, use, or disclosure that differ from applicable laws in Indonesia, then through your continued use of the Services, you are transferring your data to Indonesia, and you expressly consent to have your data transferred to and processed in Indonesia.
+                Our cloud services are hosted using infrastructure providers such as Google Cloud, Firebase, and Neon. By using synced features of the App, you consent to the processing of your account and learning progress data on those servers as described in our Privacy Policy.
               </p>
             </div>
           </section>
 
-          {/* 13. TERM AND TERMINATION */}
-          <section id="terms" className="scroll-mt-24">
+          {/* 8. TERM AND TERMINATION */}
+          <section id="termination" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              13. Term and Termination
+              8. Term and Termination
             </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
-              <p>
-                These Legal Terms shall remain in full force and effect while you use the Services. <strong className="text-slate-900">WITHOUT LIMITING ANY OTHER PROVISION OF THESE LEGAL TERMS, WE RESERVE THE RIGHT TO, IN OUR SOLE DISCRETION AND WITHOUT NOTICE OR LIABILITY, DENY ACCESS TO AND USE OF THE SERVICES (INCLUDING BLOCKING CERTAIN IP ADDRESSES), TO ANY PERSON FOR ANY REASON OR FOR NO REASON, INCLUDING WITHOUT LIMITATION FOR BREACH OF ANY REPRESENTATION, WARRANTY, OR COVENANT CONTAINED IN THESE LEGAL TERMS OR OF ANY APPLICABLE LAW OR REGULATION. WE MAY TERMINATE YOUR USE OR PARTICIPATION IN THE SERVICES OR DELETE YOUR ACCOUNT AND ANY CONTENT OR INFORMATION THAT YOU POSTED AT ANY TIME, WITHOUT WARNING, IN OUR SOLE DISCRETION.</strong>
-              </p>
-              <p>
-                If we terminate or suspend your account for any reason, you are prohibited from registering and creating a new account under your name, a fake or borrowed name, or the name of any third party, even if you may be acting on behalf of the third party. In addition to terminating or suspending your account, we reserve the right to take appropriate legal action, including without limitation pursuing civil, criminal, and injunctive redress.
-              </p>
-            </div>
+            <p className="mt-5">
+              These Legal Terms remain in effect while you use the Services. We reserve the right to suspend or terminate your access to the Services if you breach these Legal Terms or misuse the Services. You may stop using the Services or delete your account at any time.
+            </p>
           </section>
 
-          {/* 14. MODIFICATIONS AND INTERRUPTIONS */}
+          {/* 9. MODIFICATIONS AND AVAILABILITY */}
           <section id="modifications" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              14. Modifications and Interruptions
+              9. Modifications and Availability
             </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
+            <div className="mt-5 space-y-4">
               <p>
-                We reserve the right to change, modify, or remove the contents of the Services at any time or for any reason at our sole discretion without notice. However, we have no obligation to update any information on our Services. We will not be liable to you or any third party for any modification, price change, suspension, or discontinuance of the Services.
+                We may update, modify, or discontinue features of the Services or update these Legal Terms from time to time by revising the &ldquo;Last Updated&rdquo; date above. Your continued use of the Services after changes are posted constitutes acceptance of the updated Legal Terms.
               </p>
               <p>
-                We cannot guarantee the Services will be available at all times. We may experience hardware, software, or other problems or need to perform maintenance related to the Services, resulting in interruptions, delays, or errors. We reserve the right to change, revise, update, suspend, discontinue, or otherwise modify the Services at any time or for any reason without notice to you. You agree that we have no liability whatsoever for any loss, damage, or inconvenience caused by your inability to access or use the Services during any downtime or discontinuance of the Services. Nothing in these Legal Terms will be construed to obligate us to maintain and support the Services or to supply any corrections, updates, or releases in connection therewith.
+                While we strive to keep the Services reliable, we cannot guarantee uninterrupted availability and are not liable for temporary downtime, maintenance, or service interruptions.
               </p>
             </div>
           </section>
 
-          {/* 15. GOVERNING LAW */}
+          {/* 10. GOVERNING LAW & DISPUTE RESOLUTION */}
           <section id="law" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              15. Governing Law
+              10. Governing Law &amp; Dispute Resolution
             </h2>
-            <p className="mt-5">
-              These Legal Terms shall be governed by and defined following the laws of Indonesia. Chordisol and yourself irrevocably consent that the courts of Indonesia shall have exclusive jurisdiction to resolve any dispute which may arise in connection with these Legal Terms.
-            </p>
-          </section>
-
-          {/* 16. DISPUTE RESOLUTION */}
-          <section id="disputes" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              16. Dispute Resolution
-            </h2>
-            <div className="mt-5 space-y-6 sm:space-y-8">
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Binding Arbitration
-                </h3>
-                <p className="mt-3">
-                  If the parties are unable to resolve the dispute through informal negotiation, the dispute shall be finally resolved by arbitration in accordance with the United Nations Commission on International Trade Law Arbitration Rules in force at the time of commencement of the arbitration. The number of arbitrators shall be one (1). The seat, or legal place, or arbitration shall be Jakarta, Indonesia. The language of the proceedings shall be English. The governing law of these Legal Terms shall be substantive law of Indonesia.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Restrictions
-                </h3>
-                <p className="mt-3">
-                  The Parties agree that any arbitration shall be limited to the Dispute between the Parties individually. To the full extent permitted by law, (a) no arbitration shall be joined with any other proceeding; (b) there is no right or authority for any Dispute to be arbitrated on a class-action basis or to utilize class action procedures; and (c) there is no right or authority for any Dispute to be brought in a purported representative capacity on behalf of the general public or any other persons.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                  Exceptions to Arbitration
-                </h3>
-                <p className="mt-3">
-                  The Parties agree that the following Disputes are not subject to the above provisions concerning binding arbitration: (a) any Disputes seeking to enforce or protect, or concerning the validity of, any of the intellectual property rights of a Party; (b) any Dispute related to, or arising from, allegations of theft, piracy, invasion of privacy, or unauthorized use; and (c) any claim for injunctive relief. If this provision is found to be illegal or unenforceable, then neither Party will elect to arbitrate any Dispute falling within that portion of this provision found to be illegal or unenforceable and such Dispute shall be decided by a court of competent jurisdiction within the courts listed for jurisdiction above, and the Parties agree to submit to the personal jurisdiction of that court.
-                </p>
-              </div>
+            <div className="mt-5 space-y-4">
+              <p>
+                These Legal Terms are governed by and construed in accordance with the laws of Indonesia, without regard to conflict-of-law principles.
+              </p>
+              <p>
+                If a dispute arises, we encourage you to contact us first at{" "}
+                <a
+                  href="mailto:support@chordisol.com"
+                  className="font-medium text-[#1674d6] hover:underline"
+                >
+                  support@chordisol.com
+                </a>{" "}
+                so we can try to resolve it informally. Any unresolved dispute shall be subject to the exclusive jurisdiction of the competent courts of Indonesia.
+              </p>
             </div>
           </section>
 
-          {/* 17. CORRECTIONS */}
-          <section id="corrections" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              17. Corrections
-            </h2>
-            <p className="mt-5">
-              There may be information on the Services that contains typographical errors, inaccuracies, or omissions, including descriptions, pricing, availability, and various other information. We reserve the right to correct any errors, inaccuracies, or omissions and to change or update the information on the Services at any time, without prior notice.
-            </p>
-          </section>
-
-          {/* 18. DISCLAIMER */}
+          {/* 11. DISCLAIMER */}
           <section
             id="disclaimer"
             className="scroll-mt-24 rounded-2xl border-2 border-slate-200/90 bg-slate-50/70 p-6 sm:p-8 shadow-[0_2px_0_rgba(15,23,42,0.04)]"
           >
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-200/60">
-              18. Disclaimer
+              11. Disclaimer
             </h2>
-            <p className="mt-5 text-xs sm:text-sm leading-relaxed sm:leading-6 font-medium text-slate-700 tracking-wide">
-              THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE SERVICES AND YOUR USE THEREOF, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE MAKE NO WARRANTIES OR REPRESENTATIONS ABOUT THE ACCURACY OR COMPLETENESS OF THE SERVICES&apos; CONTENT OR THE CONTENT OF ANY WEBSITES OR MOBILE APPLICATIONS LINKED TO THE SERVICES AND WE WILL ASSUME NO LIABILITY OR RESPONSIBILITY FOR ANY (1) ERRORS, MISTAKES, OR INACCURACIES OF CONTENT AND MATERIALS, (2) PERSONAL INJURY OR PROPERTY DAMAGE, OF ANY NATURE WHATSOEVER, RESULTING FROM YOUR ACCESS TO AND USE OF THE SERVICES, (3) ANY UNAUTHORIZED ACCESS TO OR USE OF OUR SECURE SERVERS AND/OR ANY AND ALL PERSONAL INFORMATION AND/OR FINANCIAL INFORMATION STORED THEREIN, (4) ANY INTERRUPTION OR CESSATION OF TRANSMISSION TO OR FROM THE SERVICES, (5) ANY BUGS, VIRUSES, TROJAN HORSES, OR THE LIKE WHICH MAY BE TRANSMITTED TO OR THROUGH THE SERVICES BY ANY THIRD PARTY, AND/OR (6) ANY ERRORS OR OMISSIONS IN ANY CONTENT AND MATERIALS OR FOR ANY LOSS OR DAMAGE OF ANY KIND INCURRED AS A RESULT OF THE USE OF ANY CONTENT POSTED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES. WE DO NOT WARRANT, ENDORSE, GUARANTEE, OR ASSUME RESPONSIBILITY FOR ANY PRODUCT OR SERVICE ADVERTISED OR OFFERED BY A THIRD PARTY THROUGH THE SERVICES, ANY HYPERLINKED WEBSITE, OR ANY WEBSITE OR MOBILE APPLICATION FEATURED IN ANY BANNER OR OTHER ADVERTISING, AND WE WILL NOT BE A PARTY TO OR IN ANY WAY BE RESPONSIBLE FOR MONITORING ANY TRANSACTION BETWEEN YOU AND ANY THIRD-PARTY PROVIDERS OF PRODUCTS OR SERVICES. AS WITH THE PURCHASE OF A PRODUCT OR SERVICE THROUGH ANY MEDIUM OR IN ANY ENVIRONMENT, YOU SHOULD USE YOUR BEST JUDGMENT AND EXERCISE CAUTION WHERE APPROPRIATE.
+            <p className="mt-5 text-xs sm:text-sm leading-relaxed sm:leading-6 font-medium text-slate-700">
+              THE SERVICES ARE PROVIDED ON AN &ldquo;AS-IS&rdquo; AND &ldquo;AS-AVAILABLE&rdquo; BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT ACOUSTIC CHORD RECOGNITION OR ANY LESSON CONTENT WILL BE ERROR-FREE OR UNINTERRUPTED IN EVERY ACOUSTIC ENVIRONMENT.
             </p>
           </section>
 
-          {/* 19. LIMITATIONS OF LIABILITY */}
+          {/* 12. LIMITATIONS OF LIABILITY */}
           <section
             id="liability"
             className="scroll-mt-24 rounded-2xl border-2 border-slate-200/90 bg-slate-50/70 p-6 sm:p-8 shadow-[0_2px_0_rgba(15,23,42,0.04)]"
           >
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-200/60">
-              19. Limitations of Liability
+              12. Limitations of Liability
             </h2>
-            <p className="mt-5 text-xs sm:text-sm leading-relaxed sm:leading-6 font-medium text-slate-700 tracking-wide">
-              IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFIT, LOST REVENUE, LOSS OF DATA, OR OTHER DAMAGES ARISING FROM YOUR USE OF THE SERVICES, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+            <p className="mt-5 text-xs sm:text-sm leading-relaxed sm:leading-6 font-medium text-slate-700">
+              TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT WILL CHORDISOL OR ITS TEAM BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF DATA OR LOST PROFITS, ARISING FROM YOUR USE OF THE SERVICES.
             </p>
           </section>
 
-          {/* 20. INDEMNIFICATION */}
+          {/* 13. INDEMNIFICATION */}
           <section id="indemnification" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              20. Indemnification
+              13. Indemnification
             </h2>
             <p className="mt-5">
-              You agree to defend, indemnify, and hold us harmless, including our subsidiaries, affiliates, and all of our respective officers, agents, partners, and employees, from and against any loss, damage, liability, claim, or demand, including reasonable attorneys&apos; fees and expenses, made by any third party due to or arising out of: (1) use of the Services; (2) breach of these Legal Terms; (3) any breach of your representations and warranties set forth in these Legal Terms; (4) your violation of the rights of a third party, including but not limited to intellectual property rights; or (5) any overt harmful act toward any other user of the Services with whom you connected via the Services. Notwithstanding the foregoing, we reserve the right, at your expense, to assume the exclusive defense and control of any matter for which you are required to indemnify us, and you agree to cooperate, at your expense, with our defense of such claims. We will use reasonable efforts to notify you of any such claim, action, or proceeding which is subject to this indemnification upon becoming aware of it.
+              You agree to defend, indemnify, and hold Chordisol and its team harmless from any claim, loss, liability, or demand (including reasonable legal fees) arising out of your misuse of the Services, your breach of these Legal Terms, or your violation of any third-party rights or applicable law.
             </p>
           </section>
 
-          {/* 21. USER DATA */}
-          <section id="userdata" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              21. User Data
-            </h2>
-            <p className="mt-5">
-              We will maintain certain data that you transmit to the Services for the purpose of managing the performance of the Services, as well as data relating to your use of the Services. Although we perform regular routine backups of data, you are solely responsible for all data that you transmit or that relates to any activity you have undertaken using the Services. You agree that we shall have no liability to you for any loss or corruption of any such data, and you hereby waive any right of action against us arising from any such loss or corruption of such data.
-            </p>
-          </section>
-
-          {/* 22. ELECTRONIC COMMUNICATIONS */}
-          <section id="electronic" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              22. Electronic Communications, Transactions, and Signatures
-            </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
-              <p>
-                Visiting the Services, sending us emails, and completing online forms constitute electronic communications. You consent to receive electronic communications, and you agree that all agreements, notices, disclosures, and other communications we provide to you electronically, via email and on the Services, satisfy any legal requirement that such communication be in writing.
-              </p>
-              <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
-                <p className="font-semibold text-xs leading-relaxed text-slate-800 sm:text-sm">
-                  YOU HEREBY AGREE TO THE USE OF ELECTRONIC SIGNATURES, CONTRACTS, ORDERS, AND OTHER RECORDS, AND TO ELECTRONIC DELIVERY OF NOTICES, POLICIES, AND RECORDS OF TRANSACTIONS INITIATED OR COMPLETED BY US OR VIA THE SERVICES. You hereby waive any rights or requirements under any statutes, regulations, rules, ordinances, or other laws in any jurisdiction which require an original signature or delivery or retention of non-electronic records, or to payments or the granting of credits by any means other than electronic means.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* 23. CALIFORNIA USERS AND RESIDENTS */}
-          <section id="california" className="scroll-mt-24">
-            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              23. California Users and Residents
-            </h2>
-            <p className="mt-5">
-              If any complaint with us is not satisfactorily resolved, you can contact the Complaint Assistance Unit of the Division of Consumer Services of the California Department of Consumer Affairs in writing at 1625 North Market Blvd., Suite N 112, Sacramento, California 95834 or by telephone at (800) 952-5210 or (916) 445-1254.
-            </p>
-          </section>
-
-          {/* 24. MISCELLANEOUS */}
+          {/* 14. MISCELLANEOUS */}
           <section id="misc" className="scroll-mt-24">
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-100">
-              24. Miscellaneous
+              14. Miscellaneous
             </h2>
-            <div className="mt-5 space-y-4 sm:space-y-5">
-              <p>
-                These Legal Terms and any policies or operating rules posted by us on the Services or in respect to the Services constitute the entire agreement and understanding between you and us. Our failure to exercise or enforce any right or provision of these Legal Terms shall not operate as a waiver of such right or provision. These Legal Terms operate to the fullest extent permissible by law. We may assign any or all of our rights and obligations to others at any time. We shall not be responsible or liable for any loss, damage, delay, or failure to act caused by any cause beyond our reasonable control.
-              </p>
-              <p>
-                If any provision or part of a provision of these Legal Terms is determined to be unlawful, void, or unenforceable, that provision or part of the provision is deemed severable from these Legal Terms and does not affect the validity and enforceability of any remaining provisions. There is no joint venture, partnership, employment or agency relationship created between you and us as a result of these Legal Terms or use of the Services. You agree that these Legal Terms will not be construed against us by virtue of having drafted them. You hereby waive any and all defenses you may have based on the electronic form of these Legal Terms and the lack of signing by the parties hereto to execute these Legal Terms.
-              </p>
-            </div>
+            <p className="mt-5">
+              These Legal Terms together with our Privacy Policy constitute the entire agreement between you and Chordisol regarding the Services. If any provision is found unenforceable, the remaining provisions will remain in full force and effect.
+            </p>
           </section>
 
-          {/* 25. CONTACT US */}
+          {/* 15. CONTACT US */}
           <section
             id="contact"
             className="scroll-mt-24 rounded-2xl border-2 border-slate-200/90 bg-slate-50/70 p-6 sm:p-8 shadow-[0_2px_0_rgba(15,23,42,0.04)]"
           >
             <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 pb-3 border-b border-slate-200/60">
-              25. Contact Us
+              15. Contact Us
             </h2>
             <p className="mt-5 text-slate-600">
-              In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, please contact us at:
+              If you have any questions about these Terms of Service, please contact us at:
             </p>
-            <div className="mt-6 space-y-2 text-slate-800">
+            <div className="mt-5 space-y-1.5 text-slate-800">
               <p className="font-display text-base font-bold text-slate-900">
                 Chordisol
               </p>
