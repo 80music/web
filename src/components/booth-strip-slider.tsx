@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion, type PanInfo } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   getPhotoCountForVariation,
   isTopLogoVariation,
@@ -40,7 +40,6 @@ export function BoothStripSlider({
   onSelect,
 }: BoothStripSliderProps) {
   const shouldReduceMotion = useReducedMotion();
-  const wheelCooldownRef = useRef<number>(0);
   const [isDesktop, setIsDesktop] = useState(true);
 
   useEffect(() => {
@@ -67,28 +66,6 @@ export function BoothStripSlider({
     }
   };
 
-  const handleDragEnd = (
-    _event: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo
-  ) => {
-    const swipeThreshold = 42;
-    const velocityThreshold = 260;
-
-    if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
-      selectIndex(selectedIndex + 1);
-    } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
-      selectIndex(selectedIndex - 1);
-    }
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Math.abs(e.deltaX) < 12) return;
-    const now = Date.now();
-    if (now < wheelCooldownRef.current) return;
-    wheelCooldownRef.current = now + 280;
-    selectIndex(selectedIndex + (e.deltaX > 0 ? 1 : -1));
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight") {
       e.preventDefault();
@@ -107,18 +84,17 @@ export function BoothStripSlider({
     <div
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onWheel={handleWheel}
       aria-label="Photobooth strip layouts"
-      className="relative overflow-hidden rounded-3xl bg-[#f9fafc] border border-[#edf1f7] py-7 sm:py-9 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/60 select-none"
+      className="relative overflow-hidden rounded-3xl bg-[#f9fafc] border border-[#edf1f7] py-7 sm:py-9 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 select-none"
     >
-      {/* Soft Edge Fades matching lighter container */}
+      {/* Soft Edge Fades */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-20 bg-gradient-to-r from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 sm:w-20 bg-gradient-to-l from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-20 bg-gradient-to-l from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
       />
 
       {/* Previous Button */}
@@ -127,7 +103,7 @@ export function BoothStripSlider({
         aria-label="Previous strip"
         disabled={selectedIndex === 0}
         onClick={() => selectIndex(selectedIndex - 1)}
-        className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.12)] border border-border-subtle/80 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-25 disabled:pointer-events-none cursor-pointer"
+        className="flex absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.12)] border border-border-subtle/80 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-25 disabled:pointer-events-none cursor-pointer"
       >
         <svg
           viewBox="0 0 16 16"
@@ -149,7 +125,7 @@ export function BoothStripSlider({
         aria-label="Next strip"
         disabled={selectedIndex === options.length - 1}
         onClick={() => selectIndex(selectedIndex + 1)}
-        className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.12)] border border-border-subtle/80 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-25 disabled:pointer-events-none cursor-pointer"
+        className="flex absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 items-center justify-center rounded-full bg-white text-fg-display shadow-[0_6px_18px_-4px_rgba(20,54,95,0.12)] border border-border-subtle/80 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-25 disabled:pointer-events-none cursor-pointer"
       >
         <svg
           viewBox="0 0 16 16"
@@ -165,19 +141,15 @@ export function BoothStripSlider({
         </svg>
       </button>
 
-      {/* Unified Spring-Physics Carousel Stage */}
-      <div className="relative flex justify-center py-4 cursor-grab active:cursor-grabbing">
+      {/* Spring-Physics Carousel Stage (Click / Arrow / Dot navigation — not swipeable) */}
+      <div className="relative flex justify-center py-4">
         <motion.div
-          drag="x"
-          dragElastic={0.14}
-          dragConstraints={{ left: 0, right: 0 }}
-          onDragEnd={handleDragEnd}
           animate={{
             x: ((options.length - 1) / 2 - selectedIndex) * stepSize,
           }}
           transition={transition}
           style={{ gap: `${itemGap}px` }}
-          className="flex items-center touch-pan-y"
+          className="flex items-center"
         >
           {options.map((option, idx) => {
             const isSelected = option.id === selectedId;
@@ -210,34 +182,22 @@ export function BoothStripSlider({
                 onClick={() => selectIndex(idx)}
                 style={{ width: `${itemWidth}px` }}
                 animate={{
-                  scale: isSelected ? 1 : distance === 1 ? 0.91 : 0.85,
-                  opacity: isSelected ? 1 : distance === 1 ? 0.68 : 0.42,
+                  scale: isSelected ? 1 : distance === 1 ? 0.9 : 0.84,
+                  opacity: isSelected ? 1 : distance === 1 ? 0.62 : 0.36,
                   y: isSelected ? -4 : 2,
                 }}
-                whileHover={isSelected ? undefined : { opacity: 0.92, scale: 0.94 }}
+                whileHover={isSelected ? undefined : { opacity: 0.88, scale: 0.93 }}
                 transition={transition}
                 className="relative shrink-0 flex flex-col items-center focus-visible:outline-none cursor-pointer"
               >
-                {/* 9:16 Physical Print Card */}
+                {/* Clean 9:16 Physical Print Card (No heavy blue outline) */}
                 <div
                   className={`relative w-full aspect-[9/16] bg-white transition-shadow duration-300 ${
                     isSelected
-                      ? "shadow-[0_24px_48px_-14px_rgba(20,54,95,0.2),0_4px_12px_rgba(20,54,95,0.06)]"
-                      : "shadow-[0_12px_26px_-12px_rgba(20,54,95,0.12)]"
+                      ? "shadow-[0_24px_48px_-14px_rgba(20,54,95,0.22),0_4px_14px_rgba(20,54,95,0.08)]"
+                      : "shadow-[0_10px_24px_-12px_rgba(20,54,95,0.12)]"
                   }`}
                 >
-                  {/* Smooth Soft Blue Selection Frame */}
-                  <motion.div
-                    aria-hidden="true"
-                    initial={false}
-                    animate={{
-                      opacity: isSelected ? 1 : 0,
-                      scale: isSelected ? 1 : 0.97,
-                    }}
-                    transition={transition}
-                    className="pointer-events-none absolute -inset-[5px] rounded-[7px] border-[1.75px] border-brand-primary/80 shadow-[0_0_0_4px_rgba(35,145,255,0.1)]"
-                  />
-
                   <div
                     className={`absolute inset-0 flex flex-col px-[6%] ${
                       isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
@@ -280,7 +240,7 @@ export function BoothStripSlider({
                 {/* Clean Label Below Strip */}
                 <span
                   className={`mt-4 font-display text-sm font-semibold transition-colors duration-200 ${
-                    isSelected ? "text-brand-primary" : "text-fg-display/65"
+                    isSelected ? "text-fg-display" : "text-fg-display/50"
                   }`}
                 >
                   {option.title}
@@ -291,7 +251,7 @@ export function BoothStripSlider({
         </motion.div>
       </div>
 
-      {/* Smooth Pill Pagination Dots */}
+      {/* Minimal Pill Pagination Dots */}
       <div className="mt-3 flex items-center justify-center gap-1.5" aria-hidden="true">
         {options.map((option, idx) => {
           const isSelected = option.id === selectedId;
@@ -302,7 +262,7 @@ export function BoothStripSlider({
               tabIndex={-1}
               onClick={() => selectIndex(idx)}
               className={`h-1.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer ${
-                isSelected ? "w-5 bg-brand-primary" : "w-1.5 bg-divider hover:bg-text-muted/50"
+                isSelected ? "w-5 bg-fg-display" : "w-1.5 bg-divider hover:bg-text-muted/50"
               }`}
             />
           );
