@@ -17,6 +17,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Detect exact MIME type from data URL (defaults to image/jpeg)
+    const mimeMatch = typeof image === "string" ? image.match(/^data:(image\/\w+);base64,/) : null;
+    const contentType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+    const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
+
     // Strip out data URL header if present
     const base64Clean = image.replace(/^data:image\/\w+;base64,/, "");
     const buffer = Buffer.from(base64Clean, "base64");
@@ -34,9 +39,9 @@ export async function POST(request: NextRequest) {
     // 1. Try Vercel Blob if token is configured
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
-        const blob = await put(`strips/strip-${stripId}.jpg`, buffer, {
+        const blob = await put(`strips/strip-${stripId}.${ext}`, buffer, {
           access: "public",
-          contentType: "image/jpeg",
+          contentType,
         });
         publicUrl = blob.url;
       } catch (blobError) {
@@ -46,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Fallback to in-memory/route storage if Blob is not available or failed
     if (!publicUrl) {
-      storeStripImage(stripId, buffer, "image/jpeg");
+      storeStripImage(stripId, buffer, contentType);
       const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
       const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
       publicUrl = `${proto}://${host}/api/strip-image/${stripId}`;
@@ -63,8 +68,8 @@ export async function POST(request: NextRequest) {
           redirect: "follow",
           body: JSON.stringify({
             image: base64Clean,
-            filename: `chordisol-strip-${stripId}.jpg`,
-            mimeType: "image/jpeg",
+            filename: `chordisol-strip-${stripId}.${ext}`,
+            mimeType: contentType,
             folderId: process.env.TARGET_FOLDER_ID?.trim() || "",
           }),
         });

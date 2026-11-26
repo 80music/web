@@ -93,7 +93,7 @@ function PhysicalStripPreview({
 
   return (
     <div
-      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[130px] sm:w-[142px] bg-white px-[6%] ${
+      className={`relative mx-auto flex select-none flex-col aspect-[9/16] w-[152px] sm:w-[168px] bg-white px-[6%] ${
         isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
       } transition-all duration-200 ${
         isSelected
@@ -453,13 +453,13 @@ export function BoothStudio() {
         )}
 
         {/* =========================================================================
-            STEP 1: COMPACT 6-STRIP PRINT GRID
+            STEP 1: 6-STRIP PRINT GRID
            ========================================================================= */}
         {currentStep === 1 && (
-          <section className="mx-auto w-full max-w-2xl flex flex-col gap-5">
+          <section className="mx-auto w-full max-w-4xl flex flex-col gap-6">
             {/* Left-Aligned Header */}
             <div className="text-left">
-              <h1 className="font-display text-2xl sm:text-[28px] font-bold tracking-tight text-fg-display">
+              <h1 className="font-display text-2xl sm:text-[30px] font-bold tracking-tight text-fg-display">
                 Choose your strip
               </h1>
               <p className="mt-1 text-xs font-medium text-text-muted">
@@ -467,9 +467,9 @@ export function BoothStudio() {
               </p>
             </div>
 
-            {/* Compact Studio Print Mat — Pure Photostrips */}
-            <div className="rounded-3xl bg-surface-secondary px-5 py-6 sm:px-7 sm:py-7">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-5 gap-y-6 justify-items-center">
+            {/* Studio Print Mat — Pure Photostrips */}
+            <div className="rounded-3xl bg-surface-secondary px-6 py-8 sm:px-10 sm:py-9">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-9 justify-items-center">
                 {[...BOTTOM_LOGO_OPTIONS, ...TOP_LOGO_OPTIONS].map((option) => {
                   const isSelected = layoutVariation === option.id;
                   return (
@@ -485,7 +485,7 @@ export function BoothStudio() {
                         tiltClass={option.tiltClass}
                       />
                       <span
-                        className={`mt-3 font-display text-xs font-semibold transition-colors ${
+                        className={`mt-3.5 font-display text-sm font-semibold transition-colors ${
                           isSelected ? "text-brand-primary" : "text-fg-display"
                         }`}
                       >
