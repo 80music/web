@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import React, { useEffect, useState } from "react";
 import { PhotoboothStrip } from "@/components/photobooth-strip";
 import type {
+  FrameColorId,
   LayoutVariationId,
   PhotoFilterId,
   StickerItem,
@@ -11,6 +12,7 @@ import type {
 
 interface BoothPrinterStageProps {
   photos: (string | null)[];
+  frameColor?: FrameColorId;
   layoutVariation: LayoutVariationId;
   filter: PhotoFilterId;
   stickers: StickerItem[];
@@ -22,6 +24,7 @@ type PrinterPhase = "warming" | "printing" | "cutting" | "ready";
 
 export function BoothPrinterStage({
   photos,
+  frameColor = "classic-white",
   layoutVariation,
   filter,
   stickers,
@@ -252,6 +255,7 @@ export function BoothPrinterStage({
         >
           <PhotoboothStrip
             photos={photos}
+            frameColor={frameColor}
             layoutVariation={layoutVariation}
             filter={filter}
             stickers={stickers}

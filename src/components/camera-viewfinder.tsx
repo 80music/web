@@ -104,7 +104,11 @@ export function CameraViewfinder({
         const videoInputs = allDevices.filter((d) => d.kind === "videoinput");
         setDevices(videoInputs);
 
-        const chosenId = videoInputs[0]?.deviceId || "";
+        const preferredCamera = videoInputs.find((d) =>
+          /studio display/i.test(d.label)
+        );
+        const chosenId =
+          preferredCamera?.deviceId || videoInputs[0]?.deviceId || "";
         setSelectedDeviceId(chosenId);
       } catch (err) {
         if (cancelled) return;

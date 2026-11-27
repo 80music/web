@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   PHOTO_FILTERS,
+  getFramePreset,
   getPhotoCountForVariation,
   isTopLogoVariation,
   type FrameColorId,
@@ -11,6 +12,227 @@ import {
   type LayoutVariationId,
   type StickerItem,
 } from "@/lib/booth-types";
+
+const SPROCKET_SLOTS = Array.from({ length: 12 }, (_, idx) => idx);
+const PIANO_WHITE_KEYS = Array.from({ length: 12 }, (_, idx) => idx);
+const CONCERT_DOTS = ["#2391ff", "#f59e0b", "#e11d48", "#16a34a"] as const;
+
+export function getStripSurfaceStyle(frameColor: FrameColorId): React.CSSProperties {
+  return {
+    backgroundColor: getFramePreset(frameColor).bg,
+  };
+}
+
+export function getStripPaddingXClass(frameColor: FrameColorId): string {
+  return frameColor === "midnight-navy" ? "px-[10%]" : "px-[6%]";
+}
+
+export function getStripVerticalPaddingClass(
+  frameColor: FrameColorId,
+  isTopLogo: boolean
+): string {
+  if (frameColor === "chordisol-blue") {
+    return isTopLogo ? "pt-0 pb-[8.2%]" : "pt-[8.2%] pb-0";
+  }
+  return isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0";
+}
+
+export function getPhotoSlotRingClass(frameColor: FrameColorId): string {
+  if (frameColor === "chordisol-blue" || frameColor === "concert-stub") {
+    return "rounded-[3px] ring-2 ring-white";
+  }
+  if (frameColor === "midnight-navy") {
+    return "rounded-[2px] ring-1 ring-white/15";
+  }
+  if (frameColor === "warm-cream") {
+    return "rounded-[2px] ring-1 ring-[#14365f]/12";
+  }
+  return "rounded-[2px] ring-1 ring-inset ring-black/5";
+}
+
+export function StripPaperDecorations({
+  frameColor,
+  isTopLogo,
+}: {
+  frameColor: FrameColorId;
+  isTopLogo: boolean;
+}) {
+  if (frameColor === "classic-white") return null;
+
+  if (frameColor === "chordisol-blue") {
+    const pianoAtTop = !isTopLogo;
+    return (
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Tall, bold piano keyboard opposite the logo */}
+        <div
+          className={`absolute inset-x-0 flex h-[5.6%] gap-[1.5px] bg-[#0d4a92] px-[1.5px] ${
+            pianoAtTop ? "top-0 pb-[2px]" : "bottom-0 pt-[2px]"
+          }`}
+        >
+          {PIANO_WHITE_KEYS.map((k) => (
+            <div
+              key={k}
+              className={`relative flex-1 bg-white ${
+                pianoAtTop ? "rounded-b-[2.5px]" : "rounded-t-[2.5px]"
+              }`}
+            >
+              {k % 7 !== 2 && k % 7 !== 6 && k < PIANO_WHITE_KEYS.length - 1 && (
+                <span className="absolute top-0 -right-[36%] z-10 h-[58%] w-[64%] rounded-b-[2px] bg-[#0e2a4d]" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (frameColor === "warm-cream") {
+    return (
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* 5-line musical staff behind the brand band */}
+        <div
+          className={`absolute inset-x-[6%] flex h-[10%] flex-col justify-center gap-[3px] ${
+            isTopLogo ? "top-0" : "bottom-0"
+          }`}
+        >
+          {[0, 1, 2, 3, 4].map((line) => (
+            <div key={line} className="h-px w-full bg-[#14365f]/12" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (frameColor === "midnight-navy") {
+    return (
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Left & right 35mm film sprocket holes */}
+        <div className="absolute inset-y-[3.5%] left-[2.2%] flex w-[4.4%] flex-col justify-between">
+          {SPROCKET_SLOTS.map((s) => (
+            <div key={s} className="aspect-[1/1.25] w-full rounded-[2px] bg-white/90" />
+          ))}
+        </div>
+        <div className="absolute inset-y-[3.5%] right-[2.2%] flex w-[4.4%] flex-col justify-between">
+          {SPROCKET_SLOTS.map((s) => (
+            <div key={s} className="aspect-[1/1.25] w-full rounded-[2px] bg-white/90" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (frameColor === "concert-stub") {
+    return (
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Perforated ticket divider line between photos & brand stub */}
+        <div
+          className={`absolute inset-x-[6%] border-t border-dashed border-[#14365f]/25 ${
+            isTopLogo ? "top-[10%]" : "bottom-[10%]"
+          }`}
+        />
+        {/* Semicircular ticket cutout notches on left & right */}
+        <div
+          className={`absolute -left-[2.6%] size-[5.2%] aspect-square rounded-full bg-surface-secondary ${
+            isTopLogo ? "top-[10%] -translate-y-1/2" : "bottom-[10%] translate-y-1/2"
+          }`}
+        />
+        <div
+          className={`absolute -right-[2.6%] size-[5.2%] aspect-square rounded-full bg-surface-secondary ${
+            isTopLogo ? "top-[10%] -translate-y-1/2" : "bottom-[10%] translate-y-1/2"
+          }`}
+        />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+export function StripBrandBand({
+  frameColor,
+  compact = false,
+}: {
+  frameColor: FrameColorId;
+  isTopLogo?: boolean;
+  compact?: boolean;
+}) {
+  const preset = getFramePreset(frameColor);
+  const logoSizeClass = compact ? "size-3 rounded-[3px]" : "size-4.5 rounded-[4px]";
+  const textSizeClass = compact ? "text-[9.5px]" : "text-[13px]";
+
+  return (
+    <div className="relative z-10 h-[10%] shrink-0 flex items-center justify-center gap-1.5">
+      {frameColor === "concert-stub" && (
+        <div className="flex items-center gap-0.5 mr-0.5" aria-hidden="true">
+          {CONCERT_DOTS.slice(0, 2).map((color) => (
+            <span
+              key={color}
+              style={{ backgroundColor: color }}
+              className={compact ? "size-1.5 rounded-full" : "size-2 rounded-full"}
+            />
+          ))}
+        </div>
+      )}
+
+      <div
+        className={`relative shrink-0 overflow-hidden ${logoSizeClass} ${
+          frameColor === "chordisol-blue" || frameColor === "midnight-navy"
+            ? "ring-1 ring-white/30"
+            : ""
+        }`}
+      >
+        <Image
+          src="/images/chordisol-logo.png"
+          alt="Chordisol"
+          fill
+          className="object-cover"
+          draggable={false}
+        />
+      </div>
+
+      <span
+        style={{ color: preset.textColor }}
+        className={`font-display font-bold tracking-tight ${textSizeClass}`}
+      >
+        Chordisol
+      </span>
+
+      {frameColor === "warm-cream" && (
+        <span
+          style={{ color: preset.subtextColor }}
+          className={`ml-1 font-mono font-semibold ${
+            compact ? "text-[7px]" : "text-[9.5px]"
+          }`}
+        >
+          ♩=120
+        </span>
+      )}
+
+      {frameColor === "midnight-navy" && (
+        <span
+          style={{ color: preset.subtextColor }}
+          className={`ml-1 font-mono font-semibold ${
+            compact ? "text-[7px]" : "text-[9.5px]"
+          }`}
+        >
+          400
+        </span>
+      )}
+
+      {frameColor === "concert-stub" && (
+        <div className="flex items-center gap-0.5 ml-0.5" aria-hidden="true">
+          {CONCERT_DOTS.slice(2).map((color) => (
+            <span
+              key={color}
+              style={{ backgroundColor: color }}
+              className={compact ? "size-1.5 rounded-full" : "size-2 rounded-full"}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface PhotoboothStripProps {
   photos: (string | null)[];
@@ -37,6 +259,7 @@ interface PhotoboothStripProps {
 
 export function PhotoboothStrip({
   photos,
+  frameColor = "classic-white",
   layoutVariation = "variation-1",
   filter = "normal",
   stickers = [],
@@ -132,23 +355,8 @@ export function PhotoboothStrip({
   const photoCount = getPhotoCountForVariation(layoutVariation);
   const isTopLogo = isTopLogoVariation(layoutVariation);
   const slotIndices = Array.from({ length: photoCount }, (_, idx) => idx);
-
-  const brandBand = (
-    <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
-      <div className="relative size-4.5 shrink-0 overflow-hidden rounded-[4px]">
-        <Image
-          src="/images/chordisol-logo.png"
-          alt="Chordisol"
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
-      <span className="font-display text-[13px] font-bold tracking-tight text-fg-display">
-        Chordisol
-      </span>
-    </div>
-  );
+  const padXClass = getStripPaddingXClass(frameColor);
+  const slotRingClass = getPhotoSlotRingClass(frameColor);
 
   return (
     <div
@@ -158,15 +366,19 @@ export function PhotoboothStrip({
         e.stopPropagation();
         onSelectSticker?.(null);
       }}
-      className={`relative mx-auto select-none aspect-[9/16] w-[262px] sm:w-[280px] bg-white shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
+      style={getStripSurfaceStyle(frameColor)}
+      className={`relative mx-auto select-none aspect-[9/16] w-[262px] sm:w-[280px] transition-colors duration-300 shadow-[0_20px_48px_-14px_rgba(20,54,95,0.18),0_2px_8px_rgba(20,54,95,0.06)] ${className}`}
     >
+      <StripPaperDecorations frameColor={frameColor} isTopLogo={isTopLogo} />
+
       {/* Absolute inset-0 locks 100% definite height so h-[10%] and photo slots match 1080x1920 export 1:1 */}
       <div
-        className={`absolute inset-0 flex flex-col px-[6%] ${
-          isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-        }`}
+        className={`absolute inset-0 z-10 flex flex-col ${padXClass} ${getStripVerticalPaddingClass(
+          frameColor,
+          isTopLogo
+        )}`}
       >
-        {isTopLogo && brandBand}
+        {isTopLogo && <StripBrandBand frameColor={frameColor} isTopLogo={true} />}
 
         {/* Photo Cuts Grid (Exact 1:1 parity with 1080x1920 canvasExport) */}
         <div
@@ -184,7 +396,7 @@ export function PhotoboothStrip({
             return (
               <div
                 key={index}
-                className="group relative size-full overflow-hidden rounded-[2px] bg-surface-secondary ring-1 ring-inset ring-black/5"
+                className={`group relative size-full overflow-hidden bg-surface-secondary ${slotRingClass}`}
               >
                 {photoUrl ? (
                   <>
@@ -195,6 +407,15 @@ export function PhotoboothStrip({
                       style={{ filter: activeFilter?.css || "none" }}
                       className="size-full object-cover"
                     />
+
+                    {frameColor === "midnight-navy" && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute bottom-1.5 left-2 font-mono text-[9px] font-bold tracking-wider text-amber-300/85 drop-shadow-xs"
+                      >
+                        0{index + 1}A
+                      </span>
+                    )}
 
                     {onRetakeSlot && (
                       <button
@@ -231,7 +452,7 @@ export function PhotoboothStrip({
           })}
         </div>
 
-        {!isTopLogo && brandBand}
+        {!isTopLogo && <StripBrandBand frameColor={frameColor} isTopLogo={false} />}
       </div>
 
       {/* Interactive Sticker Layer (overflow-visible so edge handles never clip) */}

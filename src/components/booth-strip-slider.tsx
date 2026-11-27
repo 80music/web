@@ -6,8 +6,17 @@ import React, { useEffect, useState } from "react";
 import {
   getPhotoCountForVariation,
   isTopLogoVariation,
+  type FrameColorId,
   type LayoutVariationId,
 } from "@/lib/booth-types";
+import {
+  StripBrandBand,
+  StripPaperDecorations,
+  getPhotoSlotRingClass,
+  getStripPaddingXClass,
+  getStripSurfaceStyle,
+  getStripVerticalPaddingClass,
+} from "@/components/photobooth-strip";
 
 export interface StripSliderOption {
   id: LayoutVariationId;
@@ -31,16 +40,21 @@ const SPRING_SLIDE = {
 interface BoothStripSliderProps {
   options: readonly StripSliderOption[];
   selectedId: LayoutVariationId;
+  frameColor?: FrameColorId;
   onSelect: (id: LayoutVariationId) => void;
 }
 
 export function BoothStripSlider({
   options,
   selectedId,
+  frameColor = "classic-white",
   onSelect,
 }: BoothStripSliderProps) {
   const shouldReduceMotion = useReducedMotion();
   const [isDesktop, setIsDesktop] = useState(true);
+  const surfaceStyle = getStripSurfaceStyle(frameColor);
+  const padXClass = getStripPaddingXClass(frameColor);
+  const slotRingClass = getPhotoSlotRingClass(frameColor);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 640px)");
@@ -90,11 +104,11 @@ export function BoothStripSlider({
       {/* Soft Edge Fades */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-20 bg-gradient-to-r from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-20 bg-linear-to-r from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-20 bg-gradient-to-l from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-20 bg-linear-to-l from-[#f9fafc] via-[#f9fafc]/70 to-transparent"
       />
 
       {/* Previous Button */}
@@ -158,23 +172,6 @@ export function BoothStripSlider({
             const isTopLogo = isTopLogoVariation(option.id);
             const frames = PREVIEW_SAMPLES.slice(0, photoCount);
 
-            const brandBand = (
-              <div className="h-[10%] shrink-0 flex items-center justify-center gap-1">
-                <div className="relative size-3 shrink-0 overflow-hidden rounded-[3px]">
-                  <Image
-                    src="/images/chordisol-logo.png"
-                    alt=""
-                    fill
-                    className="object-cover"
-                    draggable={false}
-                  />
-                </div>
-                <span className="font-display text-[9.5px] font-bold text-fg-display tracking-tight">
-                  Chordisol
-                </span>
-              </div>
-            );
-
             return (
               <motion.button
                 key={option.id}
@@ -190,20 +187,26 @@ export function BoothStripSlider({
                 transition={transition}
                 className="relative shrink-0 flex flex-col items-center focus-visible:outline-none cursor-pointer"
               >
-                {/* Clean 9:16 Physical Print Card (No heavy blue outline) */}
+                {/* Clean 9:16 Physical Print Card (Themed with active strip style) */}
                 <div
-                  className={`relative w-full aspect-[9/16] bg-white transition-shadow duration-300 ${
+                  style={surfaceStyle}
+                  className={`relative w-full aspect-9/16 transition-[box-shadow,background-color] duration-300 ${
                     isSelected
-                      ? "shadow-[0_24px_48px_-14px_rgba(20,54,95,0.22),0_4px_14px_rgba(20,54,95,0.08)]"
-                      : "shadow-[0_10px_24px_-12px_rgba(20,54,95,0.12)]"
+                      ? "shadow-[0_0_0_1px_rgba(20,54,95,0.045),0_4px_10px_-4px_rgba(20,54,95,0.05),0_18px_34px_-18px_rgba(20,54,95,0.11)]"
+                      : "shadow-[0_0_0_1px_rgba(20,54,95,0.035),0_6px_16px_-10px_rgba(20,54,95,0.06)]"
                   }`}
                 >
+                  <StripPaperDecorations frameColor={frameColor} isTopLogo={isTopLogo} />
+
                   <div
-                    className={`absolute inset-0 flex flex-col px-[6%] ${
-                      isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-                    }`}
+                    className={`absolute inset-0 z-10 flex flex-col ${padXClass} ${getStripVerticalPaddingClass(
+                      frameColor,
+                      isTopLogo
+                    )}`}
                   >
-                    {isTopLogo && brandBand}
+                    {isTopLogo && (
+                      <StripBrandBand frameColor={frameColor} isTopLogo={true} compact />
+                    )}
 
                     <div
                       className={`flex-1 min-h-0 grid gap-1.5 ${
@@ -217,7 +220,7 @@ export function BoothStripSlider({
                       {frames.map((frame, i) => (
                         <div
                           key={i}
-                          className={`relative size-full overflow-hidden rounded-[2px] ring-1 ring-inset ring-black/5 ${frame.bg}`}
+                          className={`relative size-full overflow-hidden ${slotRingClass} ${frame.bg}`}
                         >
                           <div className="absolute inset-[22%]">
                             <Image
@@ -233,7 +236,9 @@ export function BoothStripSlider({
                       ))}
                     </div>
 
-                    {!isTopLogo && brandBand}
+                    {!isTopLogo && (
+                      <StripBrandBand frameColor={frameColor} isTopLogo={false} compact />
+                    )}
                   </div>
                 </div>
 

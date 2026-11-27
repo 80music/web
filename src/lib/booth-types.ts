@@ -1,11 +1,9 @@
 export type FrameColorId =
   | "classic-white"
   | "chordisol-blue"
-  | "midnight-navy"
   | "warm-cream"
-  | "charcoal-ink"
-  | "mascot-meadow"
-  | "sunset-rose";
+  | "midnight-navy"
+  | "concert-stub";
 
 export const STRIP_RATIOS = {
   aspectRatio: 3.16, // Total height / width
@@ -167,75 +165,59 @@ export interface StripConfig {
 export const FRAME_PRESETS: FramePreset[] = [
   {
     id: "classic-white",
-    name: "Classic White",
+    name: "Classic",
     bg: "#ffffff",
     border: "#e2e8f0",
     textColor: "#14365f",
     subtextColor: "#64748b",
-    photoBorder: "#e2e8f0",
+    photoBorder: "rgba(0,0,0,0.05)",
     previewBg: "#ffffff",
   },
   {
     id: "chordisol-blue",
-    name: "Chordisol Blue",
+    name: "Chordisol Pop",
     bg: "#1674d6",
-    border: "#3b93f7",
+    border: "#60a5fa",
     textColor: "#ffffff",
     subtextColor: "#dbeafe",
-    photoBorder: "#3b93f7",
+    photoBorder: "#ffffff",
     previewBg: "#1674d6",
   },
   {
+    id: "warm-cream",
+    name: "Sheet Music",
+    bg: "#fbf6eb",
+    border: "#e6dbc7",
+    textColor: "#14365f",
+    subtextColor: "#7c6f5b",
+    photoBorder: "rgba(20,54,95,0.12)",
+    previewBg: "#fbf6eb",
+  },
+  {
     id: "midnight-navy",
-    name: "Midnight Studio",
-    bg: "#14365f",
-    border: "#204a7a",
+    name: "35mm Film",
+    bg: "#10233d",
+    border: "#25456d",
     textColor: "#ffffff",
     subtextColor: "#93c5fd",
-    photoBorder: "#204a7a",
-    previewBg: "#14365f",
+    photoBorder: "rgba(255,255,255,0.14)",
+    previewBg: "#10233d",
   },
   {
-    id: "warm-cream",
-    name: "Warm Cream",
-    bg: "#fbf8f2",
-    border: "#e8dece",
-    textColor: "#3d2b1f",
-    subtextColor: "#786252",
-    photoBorder: "#e8dece",
-    previewBg: "#fbf8f2",
-  },
-  {
-    id: "charcoal-ink",
-    name: "Charcoal Ink",
-    bg: "#0f172a",
-    border: "#334155",
-    textColor: "#f8fafc",
-    subtextColor: "#94a3b8",
-    photoBorder: "#334155",
-    previewBg: "#0f172a",
-  },
-  {
-    id: "mascot-meadow",
-    name: "Mascot Meadow",
-    bg: "#10b981",
-    border: "#34d399",
-    textColor: "#ffffff",
-    subtextColor: "#d1fae5",
-    photoBorder: "#34d399",
-    previewBg: "#10b981",
-  },
-  {
-    id: "sunset-rose",
-    name: "Sunset Rose",
-    bg: "#f43f5e",
-    border: "#fb7185",
-    textColor: "#ffffff",
-    subtextColor: "#ffe4e6",
-    photoBorder: "#fb7185",
-    previewBg: "#f43f5e",
+    id: "concert-stub",
+    name: "Concert Stub",
+    bg: "#e9f4ff",
+    border: "#93c5fd",
+    textColor: "#14365f",
+    subtextColor: "#4b6075",
+    photoBorder: "#ffffff",
+    previewBg: "#e9f4ff",
   },
 ];
+
+export function getFramePreset(id?: FrameColorId): FramePreset {
+  return FRAME_PRESETS.find((preset) => preset.id === id) || FRAME_PRESETS[0];
+}
 
 export const PHOTO_FILTERS: PhotoFilterPreset[] = [
   {

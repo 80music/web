@@ -1,5 +1,6 @@
 import {
   PHOTO_FILTERS,
+  getFramePreset,
   getPhotoCountForVariation,
   isTopLogoVariation,
   type StripConfig,
@@ -148,19 +149,115 @@ export async function renderStripCanvas(
   const fontDisplay =
     "'ChordisolCanvasDisplay', 'Momo Trust Display', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-  // 1. Edge-to-edge pure white matte paper — NO border, NO rounded outer cutout
-  ctx.fillStyle = "#ffffff";
+  const frameColor = config.frameColor || "classic-white";
+  const framePreset = getFramePreset(frameColor);
+
+  // 1. Edge-to-edge themed print paper
+  ctx.fillStyle = framePreset.bg;
   ctx.fillRect(0, 0, width, height);
 
   // Shared 9:16 layout metrics (exact 1:1 parity with PhotoboothStrip DOM)
-  const padX = Math.round(width * 0.06);
-  const padEdge = Math.round(width * 0.06);
+  const padX = Math.round(width * (frameColor === "midnight-navy" ? 0.1 : 0.06));
+  const padEdge = Math.round(
+    frameColor === "chordisol-blue" ? height * 0.082 : width * 0.06
+  );
   const brandBandH = Math.round(height * 0.1);
   const photoAreaW = width - padX * 2;
   const photoAreaH = height - padEdge - brandBandH;
   const photoStartY = isTopLogo ? brandBandH : padEdge;
   const gap = Math.round(width * 0.028);
   const photoRadius = Math.round(width * 0.01);
+
+  // 1b. Paper style decorations (behind photos & brand mark)
+  if (frameColor === "chordisol-blue") {
+    // Tall, bold piano keyboard opposite the logo
+    const pianoAtTop = !isTopLogo;
+    const trimH = Math.round(height * 0.056);
+    const trimY = pianoAtTop ? 0 : height - trimH;
+    const keyCount = 12;
+    const keyGap = Math.max(3, Math.round(width * 0.0045));
+    const keyW = (width - keyGap * (keyCount + 1)) / keyCount;
+    ctx.fillStyle = "#0d4a92";
+    ctx.fillRect(0, trimY, width, trimH);
+    for (let k = 0; k < keyCount; k++) {
+      const kx = keyGap + k * (keyW + keyGap);
+      ctx.fillStyle = "#ffffff";
+      roundRectPath(
+        ctx,
+        kx,
+        pianoAtTop ? trimY : trimY + keyGap,
+        keyW,
+        trimH - keyGap,
+        Math.round(keyGap * 1.5)
+      );
+      ctx.fill();
+    }
+    for (let k = 0; k < keyCount - 1; k++) {
+      if (k % 7 !== 2 && k % 7 !== 6) {
+        const kx = keyGap + k * (keyW + keyGap);
+        const bw = keyW * 0.64;
+        const bh = trimH * 0.58;
+        ctx.fillStyle = "#0e2a4d";
+        roundRectPath(ctx, kx + keyW - bw * 0.45, trimY, bw, bh, Math.round(keyGap * 1.2));
+        ctx.fill();
+      }
+    }
+  } else if (frameColor === "warm-cream") {
+    // 5-line musical staff behind brand band
+    ctx.save();
+    ctx.strokeStyle = "rgba(20, 54, 95, 0.14)";
+    ctx.lineWidth = Math.max(2, Math.round(width * 0.0025));
+    const bandCenterY = isTopLogo ? brandBandH / 2 : height - brandBandH / 2;
+    const staffSpacing = Math.round(brandBandH * 0.12);
+    for (let s = -2; s <= 2; s++) {
+      const ly = bandCenterY + s * staffSpacing;
+      ctx.beginPath();
+      ctx.moveTo(padX, ly);
+      ctx.lineTo(width - padX, ly);
+      ctx.stroke();
+    }
+    ctx.restore();
+  } else if (frameColor === "midnight-navy") {
+    // 35mm film sprocket holes along left & right margins
+    ctx.save();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
+    const holeCount = 12;
+    const holeW = Math.round(width * 0.044);
+    const holeH = Math.round(holeW * 1.25);
+    const holeR = Math.round(holeW * 0.16);
+    const leftX = Math.round(width * 0.022);
+    const rightX = width - leftX - holeW;
+    const topMargin = Math.round(height * 0.035);
+    const spanH = height - topMargin * 2 - holeH;
+    for (let s = 0; s < holeCount; s++) {
+      const hy = topMargin + Math.round((spanH / (holeCount - 1)) * s);
+      roundRectPath(ctx, leftX, hy, holeW, holeH, holeR);
+      ctx.fill();
+      roundRectPath(ctx, rightX, hy, holeW, holeH, holeR);
+      ctx.fill();
+    }
+    ctx.restore();
+  } else if (frameColor === "concert-stub") {
+    // Perforated dashed ticket divider + side cutout notches
+    const dividerY = isTopLogo ? brandBandH : height - brandBandH;
+    ctx.save();
+    ctx.strokeStyle = "rgba(20, 54, 95, 0.25)";
+    ctx.lineWidth = Math.max(2, Math.round(width * 0.003));
+    ctx.setLineDash([Math.round(width * 0.018), Math.round(width * 0.014)]);
+    ctx.beginPath();
+    ctx.moveTo(padX, dividerY);
+    ctx.lineTo(width - padX, dividerY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const notchR = Math.round(width * 0.026);
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(0, dividerY, notchR, 0, Math.PI * 2);
+    ctx.arc(width, dividerY, notchR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 
   const drawPhotoSlot = async (
     slotIdx: number,
@@ -191,6 +288,40 @@ export async function renderStripCanvas(
       roundRectPath(ctx, x, y, w, h, photoRadius);
       ctx.fill();
     }
+
+    // Crisp mat border for themed strips
+    if (frameColor === "chordisol-blue" || frameColor === "concert-stub") {
+      ctx.save();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = Math.max(4, Math.round(width * 0.0075));
+      roundRectPath(ctx, x, y, w, h, photoRadius);
+      ctx.stroke();
+      ctx.restore();
+    } else if (frameColor === "midnight-navy") {
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+      ctx.lineWidth = Math.max(2, Math.round(width * 0.003));
+      roundRectPath(ctx, x, y, w, h, photoRadius);
+      ctx.stroke();
+
+      // Film frame code stamp (01A, 02A, 03A)
+      if (photoData) {
+        const codeFontSize = Math.round(width * 0.028);
+        ctx.font = `700 ${codeFontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        ctx.fillStyle = "rgba(252, 211, 77, 0.88)";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(`0${slotIdx + 1}A`, x + Math.round(width * 0.022), y + h - Math.round(width * 0.018));
+      }
+      ctx.restore();
+    } else if (frameColor === "warm-cream") {
+      ctx.save();
+      ctx.strokeStyle = "rgba(20, 54, 95, 0.14)";
+      ctx.lineWidth = Math.max(2, Math.round(width * 0.003));
+      roundRectPath(ctx, x, y, w, h, photoRadius);
+      ctx.stroke();
+      ctx.restore();
+    }
   };
 
   // 2. Draw Photo Cuts (3 pics, 2 pics, or 1 pic)
@@ -216,8 +347,36 @@ export async function renderStripCanvas(
   ctx.font = `700 ${brandFontSize}px ${fontDisplay}`;
   const brandText = "Chordisol";
   const textW = ctx.measureText(brandText).width;
-  const totalBrandW = (logoImg ? logoSize + brandGap : 0) + textW;
+  const extraTag =
+    frameColor === "warm-cream" ? "♩=120" : frameColor === "midnight-navy" ? "400" : "";
+  const extraFontSize = Math.round(width * 0.032);
+  let extraW = 0;
+  if (extraTag) {
+    ctx.font = `600 ${extraFontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+    extraW = ctx.measureText(extraTag).width + Math.round(width * 0.022);
+  }
+
+  const totalBrandW = (logoImg ? logoSize + brandGap : 0) + textW + extraW;
   const brandStartX = (width - totalBrandW) / 2;
+
+  if (frameColor === "concert-stub") {
+    const dotR = Math.round(width * 0.011);
+    const dotStep = Math.round(width * 0.028);
+    const leftDotColors = ["#2391ff", "#f59e0b"];
+    const rightDotColors = ["#e11d48", "#16a34a"];
+    leftDotColors.forEach((color, idx) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(brandStartX - Math.round(width * 0.032) - (1 - idx) * dotStep, brandCenterY, dotR, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    rightDotColors.forEach((color, idx) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(brandStartX + totalBrandW + Math.round(width * 0.032) + idx * dotStep, brandCenterY, dotR, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
 
   if (logoImg) {
     ctx.save();
@@ -234,14 +393,18 @@ export async function renderStripCanvas(
     ctx.restore();
   }
 
-  ctx.fillStyle = "#14365f";
+  ctx.font = `700 ${brandFontSize}px ${fontDisplay}`;
+  ctx.fillStyle = framePreset.textColor;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
-  ctx.fillText(
-    brandText,
-    brandStartX + (logoImg ? logoSize + brandGap : 0),
-    brandCenterY
-  );
+  const textX = brandStartX + (logoImg ? logoSize + brandGap : 0);
+  ctx.fillText(brandText, textX, brandCenterY);
+
+  if (extraTag) {
+    ctx.font = `600 ${extraFontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+    ctx.fillStyle = framePreset.subtextColor;
+    ctx.fillText(extraTag, textX + textW + Math.round(width * 0.022), brandCenterY);
+  }
 
   // 4. Draw Placed Stickers (Normalized math: xPercent, yPercent, widthPercent, rotationDeg)
   if (config.stickersVisible && config.stickers && config.stickers.length > 0) {

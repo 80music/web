@@ -4,14 +4,24 @@ import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import React, { useCallback, useMemo, useState } from "react";
 import { CameraViewfinder } from "@/components/camera-viewfinder";
-import { PhotoboothStrip } from "@/components/photobooth-strip";
+import {
+  PhotoboothStrip,
+  StripBrandBand,
+  StripPaperDecorations,
+  getPhotoSlotRingClass,
+  getStripPaddingXClass,
+  getStripSurfaceStyle,
+  getStripVerticalPaddingClass,
+} from "@/components/photobooth-strip";
 import { BoothPrinterStage } from "@/components/booth-printer-stage";
 import { BoothStripSlider, type StripSliderOption } from "@/components/booth-strip-slider";
 import { BoothQrModal } from "@/components/booth-qr-modal";
 import {
+  FRAME_PRESETS,
   STICKER_PALETTE,
   getPhotoCountForVariation,
   isTopLogoVariation,
+  type FrameColorId,
   type LayoutVariationId,
   type PhotoFilterId,
   type StickerAsset,
@@ -157,6 +167,7 @@ export function BoothStudio() {
 
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [layoutVariation, setLayoutVariation] = useState<LayoutVariationId>("variation-1");
+  const [frameColor, setFrameColor] = useState<FrameColorId>("chordisol-blue");
   const slotCount = getPhotoCountForVariation(layoutVariation);
   const isTopLogo = isTopLogoVariation(layoutVariation);
 
@@ -184,11 +195,11 @@ export function BoothStudio() {
     stripId: "",
   });
 
-  // Photocard paper is permanently pure white, 9:16 Story ratio, no caption/date/barcode
+  // 9:16 Story ratio strip config with selectable paper style
   const currentStripConfig: StripConfig = useMemo(
     () => ({
       photos,
-      frameColor: "classic-white",
+      frameColor,
       layoutVariation,
       filter,
       stickers,
@@ -197,7 +208,7 @@ export function BoothStudio() {
       showDate: false,
       dateText: "",
     }),
-    [photos, layoutVariation, filter, stickers]
+    [photos, frameColor, layoutVariation, filter, stickers]
   );
 
   const filteredStickerPalette = useMemo(() => {
@@ -382,15 +393,50 @@ export function BoothStudio() {
             <BoothStripSlider
               options={STRIP_SLIDER_OPTIONS}
               selectedId={layoutVariation}
+              frameColor={frameColor}
               onSelect={handleSelectVariation}
             />
+
+            {/* 1-Click Strip Paper Style Variations (Classic = instant revert) */}
+            <div className="flex flex-col items-center gap-2">
+              <div
+                role="radiogroup"
+                aria-label="Strip style"
+                className="flex flex-wrap items-center justify-center gap-2"
+              >
+                {FRAME_PRESETS.map((preset) => {
+                  const isActive = frameColor === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={isActive}
+                      onClick={() => setFrameColor(preset.id)}
+                      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? "bg-fg-display text-white shadow-xs"
+                          : "bg-surface-secondary text-fg-display/75 hover:bg-divider/70 hover:text-fg-display"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        style={{ backgroundColor: preset.previewBg }}
+                        className="size-3.5 rounded-full ring-1 ring-black/15 shrink-0"
+                      />
+                      <span>{preset.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Single Bottom CTA */}
             <div className="flex justify-center pt-1">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="inline-flex h-12 min-w-[220px] items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
+                className="inline-flex h-12 min-w-55 items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
               >
                 Open Camera
               </button>
@@ -418,29 +464,22 @@ export function BoothStudio() {
               />
             </div>
 
-            {/* Right: Full-Height Live 9:16 White Print on Soft Studio Mat */}
+            {/* Right: Full-Height Live 9:16 Print on Soft Studio Mat */}
             <aside className="lg:col-span-4 flex flex-col gap-4">
               <div className="w-full flex-1 rounded-2xl bg-surface-secondary py-6 px-5 flex flex-col items-center justify-center">
-                <div className="relative w-[224px] sm:w-[238px] aspect-[9/16] bg-white shadow-[0_16px_36px_-12px_rgba(20,54,95,0.18)]">
+                <div
+                  style={getStripSurfaceStyle(frameColor)}
+                  className="relative w-56 sm:w-59.5 aspect-9/16 transition-colors duration-300 shadow-[0_16px_36px_-12px_rgba(20,54,95,0.18)]"
+                >
+                  <StripPaperDecorations frameColor={frameColor} isTopLogo={isTopLogo} />
+
                   <div
-                    className={`absolute inset-0 flex flex-col px-[6%] ${
-                      isTopLogo ? "pt-0 pb-[6%]" : "pt-[6%] pb-0"
-                    }`}
+                    className={`absolute inset-0 z-10 flex flex-col ${getStripPaddingXClass(
+                      frameColor
+                    )} ${getStripVerticalPaddingClass(frameColor, isTopLogo)}`}
                   >
                     {isTopLogo && (
-                      <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
-                        <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
-                          <Image
-                            src="/images/chordisol-logo.png"
-                            alt=""
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span className="font-display text-[11px] font-bold text-fg-display">
-                          Chordisol
-                        </span>
-                      </div>
+                      <StripBrandBand frameColor={frameColor} isTopLogo={true} compact />
                     )}
 
                     <div
@@ -464,7 +503,9 @@ export function BoothStudio() {
                                 setRetakeSlotIndex(slotIdx);
                               }
                             }}
-                            className={`group relative size-full overflow-hidden rounded-[2px] transition-all ${
+                            className={`group relative size-full overflow-hidden transition-all ${getPhotoSlotRingClass(
+                              frameColor
+                            )} ${
                               isRetakingThis
                                 ? "ring-2 ring-brand-primary ring-offset-1"
                                 : photo
@@ -499,19 +540,7 @@ export function BoothStudio() {
                     </div>
 
                     {!isTopLogo && (
-                      <div className="h-[10%] shrink-0 flex items-center justify-center gap-1.5">
-                        <div className="relative size-3.5 shrink-0 overflow-hidden rounded-[3px]">
-                          <Image
-                            src="/images/chordisol-logo.png"
-                            alt=""
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span className="font-display text-[11px] font-bold text-fg-display">
-                          Chordisol
-                        </span>
-                      </div>
+                      <StripBrandBand frameColor={frameColor} isTopLogo={false} compact />
                     )}
                   </div>
                 </div>
@@ -552,6 +581,7 @@ export function BoothStudio() {
             >
               <PhotoboothStrip
                 photos={photos}
+                frameColor={frameColor}
                 layoutVariation={layoutVariation}
                 filter={filter}
                 stickers={stickers}
@@ -567,13 +597,13 @@ export function BoothStudio() {
               />
 
               {/* Compact Floating Sticker Controls when a sticker is active */}
-              <div className="mt-5 min-h-[40px] flex items-center justify-center">
+              <div className="mt-5 min-h-10 flex items-center justify-center">
                 {selectedSticker ? (
                   <div
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1 rounded-full bg-white border border-border-subtle px-2.5 py-1.5 shadow-sm"
                   >
-                    <span className="px-2 text-xs font-semibold text-fg-display max-w-[100px] truncate">
+                    <span className="px-2 text-xs font-semibold text-fg-display max-w-25 truncate">
                       {selectedSticker.name}
                     </span>
                     <span className="h-3.5 w-px bg-border-subtle" aria-hidden="true" />
@@ -673,10 +703,47 @@ export function BoothStudio() {
               </div>
             </div>
 
-            {/* Right: Clean, Flat Studio Workbench (Film tone + Stickers) */}
+            {/* Right: Clean, Flat Studio Workbench (Strip style + Film tone + Stickers) */}
             <aside className="lg:col-span-7 flex flex-col gap-7">
-              {/* 1. Film Tone (Normal, B&W, Grainy) */}
+              {/* 1. Strip Style (Classic = instant 1-click revert) */}
               <div>
+                <h2 className="font-display text-sm font-semibold text-fg-display mb-2.5">
+                  Strip style
+                </h2>
+                <div
+                  role="radiogroup"
+                  aria-label="Strip style"
+                  className="flex flex-wrap items-center gap-2"
+                >
+                  {FRAME_PRESETS.map((preset) => {
+                    const isActive = frameColor === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={isActive}
+                        onClick={() => setFrameColor(preset.id)}
+                        className={`inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-semibold transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-fg-display text-white shadow-xs"
+                            : "bg-surface-secondary text-fg-display/80 hover:bg-divider/70 hover:text-fg-display"
+                        }`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          style={{ backgroundColor: preset.previewBg }}
+                          className="size-3.5 rounded-full ring-1 ring-black/15 shrink-0"
+                        />
+                        <span>{preset.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Film Tone (Normal, B&W, Grainy) */}
+              <div className="pt-6 border-t border-border-subtle">
                 <h2 className="font-display text-sm font-semibold text-fg-display mb-2.5">
                   Film tone
                 </h2>
@@ -800,7 +867,7 @@ export function BoothStudio() {
                 <button
                   type="button"
                   onClick={handlePrintStrip}
-                  className="inline-flex h-12 w-full sm:w-auto min-w-[180px] items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
+                  className="inline-flex h-12 w-full sm:w-auto min-w-45 items-center justify-center rounded-full bg-brand-primary px-8 font-display text-sm font-semibold text-white shadow-[0_4px_0_var(--primary-depth)] transition-all hover:bg-[#1a84ee] active:translate-y-0.5 active:shadow-[0_1px_0_var(--primary-depth)] cursor-pointer"
                 >
                   Print Strip
                 </button>
@@ -816,6 +883,7 @@ export function BoothStudio() {
           <section className="flex flex-col items-center">
             <BoothPrinterStage
               photos={photos}
+              frameColor={frameColor}
               layoutVariation={layoutVariation}
               filter={filter}
               stickers={stickers}
@@ -832,7 +900,7 @@ export function BoothStudio() {
                 duration: 0.35,
                 ease: [0.23, 1, 0.32, 1],
               }}
-              className="mt-8 w-full max-w-[460px] flex flex-col items-center"
+              className="mt-8 w-full max-w-115 flex flex-col items-center"
             >
               <div className="w-full flex flex-col sm:flex-row items-center gap-3">
                 <button
