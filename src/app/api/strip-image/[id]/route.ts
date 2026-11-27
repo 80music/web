@@ -45,22 +45,23 @@ export async function GET(
     return new NextResponse("Strip ID required", { status: 400 });
   }
 
-  // 1. Fast path: same-instance in-memory cache
-  let item = getStripImage(id);
+  const driveId = request.nextUrl.searchParams.get("driveId")?.trim() || "";
+  const hasValidDriveId = Boolean(driveId && VALID_DRIVE_ID.test(driveId));
+  const cacheKey = hasValidDriveId ? `${id}:${driveId}` : id;
+
+  // 1. Fast path: same-instance in-memory cache keyed by strip + driveId
+  let item = getStripImage(cacheKey) || (!hasValidDriveId ? getStripImage(id) : undefined);
 
   // 2. Serverless-safe persistent path: fetch from Google Drive via ?driveId=
-  if (!item) {
-    const driveId = request.nextUrl.searchParams.get("driveId")?.trim() || "";
-    if (driveId && VALID_DRIVE_ID.test(driveId)) {
-      const fetched = await fetchFromGoogleDrive(driveId);
-      if (fetched) {
-        storeStripImage(id, fetched.buffer, fetched.contentType);
-        item = {
-          buffer: fetched.buffer,
-          contentType: fetched.contentType,
-          createdAt: Date.now(),
-        };
-      }
+  if (!item && hasValidDriveId) {
+    const fetched = await fetchFromGoogleDrive(driveId);
+    if (fetched) {
+      storeStripImage(cacheKey, fetched.buffer, fetched.contentType);
+      item = {
+        buffer: fetched.buffer,
+        contentType: fetched.contentType,
+        createdAt: Date.now(),
+      };
     }
   }
 

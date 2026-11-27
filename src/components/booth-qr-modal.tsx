@@ -16,7 +16,10 @@ export function BoothQrModal({
   publicUrl,
   stripId,
 }: BoothQrModalProps) {
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
+  const [qrState, setQrState] = useState<{ forUrl: string; dataUrl: string }>({
+    forUrl: "",
+    dataUrl: "",
+  });
   const [copied, setCopied] = useState(false);
 
   const mobilePageUrl =
@@ -24,8 +27,11 @@ export function BoothQrModal({
       ? `${window.location.origin}/strip/${stripId}?img=${encodeURIComponent(publicUrl)}`
       : "";
 
+  const qrCodeDataUrl = qrState.forUrl === mobilePageUrl ? qrState.dataUrl : "";
+
   useEffect(() => {
     if (!isOpen || !mobilePageUrl) return;
+    let cancelled = false;
 
     QRCode.toDataURL(mobilePageUrl, {
       width: 320,
@@ -35,8 +41,16 @@ export function BoothQrModal({
         light: "#ffffff",
       },
     })
-      .then((url) => setQrCodeDataUrl(url))
+      .then((url) => {
+        if (!cancelled) {
+          setQrState({ forUrl: mobilePageUrl, dataUrl: url });
+        }
+      })
       .catch((err) => console.error("Error generating QR code:", err));
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, mobilePageUrl]);
 
   useEffect(() => {

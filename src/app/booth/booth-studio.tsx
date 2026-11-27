@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { CameraViewfinder } from "@/components/camera-viewfinder";
 import {
   PhotoboothStrip,
@@ -269,6 +269,9 @@ export function BoothStudio() {
   };
 
   const handleStartOver = () => {
+    uploadVersionRef.current += 1;
+    uploadPromiseRef.current = null;
+    setUploadedPublicUrl(null);
     setPhotos(new Array(slotCount).fill(null));
     setStickers([]);
     setSelectedStickerId(null);
@@ -291,15 +294,20 @@ export function BoothStudio() {
   };
 
   const [uploadedPublicUrl, setUploadedPublicUrl] = useState<string | null>(null);
+  const uploadVersionRef = useRef(0);
+  const uploadPromiseRef = useRef<Promise<{ url: string; stripId: string } | null> | null>(null);
 
-  const uploadStripToCloud = async (): Promise<string | null> => {
+  const uploadStripToCloud = async (
+    targetStripId: string,
+    version: number
+  ): Promise<{ url: string; stripId: string } | null> => {
     try {
       const dataUrl = await exportCompressedStripForUpload(currentStripConfig);
       const res = await fetch("/api/upload-strip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          stripId,
+          stripId: targetStripId,
           image: dataUrl,
         }),
       });
@@ -309,8 +317,10 @@ export function BoothStudio() {
       }
 
       const data = await res.json();
-      setUploadedPublicUrl(data.url);
-      return data.url as string;
+      if (version === uploadVersionRef.current) {
+        setUploadedPublicUrl(data.url);
+      }
+      return { url: data.url as string, stripId: targetStripId };
     } catch (err) {
       console.error("Strip upload error:", err);
       return null;
@@ -318,28 +328,59 @@ export function BoothStudio() {
   };
 
   const handlePrintStrip = () => {
+    const nextStripId = createStripId();
+    const nextVersion = uploadVersionRef.current + 1;
+    uploadVersionRef.current = nextVersion;
+
     setSelectedStickerId(null);
+    setStripId(nextStripId);
     setUploadedPublicUrl(null);
     setPrintRunKey((k) => k + 1);
     setCurrentStep(4);
-    // Automatically save to Drive / cloud in the background while printing
-    void uploadStripToCloud();
+
+    // Automatically save to Drive / cloud in the background while printing with a fresh stripId
+    const promise = uploadStripToCloud(nextStripId, nextVersion);
+    uploadPromiseRef.current = promise;
+    void promise;
   };
 
   const handleOpenMobileQr = async () => {
     try {
       setIsUploading(true);
-      const publicUrl = uploadedPublicUrl || (await uploadStripToCloud());
+      let resolvedUrl = uploadedPublicUrl;
+      let resolvedStripId = stripId;
 
-      if (!publicUrl) {
+      if (!resolvedUrl && uploadPromiseRef.current) {
+        const inflight = await uploadPromiseRef.current;
+        if (inflight) {
+          resolvedUrl = inflight.url;
+          resolvedStripId = inflight.stripId;
+        }
+      }
+
+      if (!resolvedUrl) {
+        const freshStripId = createStripId();
+        const nextVersion = uploadVersionRef.current + 1;
+        uploadVersionRef.current = nextVersion;
+        setStripId(freshStripId);
+        const promise = uploadStripToCloud(freshStripId, nextVersion);
+        uploadPromiseRef.current = promise;
+        const freshResult = await promise;
+        if (freshResult) {
+          resolvedUrl = freshResult.url;
+          resolvedStripId = freshResult.stripId;
+        }
+      }
+
+      if (!resolvedUrl) {
         alert("Failed to create mobile share link. Please try downloading directly.");
         return;
       }
 
       setQrModalData({
         isOpen: true,
-        publicUrl,
-        stripId,
+        publicUrl: resolvedUrl,
+        stripId: resolvedStripId,
       });
     } finally {
       setIsUploading(false);

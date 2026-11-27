@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
 
     // 3. Always warm local memory + serve via same-origin proxy (with ?driveId= for cross-instance Vercel persistence)
     if (!publicUrl) {
-      storeStripImage(stripId, buffer, contentType);
+      const cacheKey = driveFileId ? `${stripId}:${driveFileId}` : stripId;
+      storeStripImage(cacheKey, buffer, contentType);
       const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
       const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
       const driveQuery = driveFileId ? `?driveId=${encodeURIComponent(driveFileId)}` : "";
